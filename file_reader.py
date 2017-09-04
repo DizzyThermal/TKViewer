@@ -34,22 +34,22 @@ class FileHandler(object):
         if self._file_name:
             return self._file_name
 
-    def read(self, read_type, seek_pos=None):
+    def read(self, read_type, seek_pos=None, endian=''):
         if seek_pos:
             self.file_handler.seek(seek_pos)
 
         if read_type == 'word':
             bytes_to_read = 16
-            fmt = '16s'
+            fmt = '{}16s'.format(endian)
         elif read_type == 'int':
             bytes_to_read = 4
-            fmt = 'i'
+            fmt = '{}i'.format(endian)
         elif read_type == 'short':
             bytes_to_read = 2
-            fmt = 'h'
+            fmt = '{}h'.format(endian)
         elif read_type == 'byte':
             bytes_to_read = 1
-            fmt = 'c'
+            fmt = '{}c'.format(endian)
         else:
             error_message = 'Invalid type "{}" received, unable to read.'
             raise FileHandlerReadTypeException(error_message.format(read_type))
@@ -315,3 +315,41 @@ class EPFHandler(FileHandler):
             images.append(self.get_tile(i))
 
         return images
+
+
+"""The MAP file handler representing *.map files."""
+class MAPHandler(FileHandler):
+    _WIDTH_POS = 0
+    _HEIGHT_POS = 2
+    _TILE_POS = 4
+
+    def __init__(self, *args):
+        super(MAPHandler, self).__init__(*args)
+        self._width = 0
+        self._height = 0
+        self._tiles = []
+
+    @property
+    def width(self):
+        if not self._width:
+            self._width = self.read('short', seek_pos=self._WIDTH_POS, endian='>')
+
+        return self._width
+
+    @property
+    def height(self):
+        if not self._height:
+            self._height = self.read('short', seek_pos=self._HEIGHT_POS, endian='>')
+
+        return self._height
+        return self._tile_count
+
+    @property
+    def tiles(self):
+        if not self._tiles:
+            self.file_handler.seek(self._TILE_POS)
+            for i in range(self.width * self.height):
+                self._tiles.append(self.read('short', endian='>'))
+                self.read('short')
+
+        return self._tiles

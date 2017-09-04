@@ -24,7 +24,7 @@ NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL files.
 
 ## file_reader module
 
-This module contains readers for EPF, TBL, and PAL files.
+This module contains readers for EPF, TBL, PAL, and MAP files.
 
 ### File Structures
 
@@ -69,6 +69,19 @@ struct {
   int pixel_data_offset
   int unknown_offset
 } table_entry
+```
+
+#### MAP File Structure
+
+```
+short width
+short height
+tile[width*height] tiles
+
+struct {
+  short tile_id
+  short unknown
+} tile
 ```
 
 ## epf_viewer GUI (PyQt5)
