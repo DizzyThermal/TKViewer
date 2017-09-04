@@ -5,7 +5,7 @@
 * Python 3 (PyQt5 is Py3)
 * Python pip3 dependencies:
 
-```
+```bash
 pip3 install pyqt5
 pip3 install pillow
 pip3 install struct
@@ -13,7 +13,10 @@ pip3 install struct
 ```
 
 * Running the script
-```python3 epf_viewer.py```
+
+```bash
+python3 epf_viewer.py
+```
 
 NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL files.
 
@@ -25,13 +28,16 @@ This module contains readers for EPF, TBL, and PAL files.
 
 #### TBL File Structure
 
+```cpp
 int tile_count                     (4 bytes)
 int palette_count                  (4 bytes)
 byte[3] unknown                    (3 bytes)
 short[tile_count] palette_indicies (2 * tile_count bytes)
+```
 
 #### PAL File Structure
 
+```cpp
 byte[32] header    (32 bytes)
 color[256] palette (1024 bytes)
 
@@ -41,9 +47,11 @@ struct {
   byte red     (1 byte)
   byte padding (1 byte)
 } color (4 bytes)
+```
 
 #### EPF File Structure
 
+```
 short tile_count
 short width
 short height
@@ -59,6 +67,7 @@ struct {
   int pixel_data_offset
   int unknown_offset
 } table_entry
+```
 
 ## epf_viewer GUI (PyQt5)
 
