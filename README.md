@@ -2,6 +2,8 @@
 
 ## Quickstart
 
+This script will take a while to initially load up, give it some time.
+
 * Python 3 (PyQt5 is Py3)
 * Python pip3 dependencies:
 
