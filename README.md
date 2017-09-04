@@ -43,45 +43,45 @@ short[tile_count] palette_indicies (2 * tile_count bytes)
 byte[32] header    (32 bytes)
 color[256] palette (1024 bytes)
 
-struct {
-  byte blue    (1 byte)
-  byte green   (1 byte)
-  byte red     (1 byte)
-  byte padding (1 byte)
-} color (4 bytes)
+typedef struct {
+  byte blue        (1 byte)
+  byte green       (1 byte)
+  byte red         (1 byte)
+  byte padding     (1 byte)
+} color            (4 bytes)
 ```
 
 #### EPF File Structure
 
-```
-short tile_count
-short width
-short height
-short unknown
-int pixel_data_length
-byte[pixel_data_length] pixel_data
-tile_entry[tile_count] tile_entries
+```cpp
+short tile_count                    (2 bytes)
+short width                         (2 bytes)
+short height                        (2 bytes)
+short unknown                       (2 bytes)
+int pixel_data_length               (4 bytes)
+byte[pixel_data_length] pixel_data  (pixel_data_length bytes)
+tile_entry[tile_count] tile_entries (tile_count * 16 bytes)
 
-struct {
-  int unknown
-  short width
-  short height
-  int pixel_data_offset
-  int unknown_offset
-} table_entry
+typedef struct {
+  int unknown                       (4 bytes)
+  short width                       (2 bytes)
+  short height                      (2 bytes)
+  int pixel_data_offset             (4 bytes)
+  int unknown_offset                (4 bytes)
+} table_entry                       (16 bytes)
 ```
 
 #### MAP File Structure
 
-```
-short width
-short height
-tile[width*height] tiles
+```cpp
+short width              (2 bytes)
+short height             (2 bytes)
+tile[width*height] tiles (width * height * 4 bytes)
 
-struct {
-  short tile_id
-  short unknown
-} tile
+typedef struct {
+  short tile_id          (2 bytes)
+  short unknown          (2 bytes)
+} tile                   (4 bytes)
 ```
 
 ## epf_viewer GUI (PyQt5)
