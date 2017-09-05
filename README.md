@@ -2,6 +2,19 @@
 
 NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
+**Table of Contents**
+
+- [EPFViewer](#)
+	- [Quickstart](#)
+	- [FileReader Module](#)
+		- [File Structures](#)
+			- [Tile{A,B,C} TBL File Structure](#)
+			- [SObj TBL File Structure](#)
+			- [PAL File Structure](#)
+			- [EPF File Structure](#)
+			- [MAP File Structure](#)
+	- [EPFViewer GUI (PyQt5)](#)
+
 ## Quickstart
 
 This script will take a while to initially load up, give it some time.
@@ -135,7 +148,7 @@ TileA3.pal
 TileA4.pal
 TileA5.pal
 TileA6.pal
-TileA7
+TileA7.pal
 TileA.epf
 TileA.tbl
 TileB0.pal
