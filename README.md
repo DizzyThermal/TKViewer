@@ -2,6 +2,14 @@
 
 NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
+## Todo List:
+* Decode SObj.tbl and add a Handler
+* MAP Files:
+  * Finish MAPHandler
+  * Read in MAP files and display
+    * Export MAP files as bmp/png?
+* Optimize file reading/loading (possibly C rewrite)
+
 **Table of Contents**
 
 - [EPFViewer](#)
