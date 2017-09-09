@@ -6,7 +6,7 @@ NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
 - [EPFViewer](#)
 	- [Quickstart](#)
-	- [FileReader Module](#)
+	- [FileHandler Module](#)
 		- [File Structures](#)
 			- [Tile{A,B,C} TBL File Structure](#)
 			- [SObj TBL File Structure](#)
@@ -24,7 +24,6 @@ This script will take a while to initially load up, give it some time.
 * Python pip3 dependencies:
   * pyqt5
   * pillow
-  * struct
 
 **Running the script**:
 
@@ -53,7 +52,7 @@ short[tile_count] palette_indicies (2 * tile_count bytes)
 
 **Note**: TileX.tbl will refer to various TileX[0-(palette_count-1)].pal files.
 
-#### SObj TBL File Structure
+#### SObj TBL File Structure (Work in Progress)
 
 ```cpp
 int obj_count               (4 bytes)
@@ -70,7 +69,7 @@ typedef struct {
                                         0x0F (All Sides)
   byte tile_count           (1 byte)
                                       MAX of 0x0A
-  short[tile_count]   (2 * tile_count bytes)
+  short[tile_count]         (2 * tile_count bytes)
 } obj
 ```
 

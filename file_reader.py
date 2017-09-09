@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-"""File reader for EPF/TBL/PAL files from NexusTK."""
+"""File reader for NexusTK map files."""
 
 __author__ = 'DizzyThermal'
 __email__ = 'DizzyThermal@gmail.com'
 __license__ = 'GNU GPLv3'
 
+import array
 import os
-import struct
 
 from PIL import Image
 
@@ -34,28 +34,30 @@ class FileHandler(object):
         if self._file_name:
             return self._file_name
 
-    def read(self, read_type, seek_pos=None, endian=''):
+    def read(self, read_type, seek_pos=None, little_endian=False):
         if seek_pos:
             self.file_handler.seek(seek_pos)
 
+        items_to_read = 1
         if read_type == 'word':
-            bytes_to_read = 16
-            fmt = '{}16s'.format(endian)
+            fmt = 'I'
+            items_to_read = 2
         elif read_type == 'int':
-            bytes_to_read = 4
-            fmt = '{}i'.format(endian)
+            fmt = 'I'
         elif read_type == 'short':
-            bytes_to_read = 2
-            fmt = '{}h'.format(endian)
+            fmt = 'H'
         elif read_type == 'byte':
-            bytes_to_read = 1
-            fmt = '{}c'.format(endian)
+            fmt = 'B'
         else:
             error_message = 'Invalid type "{}" received, unable to read.'
             raise FileHandlerReadTypeException(error_message.format(read_type))
 
-        raw_bytes = self.file_handler.read(bytes_to_read)
-        return struct.unpack(fmt, raw_bytes)[0]
+        a = array.array(fmt)
+        a.fromfile(self.file_handler, items_to_read)
+        if little_endian:
+            a.byteswap()
+
+        return a.pop()
 
     def close(self):
         if not self.file_handler.closed:
@@ -65,7 +67,7 @@ class FileHandler(object):
         return self.file_handler.closed
 
 
-"""The TBL file handler representing *.tbl files."""
+"""The TBL file handler representing Tile{A,B,C}.tbl files."""
 class TBLHandler(FileHandler):
     _TILES_POS = 0
     _PALETTES_POS = 4
@@ -102,6 +104,75 @@ class TBLHandler(FileHandler):
         return self._palette_indices
 
 
+"""The SObj.tbl file handler, defining static objects."""
+class SObjTBLHandler(FileHandler):
+    _OBJ_WIDTH = 24
+    _OBJ_COUNT_POS = 0
+    _OBJ_POS = 6
+    _TILE_HEIGHT = 24
+
+    def __init__(self, *args):
+        super(SObjTBLHandler, self).__init__(*args)
+        self._object_count = 0
+        self._objects = []
+
+
+    class SObj(object):
+        def __init__(self, movement_direction, height, tile_indicies):
+            self._movement_direction = movement_direction
+            self._height = height
+            self._tile_indicies = tile_indicies
+
+        @property
+        def movement_direction(self):
+            if self._movement_direction:
+                return self._movement_direction
+            else:
+                return 0
+
+        @property
+        def height(self):
+            if self._height:
+                return self._height
+            else:
+                return 0
+
+        @property
+        def tile_indicies(self):
+            if self._tile_indicies:
+                return self._tile_indicies
+
+        def get_image(self):
+            if not self._image:
+                self._image = Image.new('RGB', (self._OBJ_WIDTH, (self.height
+                    * self._TILE_HEIGHT)))
+
+
+    @property
+    def object_count(self):
+        if not self._object_count:
+            self._object_count = self.read('int', seek_pos=self._OBJ_COUNT_POS)
+
+        return self._object_count
+
+    @property
+    def objects(self):
+        if not self._objects:
+            self.file_handler.seek(self._OBJ_POS)
+            for i in range(self.object_count):
+                movement_direction = int.from_bytes(self.read('byte'),
+                        byteorder='big')
+                height = int.from_bytes(self.read('byte'), byteorder='big')
+                tile_indicies = []
+                for j in range(height):
+                    tile_indicies.append(self.read('short'))
+
+                self._objects.append(SObjTBLHandler.SObj(movement_direction,
+                    height, tile_indicies))
+
+        return self._objects
+
+
 """The PAL file handler representing *.pal files."""
 class PALHandler(FileHandler):
     _COLOR_POS = 32
@@ -113,35 +184,13 @@ class PALHandler(FileHandler):
 
 
     class Color(object):
-        def __init__(self, color_int):
-            color_bytes = '{:08x}'.format(color_int)
-            self._blue = color_bytes[2:4]
-            self._green = color_bytes[4:6]
-            self._red = color_bytes[6:8]
-
-        @property
-        def red(self):
-            if self._red:
-                return self._red
-            else:
-                return 0
-
-        @property
-        def green(self):
-            if self._green:
-                return self._green
-            else:
-                return 0
-
-        @property
-        def blue(self):
-            if self._blue:
-                return self._blue
-            else:
-                return 0
+        def __init__(self, red, green, blue):
+            self.red = red or 0
+            self.green = green or 0
+            self.blue = blue or 0
 
         def rgb(self):
-            return int(self.red, 16), int(self.green, 16), int(self.blue, 16)
+            return self.red, self.green, self.blue
 
 
     @property
@@ -149,7 +198,13 @@ class PALHandler(FileHandler):
         if not self._colors:
             self.file_handler.seek(self._COLOR_POS)
             for i in range(self._COLOR_COUNT):
-                color = PALHandler.Color(self.read('int'))
+                red = self.read('byte')
+                green = self.read('byte')
+                blue = self.read('byte')
+                # Unknown -- usually 0x04
+                self.read('byte')
+
+                color = PALHandler.Color(red, green, blue)
                 self._colors.append(color)
 
         return self._colors
@@ -177,39 +232,12 @@ class EPFHandler(FileHandler):
 
     """Table Entry"""
     class TileEntry(object):
-        def __init__(self, tile_word):
-            tile_word = bytearray(tile_word)
-            self._unk = struct.unpack('i', tile_word[0:4])[0]
-            self._width = struct.unpack('h', tile_word[4:6])[0]
-            self._height = struct.unpack('h', tile_word[6:8])[0]
-            self._pixel_data_offset = struct.unpack('i', tile_word[8:12])[0]
-            self._unk_offset = struct.unpack('i', tile_word[12:16])[0]
-
-
-        @property
-        def unk(self):
-            if self._unk:
-                return self._unk
-
-        @property
-        def width(self):
-            if self._width:
-                return self._width
-
-        @property
-        def height(self):
-            if self._height:
-                return self._height
-
-        @property
-        def pixel_data_offset(self):
-            if self._pixel_data_offset:
-                return self._pixel_data_offset
-
-        @property
-        def unk_offset(self):
-            if self._unk_offset:
-                return self._unk_offset
+        def __init__(self, unk, width, height, pixel_data_offset, unk_offset):
+            self.unk = unk
+            self.width = width
+            self.height = height
+            self.pixel_data_offset = pixel_data_offset
+            self.unk_offset = unk_offset
 
 
     @property
@@ -254,7 +282,13 @@ class EPFHandler(FileHandler):
         if not self._tile_entries:
             self.file_handler.seek(self._PIXELS_POS + self.pixel_data_length)
             for i in range(self.tile_count):
-                tile_entry = EPFHandler.TileEntry(self.read('word'))
+                unk = self.read('int')
+                width = self.read('short')
+                height = self.read('short')
+                pixel_data_offset = self.read('int')
+                unk_offset = self.read('int')
+                tile_entry = EPFHandler.TileEntry(unk, width, height,
+                        pixel_data_offset, unk_offset)
                 self._tile_entries.append(tile_entry)
 
         return self._tile_entries
@@ -350,6 +384,6 @@ class MAPHandler(FileHandler):
             self.file_handler.seek(self._TILE_POS)
             for i in range(self.width * self.height):
                 self._tiles.append(self.read('short', endian='>'))
-                self.read('short')
+                self.read('short') # other information (TileC?)
 
         return self._tiles
