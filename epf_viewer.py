@@ -31,7 +31,6 @@ from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget
 
 _CUR_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
-_TILE_CACHE = os.path.join(_CUR_DIR, 'Data/_tile_cache')
 _TILE_A = os.path.join(_CUR_DIR, 'Data/TileA.epf')
 _TILE_B = os.path.join(_CUR_DIR, 'Data/TileB.epf')
 _TILE_C = os.path.join(_CUR_DIR, 'Data/TileC.epf')

@@ -2,6 +2,10 @@
 
 NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
+Huge thank you to [herbert3000](http://forum.xentax.com/memberlist.php?mode=viewprofile&u=27966)
+from [XeNTaX Game Research Forum](http://forum.xentax.com/) for helping me with
+the header files for most of the structures!
+
 ## Todo List:
 * Decode SObj.tbl and add a Handler
 * MAP Files:

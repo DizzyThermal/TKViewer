@@ -106,69 +106,76 @@ class TBLHandler(FileHandler):
 
 """The SObj.tbl file handler, defining static objects."""
 class SObjTBLHandler(FileHandler):
-    _OBJ_WIDTH = 24
-    _OBJ_COUNT_POS = 0
-    _OBJ_POS = 6
-    _TILE_HEIGHT = 24
+    OBJ_COUNT_POS = 0
+    OBJ_POS = 6
+    OBJ_WIDTH = 24
+    TILE_HEIGHT = 24
+    TILEC_FILE = 'TileC.epf'
 
     def __init__(self, *args):
         super(SObjTBLHandler, self).__init__(*args)
         self._object_count = 0
+        self._epf = None
         self._objects = []
 
 
     class SObj(object):
-        def __init__(self, movement_direction, height, tile_indicies):
-            self._movement_direction = movement_direction
-            self._height = height
-            self._tile_indicies = tile_indicies
+        def __init__(self, epf, movement_direction, height, tile_indicies):
+            self.epf = epf
+            self.movement_direction = movement_direction or 0
+            self.height = height or 0
+            self.tile_indicies = tile_indicies
+            self.image = None
 
-        @property
-        def movement_direction(self):
-            if self._movement_direction:
-                return self._movement_direction
-            else:
-                return 0
+        def get_image(self, prefix=''):
+            if not self.image:
+                self.image = Image.new('RGB',
+                                       (24, (self.height * 24)),
+                                       'blue')
+                for i in range(self.height):
+                    l = 0
+                    b = ((10 - i) * 24)
+                    r = 24
+                    t = b - 24
+                    imm = self.epf.get_tile(self.tile_indicies[i])
+                    imm.save('/home/stephen/tmp/{}-{}.bmp'.format(prefix, i))
+                    self.image.paste(imm, (l, t, r, b))
 
-        @property
-        def height(self):
-            if self._height:
-                return self._height
-            else:
-                return 0
-
-        @property
-        def tile_indicies(self):
-            if self._tile_indicies:
-                return self._tile_indicies
-
-        def get_image(self):
-            if not self._image:
-                self._image = Image.new('RGB', (self._OBJ_WIDTH, (self.height
-                    * self._TILE_HEIGHT)))
+            return self.image
 
 
     @property
     def object_count(self):
         if not self._object_count:
-            self._object_count = self.read('int', seek_pos=self._OBJ_COUNT_POS)
+            self._object_count = self.read('int',
+                    seek_pos=SObjTBLHandler.OBJ_COUNT_POS)
 
         return self._object_count
 
     @property
+    def epf(self):
+        if not self._epf:
+            epf_file_path = self.file_path.replace('SObj.tbl', 'TileC.epf')
+            self._epf = EPFHandler(epf_file_path)
+            self._epf.tile_count
+            self._epf.tile_entries
+
+        return self._epf
+
+    @property
     def objects(self):
         if not self._objects:
-            self.file_handler.seek(self._OBJ_POS)
+            self.file_handler.seek(SObjTBLHandler.OBJ_POS)
             for i in range(self.object_count):
-                movement_direction = int.from_bytes(self.read('byte'),
-                        byteorder='big')
-                height = int.from_bytes(self.read('byte'), byteorder='big')
+                movement_direction = self.read('byte')
+                height = self.read('byte')
                 tile_indicies = []
                 for j in range(height):
-                    tile_indicies.append(self.read('short'))
+                    tile_index = self.read('short')
+                    tile_indicies.append(tile_index - 1) # Zero-based
 
-                self._objects.append(SObjTBLHandler.SObj(movement_direction,
-                    height, tile_indicies))
+                self._objects.append(SObjTBLHandler.SObj(self.epf,
+                    movement_direction, height, tile_indicies))
 
         return self._objects
 
@@ -227,10 +234,10 @@ class EPFHandler(FileHandler):
         self._pixel_data = []
         self._tile_entries = []
         self._tbl = None
-        self._pal = None
+        self._pals = []
 
 
-    """Table Entry"""
+    """Tile Entry"""
     class TileEntry(object):
         def __init__(self, unk, width, height, pixel_data_offset, unk_offset):
             self.unk = unk
@@ -298,40 +305,40 @@ class EPFHandler(FileHandler):
         if not self._tbl:
             tbl_file_path = self.file_path.replace('epf', 'tbl')
             self._tbl = TBLHandler(tbl_file_path)
+            self._tbl
+            self._tbl.tile_count
+            self._tbl.palette_count
+            self._tbl.palette_indices
 
         return self._tbl
 
     @property
-    def pal(self):
-        if not self._pal:
-            pal_file_path = self.file_path.replace('.epf', '0.pal')
-            self._pal = PALHandler(pal_file_path)
+    def pals(self):
+        if not self._pals:
+            for i in range(self.tbl.palette_count):
+                pal_file_path = self.file_path.replace(
+                    '.epf', '{}.pal'.format(i))
+                pal = PALHandler(pal_file_path)
+                pal.colors
+                self._pals.append(pal)
 
-        return self._pal
+        return self._pals
 
     def close(self):
         super(EPFHandler, self).close()
         if self._tbl and not self._tbl.closed():
             self._tbl.close()
-        if self._pal and not self._pal.closed():
-            self._pal.closed()
-
-    def loadTBL(self):
-        self.tbl
-        self.tbl.tile_count
-        self.tbl.palette_count
-        self.tbl.palette_indices
-
-    def loadPAL(self):
-        self.pal
-        self.pal.colors
+        for i in range(len(self.pals)):
+            if self.pals[i] and not self.pals[i].closed():
+                self.pals[i].closed()
 
     def get_tile(self, index):
         pixel_data_offset = self.tile_entries[index].pixel_data_offset or 0
         pixel_data = self.pixel_data[pixel_data_offset:pixel_data_offset+(24*24)]
         pixel_bytes = []
+        palette_index = self.tbl.palette_indices[index]
         for i in range(self.width * self.height):
-            pixel_bytes.append(self.pal.colors[pixel_data[i]].rgb())
+            pixel_bytes.append(self.pals[palette_index].colors[pixel_data[i]].rgb())
 
         image = Image.new('RGBA', (24, 24))
         image.putdata(pixel_bytes)
