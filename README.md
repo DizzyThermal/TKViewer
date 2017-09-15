@@ -2,6 +2,8 @@
 
 NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
+![EPF Viewer](https://i.imgur.com/0T0q1Rn.png)
+
 Huge thank you to [herbert3000](http://forum.xentax.com/memberlist.php?mode=viewprofile&u=27966)
 from [XeNTaX Game Research Forum](http://forum.xentax.com/) for helping me with
 the header files for most of the structures!
