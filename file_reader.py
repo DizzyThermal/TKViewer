@@ -191,13 +191,17 @@ class PALHandler(FileHandler):
 
 
     class Color(object):
-        def __init__(self, red, green, blue):
+        def __init__(self, red, green, blue, alpha):
             self.red = red or 0
             self.green = green or 0
             self.blue = blue or 0
+            self.alpha = alpha or 0
 
         def rgb(self):
             return self.red, self.green, self.blue
+
+        def rgba(self):
+            return self.red, self.green, self.blue, self.alpha
 
 
     @property
@@ -208,10 +212,9 @@ class PALHandler(FileHandler):
                 red = self.read('byte')
                 green = self.read('byte')
                 blue = self.read('byte')
-                # Unknown -- usually 0x04
-                self.read('byte')
+                alpha = self.read('byte')
 
-                color = PALHandler.Color(red, green, blue)
+                color = PALHandler.Color(red, green, blue, alpha)
                 self._colors.append(color)
 
         return self._colors
@@ -220,16 +223,20 @@ class PALHandler(FileHandler):
 """The EPF file handler representing *.epf files."""
 class EPFHandler(FileHandler):
     _TILES_POS = 0
-    _WIDTH_POS = 2
-    _HEIGHT_POS = 4
+    _HEIGHT_POS = 2
+    _WIDTH_POS = 4
     _PIXEL_DATA_POS = 8
     _PIXELS_POS = 12
+    _ALPHA_COLORS = (
+            (0x00, 0x3B, 0x00),
+            (0x00, 0xC8, 0xC8),
+            (0xFF, 0xFF, 0xFF))
 
     def __init__(self, *args):
         super(EPFHandler, self).__init__(*args)
         self._tile_count = 0
-        self._width = 0
         self._height = 0
+        self._width = 0
         self._pixel_data_length = 0
         self._pixel_data = []
         self._tile_entries = []
@@ -239,11 +246,13 @@ class EPFHandler(FileHandler):
 
     """Tile Entry"""
     class TileEntry(object):
-        def __init__(self, unk, width, height, pixel_data_offset, unk_offset):
-            self.unk = unk
-            self.width = width
+        def __init__(self, pad_top, pad_left, height, width, pixel_data_offset,
+                unk_offset):
+            self.pad_top = pad_top
+            self.pad_left = pad_left
             self.height = height
-            self.pixel_data_offset = pixel_data_offset
+            self.width = width
+            self.pixel_data_offset = pixel_data_offset or 0
             self.unk_offset = unk_offset
 
 
@@ -255,18 +264,18 @@ class EPFHandler(FileHandler):
         return self._tile_count
 
     @property
-    def width(self):
-        if not self._width:
-            self._width = self.read('short', seek_pos=self._WIDTH_POS)
-
-        return self._width
-
-    @property
     def height(self):
         if not self._height:
             self._height = self.read('short', seek_pos=self._HEIGHT_POS)
 
         return self._height
+
+    @property
+    def width(self):
+        if not self._width:
+            self._width = self.read('short', seek_pos=self._WIDTH_POS)
+
+        return self._width
 
     @property
     def pixel_data_length(self):
@@ -289,13 +298,14 @@ class EPFHandler(FileHandler):
         if not self._tile_entries:
             self.file_handler.seek(self._PIXELS_POS + self.pixel_data_length)
             for i in range(self.tile_count):
-                unk = self.read('int')
-                width = self.read('short')
+                pad_top = self.read('short')
+                pad_left = self.read('short')
                 height = self.read('short')
+                width = self.read('short')
                 pixel_data_offset = self.read('int')
                 unk_offset = self.read('int')
-                tile_entry = EPFHandler.TileEntry(unk, width, height,
-                        pixel_data_offset, unk_offset)
+                tile_entry = EPFHandler.TileEntry(pad_top, pad_left, height,
+                        width, pixel_data_offset, unk_offset)
                 self._tile_entries.append(tile_entry)
 
         return self._tile_entries
@@ -333,15 +343,37 @@ class EPFHandler(FileHandler):
                 self.pals[i].closed()
 
     def get_tile(self, index):
-        pixel_data_offset = self.tile_entries[index].pixel_data_offset or 0
-        pixel_data = self.pixel_data[pixel_data_offset:pixel_data_offset+(24*24)]
-        pixel_bytes = []
-        palette_index = self.tbl.palette_indices[index]
-        for i in range(self.width * self.height):
-            pixel_bytes.append(self.pals[palette_index].colors[pixel_data[i]].rgb())
+        tile = self.tile_entries[index]
+        height = tile.height - tile.pad_top
+        width = tile.width - tile.pad_left
 
-        image = Image.new('RGBA', (24, 24))
-        image.putdata(pixel_bytes)
+        pixel_data_offset = tile.pixel_data_offset
+        pixel_data = self.pixel_data[pixel_data_offset:pixel_data_offset+(height*width)]
+        palette_index = self.tbl.palette_indices[index]
+
+        pixel_bytes = []
+        for i in range(height * width):
+            pixel_byte = self.pals[palette_index].colors[pixel_data[i]].rgb()
+            if pixel_byte in self._ALPHA_COLORS:
+                pixel_byte = (0, 0, 0)
+
+            pixel_bytes.append(pixel_byte)
+
+        if tile.pad_top or tile.pad_left:
+            sub_image = Image.new('RGBA', (width, height))
+            sub_image.putdata(pixel_bytes)
+            image = Image.new('RGBA', (self.width, self.height))
+            image.paste(sub_image, (tile.pad_left, tile.pad_top))
+        else:
+            image = Image.new('RGBA', (width, height))
+            image.putdata(pixel_bytes)
+
+        debug = False
+        if index == 6964 and debug:
+            print(width, height, index)
+            image.save('/home/stephen/tmp/example.bmp')
+            import sys
+            sys.exit()
 
         return image
 

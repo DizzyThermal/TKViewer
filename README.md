@@ -111,28 +111,31 @@ typedef struct {
 
 ```cpp
 short tile_count                    (2 bytes)
-short width                         (2 bytes)
 short height                        (2 bytes)
+short width                         (2 bytes)
 short unknown                       (2 bytes)
 int pixel_data_length               (4 bytes)
 byte[pixel_data_length] pixel_data  (pixel_data_length bytes)
 tile_entry[tile_count] tile_entries (tile_count * 16 bytes)
 
 typedef struct {
-  int unknown                       (4 bytes)
-  short width                       (2 bytes)
+  short pad_top                     (2 bytes)
+  short pad_left                    (2 bytes)
   short height                      (2 bytes)
+  short width                       (2 bytes)
   int pixel_data_offset             (4 bytes)
   int unknown_offset                (4 bytes)
-} table_entry                       (16 bytes)
+} tile_entry                        (16 bytes)
 ```
 
 #### MAP File Structure
 
+*Work in Progress*
+
 ```cpp
-short width              (2 bytes)
 short height             (2 bytes)
-tile[width*height] tiles (width * height * 4 bytes)
+short width              (2 bytes)
+tile[height*width] tiles (height * width * 4 bytes)
 
 typedef struct {
   short tile_id          (2 bytes)
