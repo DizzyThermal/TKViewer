@@ -127,7 +127,7 @@ class SObjTBLHandler(FileHandler):
             self.tile_indicies = tile_indicies
             self.image = None
 
-        def get_image(self, prefix=''):
+        def get_image(self):
             if not self.image:
                 self.image = Image.new('RGB',
                                        (24, (self.height * 24)),
@@ -138,7 +138,7 @@ class SObjTBLHandler(FileHandler):
                     r = 24
                     t = b - 24
                     imm = self.epf.get_tile(self.tile_indicies[i])
-                    imm.save('/home/stephen/tmp/{}-{}.bmp'.format(prefix, i))
+                    print(imm.size)
                     self.image.paste(imm, (l, t, r, b))
 
             return self.image
@@ -367,13 +367,6 @@ class EPFHandler(FileHandler):
         else:
             image = Image.new('RGBA', (width, height))
             image.putdata(pixel_bytes)
-
-        debug = False
-        if index == 6964 and debug:
-            print(width, height, index)
-            image.save('/home/stephen/tmp/example.bmp')
-            import sys
-            sys.exit()
 
         return image
 
