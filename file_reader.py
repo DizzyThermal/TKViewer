@@ -112,11 +112,12 @@ class SObjTBLHandler(FileHandler):
     TILE_HEIGHT = 24
     TILEC_FILE = 'TileC.epf'
 
-    def __init__(self, *args):
+    def __init__(self, *args, epf=None):
         super(SObjTBLHandler, self).__init__(*args)
         self._object_count = 0
-        self._epf = None
+        self._epf = epf
         self._objects = []
+        self._images = []
 
 
     class SObj(object):
@@ -125,29 +126,38 @@ class SObjTBLHandler(FileHandler):
             self.movement_direction = movement_direction or 0
             self.height = height or 0
             self.tile_indicies = tile_indicies
-            self.image = None
+            self._image = None
+            self._background_color = 'black'
 
-        def get_image(self):
-            if not self.image:
-                self.image = Image.new('RGB',
-                                       (24, (self.height * 24)),
-                                       'blue')
+        def get_image(self, alpha_rgb=(0, 0, 0), background_color='black',
+                height_pad=0):
+            if not self._image or (self._background_color != background_color):
+                if not height_pad:
+                    height_pad = self.height
+
+                self._image = Image.new('RGBA',
+                        (24, (height_pad * 24)), background_color)
+                self._background_color = background_color
                 for i in range(self.height):
                     l = 0
                     b = ((10 - i) * 24)
                     r = 24
                     t = b - 24
-                    imm = self.epf.get_tile(self.tile_indicies[i])
-                    print(imm.size)
-                    self.image.paste(imm, (l, t, r, b))
+                    if self.tile_indicies[i] == -1:
+                        imm = Image.new('RGBA', (24, 24), background_color)
+                    else:
+                        imm = self.epf.get_tile(self.tile_indicies[i],
+                                alpha_rgb=alpha_rgb, background_color=background_color)
 
-            return self.image
+                    self._image.paste(imm, (l, t, r, b))
+
+            return self._image
 
 
     @property
     def object_count(self):
         if not self._object_count:
-            self._object_count = self.read('int',
+            self._object_count = self.read('short',
                     seek_pos=SObjTBLHandler.OBJ_COUNT_POS)
 
         return self._object_count
@@ -155,7 +165,7 @@ class SObjTBLHandler(FileHandler):
     @property
     def epf(self):
         if not self._epf:
-            epf_file_path = self.file_path.replace('SObj.tbl', 'TileC.epf')
+            epf_file_path = self.file_path.replace('SObj.tbl', self.TILEC_FILE)
             self._epf = EPFHandler(epf_file_path)
             self._epf.tile_count
             self._epf.tile_entries
@@ -178,6 +188,22 @@ class SObjTBLHandler(FileHandler):
                     movement_direction, height, tile_indicies))
 
         return self._objects
+
+    def get_images(self, max=None, alpha_rgb=(0, 0, 0),
+            background_color='black', height_pad=0):
+        if not max:
+            max = self.object_count
+        
+        images = []
+        sobjs = self.objects
+        for i in range(len(sobjs)):
+            if i >= max:
+                break
+
+            images.append(sobjs[i].get_image(alpha_rgb=alpha_rgb,
+                background_color=background_color, height_pad=height_pad))
+
+        return images
 
 
 """The PAL file handler representing *.pal files."""
@@ -342,7 +368,7 @@ class EPFHandler(FileHandler):
             if self.pals[i] and not self.pals[i].closed():
                 self.pals[i].closed()
 
-    def get_tile(self, index):
+    def get_tile(self, index, alpha_rgb=(0, 0, 0), background_color='black'):
         tile = self.tile_entries[index]
         height = tile.height - tile.pad_top
         width = tile.width - tile.pad_left
@@ -355,14 +381,14 @@ class EPFHandler(FileHandler):
         for i in range(height * width):
             pixel_byte = self.pals[palette_index].colors[pixel_data[i]].rgb()
             if pixel_byte in self._ALPHA_COLORS:
-                pixel_byte = (0, 0, 0)
+                pixel_byte = alpha_rgb
 
             pixel_bytes.append(pixel_byte)
 
-        if tile.pad_top or tile.pad_left:
-            sub_image = Image.new('RGBA', (width, height))
+        if tile.pad_top or tile.pad_left or height != 24 or width != 24:
+            sub_image = Image.new('RGBA', (width, height), background_color)
             sub_image.putdata(pixel_bytes)
-            image = Image.new('RGBA', (self.width, self.height))
+            image = Image.new('RGBA', (24, 24), background_color)
             image.paste(sub_image, (tile.pad_left, tile.pad_top))
         else:
             image = Image.new('RGBA', (width, height))
@@ -370,15 +396,17 @@ class EPFHandler(FileHandler):
 
         return image
 
-    def get_tiles(self, max=None):
-        images = []
+    def get_tiles(self, max=None, alpha_rgb=(0, 0, 0), background_color='black'):
         if not max:
             max = self.tile_count
+
+        images = []
         for i in range(self.tile_count):
             if i >= max:
                 break
 
-            images.append(self.get_tile(i))
+            images.append(self.get_tile(i, alpha_rgb=alpha_rgb,
+                background_color=background_color))
 
         return images
 

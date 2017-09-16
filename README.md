@@ -9,7 +9,6 @@ from [XeNTaX Game Research Forum](http://forum.xentax.com/) for helping me with
 the header files for most of the structures!
 
 ## Todo List:
-* Decode SObj.tbl and add a Handler
 * MAP Files:
   * Finish MAPHandler
   * Read in MAP files and display
@@ -48,7 +47,7 @@ python3 epf_viewer.py
 ## FileReader Module
 
 This module contains readers for the following files:
-* TBL
+* TBL (TileA, TileB, TileC, SObj)
 * PAL
 * EPF
 * MAP
@@ -71,7 +70,7 @@ short[tile_count] palette_indicies (2 * tile_count bytes)
 ```cpp
 int obj_count               (4 bytes)
 short unknown               (2 bytes)
-obj[obj_count]              (? bytes)
+obj[obj_count]              (obj_count * ((2 * tile_count) + 2) bytes)
 
 typedef struct {
   byte movement_directions  (1 byte)  Map Editor:
@@ -156,7 +155,7 @@ The EPFViewer attempts to mimic parts of the NexusTK Map Editor.
 The **Data** directory (from NexusTK Map Editor) is required. This contains the
 following files:
 ```cpp
-SObj.tbl    // Not yet implemented
+SObj.tbl
 TileA0.pal
 TileA1.pal
 TileA2.pal
@@ -200,5 +199,6 @@ reference TileA, TileB, TileC format - this can be modified for custom projects.
 * Export A Tiles to Bitmaps
 * Export B Tiles to Bitmaps
 * Export C Tiles to Bitmaps
-* Export All Tile Groups (A, B, C)
+* Export Static Objects to Bitmaps
+* Export All Tile Groups (A, B, C, and Static Objects)
 * Export individual Tiles to Bitmap (Right-Click)
