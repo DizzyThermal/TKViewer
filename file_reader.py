@@ -140,7 +140,7 @@ class SObjTBLHandler(FileHandler):
                 self._background_color = background_color
                 for i in range(self.height):
                     l = 0
-                    b = ((10 - i) * 24)
+                    b = ((height_pad - i) * 24)
                     r = 24
                     t = b - 24
                     if self.tile_indicies[i] == -1:
@@ -257,6 +257,7 @@ class EPFHandler(FileHandler):
             (0x00, 0x3B, 0x00),
             (0x00, 0xC8, 0xC8),
             (0xFF, 0xFF, 0xFF))
+    _TILE_B_OFFSET = 49151
 
     def __init__(self, *args):
         super(EPFHandler, self).__init__(*args)
@@ -368,7 +369,10 @@ class EPFHandler(FileHandler):
             if self.pals[i] and not self.pals[i].closed():
                 self.pals[i].closed()
 
-    def get_tile(self, index, alpha_rgb=(0, 0, 0), background_color='black'):
+    def get_tile(self, index, alpha_rgb=(0, 0, 0), background_color='black', is_b=False):
+        if is_b:
+            index -= self._TILE_B_OFFSET
+
         tile = self.tile_entries[index]
         height = tile.height - tile.pad_top
         width = tile.width - tile.pad_left
@@ -423,17 +427,22 @@ class MAPHandler(FileHandler):
         self._height = 0
         self._tiles = []
 
+    class Tile(object):
+        def __init__(self, ab_tile, sobj_tile):
+            self.ab_tile = ab_tile
+            self.sobj_tile = sobj_tile
+
     @property
     def width(self):
         if not self._width:
-            self._width = self.read('short', seek_pos=self._WIDTH_POS, endian='>')
+            self._width = self.read('short', seek_pos=self._WIDTH_POS, little_endian=True)
 
         return self._width
 
     @property
     def height(self):
         if not self._height:
-            self._height = self.read('short', seek_pos=self._HEIGHT_POS, endian='>')
+            self._height = self.read('short', seek_pos=self._HEIGHT_POS, little_endian=True)
 
         return self._height
         return self._tile_count
@@ -443,7 +452,9 @@ class MAPHandler(FileHandler):
         if not self._tiles:
             self.file_handler.seek(self._TILE_POS)
             for i in range(self.width * self.height):
-                self._tiles.append(self.read('short', endian='>'))
-                self.read('short') # other information (TileC?)
+                ab_tile = self.read('short', little_endian=True)
+                sobj_tile = self.read('short', little_endian=True)
+                self._tiles.append(MAPHandler.Tile(ab_tile=ab_tile,
+                    sobj_tile=sobj_tile))
 
         return self._tiles

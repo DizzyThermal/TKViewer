@@ -8,13 +8,6 @@ Huge thank you to [herbert3000](http://forum.xentax.com/memberlist.php?mode=view
 from [XeNTaX Game Research Forum](http://forum.xentax.com/) for helping me with
 the header files for most of the structures!
 
-## Todo List:
-* MAP Files:
-  * Finish MAPHandler
-  * Read in MAP files and display
-    * Export MAP files as bmp/png?
-* Optimize file reading/loading (possibly C rewrite)
-
 **Table of Contents**
 
 - [EPFViewer](#)
@@ -139,8 +132,8 @@ short width              (2 bytes)
 tile[height*width] tiles (height * width * 4 bytes)
 
 typedef struct {
-  short tile_id          (2 bytes)
-  short unknown          (2 bytes)
+  short ab_tile_id       (2 bytes)
+  short sobj_tile_id     (2 bytes)
 } tile                   (4 bytes)
 ```
 
@@ -196,6 +189,7 @@ These Data files are **required**
 Since this exports NexusTK EPF/PAL/TBL files, the EPFViewer is coded to
 reference TileA, TileB, TileC format - this can be modified for custom projects.
 
+* Open and Display MAP file
 * Export A Tiles to Bitmaps
 * Export B Tiles to Bitmaps
 * Export C Tiles to Bitmaps

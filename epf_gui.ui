@@ -516,6 +516,13 @@
      <addaction name="separator"/>
      <addaction name="actionExport_All"/>
     </widget>
+    <widget class="QMenu" name="menuOpen">
+     <property name="title">
+      <string>Open</string>
+     </property>
+     <addaction name="actionOpen_Map"/>
+    </widget>
+    <addaction name="menuOpen"/>
     <addaction name="menuExport_All"/>
    </widget>
    <addaction name="menuFile"/>
@@ -549,6 +556,11 @@
   <action name="actionStatic_Tiles">
    <property name="text">
     <string>Static Objects to Bitmaps</string>
+   </property>
+  </action>
+  <action name="actionOpen_Map">
+   <property name="text">
+    <string>Map File (*.map)</string>
    </property>
   </action>
  </widget>

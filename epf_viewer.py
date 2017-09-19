@@ -12,6 +12,7 @@ import sys
 
 from epf_gui import Ui_MainWindow
 from file_reader import EPFHandler
+from file_reader import MAPHandler
 from file_reader import SObjTBLHandler
 
 from PIL import Image
@@ -38,6 +39,7 @@ _TILE_B = os.path.join(_CUR_DIR, 'Data/TileB.epf')
 _TILE_C = os.path.join(_CUR_DIR, 'Data/TileC.epf')
 _SOBJ = os.path.join(_CUR_DIR, 'Data/SObj.tbl')
 _TILE_BYTES = 1728
+_TILE_B_OFFSET = 49151
 
 
 class EPFViewer(QMainWindow):
@@ -116,6 +118,51 @@ class EPFViewer(QMainWindow):
         image.save(dir_path[0])
         QMessageBox.about(self, 'EPFViewer', 'Successfully exported tile')
 
+    def view_map(self, a_images, b_images, sobj_objects, sobj_images):
+        dir_path = QFileDialog.getOpenFileName(self,
+                'Map File', os.path.join(os.path.expanduser('~')))
+
+        if not dir_path:
+            return
+
+        map_name = os.path.split(dir_path[0])[1]
+        map_handler = MAPHandler(dir_path[0])
+        map_width = map_handler.width
+        map_height = map_handler.height
+        tiles = map_handler.tiles
+
+        black = Image.new('RGBA', (24, 24), 'black')
+        im = Image.new('RGBA', (map_width * 24, map_height * 24), 'black')
+        depth = 0
+        length = 0
+
+        for i in range(len(tiles)):
+            if tiles[i].ab_tile >= _TILE_B_OFFSET:
+                tile = b_images[tiles[i].ab_tile-1-_TILE_B_OFFSET]
+            elif tiles[i].ab_tile > 0:
+                tile = a_images[tiles[i].ab_tile-1]
+            else:
+                tile = black
+
+            im.paste(tile, (length * 24, depth * 24))
+
+            # If a Static Object is here, render upwards to height
+            if tiles[i].sobj_tile:
+                tile_index = tiles[i].sobj_tile-1
+                sobj_image = sobj_images[tile_index]
+
+                height = sobj_objects[tile_index].height-1
+                im.paste(sobj_image, (length * 24, (depth-height) * 24),
+                        sobj_image)
+
+            if (((i+1) % map_width) == 0) and (i != 0):
+                depth += 1
+                length = 0
+            else:
+                length += 1
+
+        im.show(map_name)
+
 
 def main(argv):
     epf_a = EPFHandler(_TILE_A)
@@ -134,6 +181,8 @@ def main(argv):
     sobj_objects = sobj.objects
     sobj_images = sobj.get_images(alpha_rgb=(0, 0, 255),
             background_color='blue', height_pad=10)
+    sobj_images_raw = sobj.get_images(alpha_rgb=(0, 0, 0, 0),
+            background_color=None)
     sobj.close()
     epf_c.close()
 
@@ -153,6 +202,8 @@ def main(argv):
     ui.actionStatic_Tiles.triggered.connect(lambda: window.export(sobj_images))
     ui.actionExport_All.triggered.connect(lambda: window.export_all(
         [a_images, b_images, c_images, sobj_images]))
+    ui.actionOpen_Map.triggered.connect(lambda: window.view_map(a_images,
+        b_images, sobj_objects, sobj_images_raw))
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
