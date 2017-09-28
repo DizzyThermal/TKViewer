@@ -93,6 +93,7 @@ typedef struct {
 byte[9] header               (9 bytes) # DLPalette
 byte[15] unknown             (15 bytes)
 byte animation_color_count   (1 byte)
+byte[7] unknown2             (7 bytes)
 short[animation_color_count] (animation_color_count * 2 bytes)
 color[256] palette           (1024 bytes)
 
