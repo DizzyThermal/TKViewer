@@ -90,8 +90,11 @@ typedef struct {
 #### PAL File Structure
 
 ```cpp
-byte[32] header    (32 bytes)
-color[256] palette (1024 bytes)
+byte[9] header               (9 bytes) # DLPalette
+byte[15] unknown             (15 bytes)
+byte animation_color_count   (1 byte)
+short[animation_color_count] (animation_color_count * 2 bytes)
+color[256] palette           (1024 bytes)
 
 typedef struct {
   byte blue        (1 byte)
@@ -100,6 +103,15 @@ typedef struct {
   byte padding     (1 byte)
 } color            (4 bytes)
 ```
+
+#### Packed PAL File Structure
+
+```cpp
+int palette_count
+PAL[palette_count] palettes
+```
+
+**Note**: `PAL` refers to the File Structure of PAL (above)
 
 #### EPF File Structure
 
@@ -127,9 +139,9 @@ typedef struct {
 *Work in Progress*
 
 ```cpp
-short height             (2 bytes)
 short width              (2 bytes)
-tile[height*width] tiles (height * width * 4 bytes)
+short height             (2 bytes)
+tile[width*height] tiles (width * height * 4 bytes)
 
 typedef struct {
   short ab_tile_id       (2 bytes)

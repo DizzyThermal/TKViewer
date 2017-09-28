@@ -137,21 +137,21 @@ class EPFViewer(QMainWindow):
         length = 0
 
         for i in range(len(tiles)):
-            if tiles[i].ab_tile >= _TILE_B_OFFSET:
-                tile = b_images[tiles[i].ab_tile-1-_TILE_B_OFFSET]
-            elif tiles[i].ab_tile > 0:
-                tile = a_images[tiles[i].ab_tile-1]
+            if tiles[i]['ab_tile'] >= _TILE_B_OFFSET:
+                tile = b_images[tiles[i]['ab_tile']-_TILE_B_OFFSET]
+            elif tiles[i]['ab_tile'] > 0:
+                tile = a_images[tiles[i]['ab_tile']]
             else:
                 tile = black
 
             im.paste(tile, (length * 24, depth * 24))
 
             # If a Static Object is here, render upwards to height
-            if tiles[i].sobj_tile:
-                tile_index = tiles[i].sobj_tile-1
+            if tiles[i]['sobj_tile']:
+                tile_index = tiles[i]['sobj_tile']
                 sobj_image = sobj_images[tile_index]
 
-                height = sobj_objects[tile_index].height-1
+                height = sobj_objects[tile_index]['height']-1
                 im.paste(sobj_image, (length * 24, (depth-height) * 24),
                         sobj_image)
 
@@ -177,8 +177,6 @@ def main(argv):
     c_images = epf_c.get_tiles()
 
     sobj = SObjTBLHandler(_SOBJ, epf=epf_c)
-    sobj_count = sobj.object_count
-    sobj_objects = sobj.objects
     sobj_images = sobj.get_images(alpha_rgb=(0, 0, 255),
             background_color='blue', height_pad=10)
     sobj_images_raw = sobj.get_images(alpha_rgb=(0, 0, 0, 0),
@@ -203,7 +201,7 @@ def main(argv):
     ui.actionExport_All.triggered.connect(lambda: window.export_all(
         [a_images, b_images, c_images, sobj_images]))
     ui.actionOpen_Map.triggered.connect(lambda: window.view_map(a_images,
-        b_images, sobj_objects, sobj_images_raw))
+        b_images, sobj.objects, sobj_images_raw))
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
