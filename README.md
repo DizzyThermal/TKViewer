@@ -2,7 +2,7 @@
 
 NexusTK DAT Object Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
-![TK Viewer](https://i.imgur.com/UFAA048.png)
+![TK Viewer](https://i.imgur.com/5Vdb2xW.png)
 
 Huge thank you to [herbert3000](http://forum.xentax.com/memberlist.php?mode=viewprofile&u=27966)
 from [XeNTaX Game Research Forum](http://forum.xentax.com/) for helping me with
