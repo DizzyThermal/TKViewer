@@ -1,16 +1,18 @@
-# EPFViewer
+# TKViewer
 
-NexusTK EPF Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
+NexusTK DAT Object Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
-![EPF Viewer](https://i.imgur.com/UFAA048.png)
+![TK Viewer](https://i.imgur.com/UFAA048.png)
 
 Huge thank you to [herbert3000](http://forum.xentax.com/memberlist.php?mode=viewprofile&u=27966)
 from [XeNTaX Game Research Forum](http://forum.xentax.com/) for helping me with
 the header files for most of the structures!
 
+*Formly named EPFViewer before it became more than just that.*
+
 **Table of Contents**
 
-- [EPFViewer](#)
+- [TKViewer](#)
 	- [Quickstart](#)
 	- [FileHandler Module](#)
 		- [File Structures](#)
@@ -19,7 +21,7 @@ the header files for most of the structures!
 			- [PAL File Structure](#)
 			- [EPF File Structure](#)
 			- [MAP File Structure](#)
-	- [EPFViewer GUI (PyQt5)](#)
+	- [TKViewer GUI (PyQt5)](#)
 
 ## Quickstart
 
@@ -150,13 +152,13 @@ typedef struct {
 } tile                   (4 bytes)
 ```
 
-## EPFViewer GUI (PyQt5)
+## TKViewer GUI (PyQt5)
 
 A GUI using the FileReader module to perform some functions.
 
 **Features**:
 
-The EPFViewer attempts to mimic parts of the NexusTK Map Editor.
+The TKViewer attempts to mimic parts of the NexusTK Map Editor.
 
 The **Data** directory (from NexusTK Map Editor) is required. This contains the
 following files:
@@ -199,7 +201,7 @@ This editor and its **Data** directory contents are intentionally
 in this repository.
 
 These Data files are **required**
-Since this exports NexusTK EPF/PAL/TBL files, the EPFViewer is coded to
+Since this exports NexusTK EPF/PAL/TBL files, the TKViewer is coded to
 reference TileA, TileB, TileC format - this can be modified for custom projects.
 
 * Open and Display MAP file

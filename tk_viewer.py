@@ -1,8 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 __author__ = 'DizzyThermal'
 __email__ = 'DizzyThermal@gmail.com'
 __license__ = 'GNU GPLv3'
+__version__ = '1.3'
+__version_codename__ = 'Rooster'
 
 import binascii
 import io
@@ -10,7 +12,7 @@ import os
 import signal
 import sys
 
-from epf_gui import Ui_MainWindow
+from tk_gui import Ui_MainWindow
 from file_reader import EPFHandler
 from file_reader import MAPHandler
 from file_reader import SObjTBLHandler
@@ -19,6 +21,7 @@ from PIL import Image
 from PIL.ImageQt import ImageQt
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QImage
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QAction
@@ -34,6 +37,7 @@ from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget
 
 _CUR_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
+_ICON = os.path.join(_CUR_DIR, 'icon.png')
 _TILE_A = os.path.join(_CUR_DIR, 'Data/TileA.epf')
 _TILE_B = os.path.join(_CUR_DIR, 'Data/TileB.epf')
 _TILE_C = os.path.join(_CUR_DIR, 'Data/TileC.epf')
@@ -163,6 +167,14 @@ class EPFViewer(QMainWindow):
 
         im.show(map_name)
 
+    def show_about(self):
+        dialog = QMessageBox.information(self, 'TKViewer v{} ({})'.format(
+            __version__,
+            __version_codename__),
+                '\n'.join((
+                    'Github: https://github.com/DizzyThermal/TKViewer',
+                    '',
+                    'Formerly known as: EPFViewer')))
 
 def main(argv):
     epf_a = EPFHandler(_TILE_A)
@@ -202,8 +214,11 @@ def main(argv):
         [a_images, b_images, c_images, sobj_images]))
     ui.actionOpen_Map.triggered.connect(lambda: window.view_map(a_images,
         b_images, sobj.objects, sobj_images_raw))
+    ui.actionAbout.triggered.connect(lambda: window.show_about())
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    app.setWindowIcon(QIcon(_ICON))
 
     window.show()
     sys.exit(app.exec_())

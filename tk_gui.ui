@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>EPF Viewer</string>
+   <string>TKViewer</string>
   </property>
   <widget class="QWidget" name="central_widget">
    <widget class="QLabel" name="a_tiles_label">
@@ -525,7 +525,14 @@
     <addaction name="menuOpen"/>
     <addaction name="menuExport_All"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionA_Tiles">
@@ -561,6 +568,11 @@
   <action name="actionOpen_Map">
    <property name="text">
     <string>Map File (*.map)</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

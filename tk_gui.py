@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'epf_gui.ui'
+# Form implementation generated from reading ui file 'tk_gui.ui'
 #
 # Created by: PyQt5 UI code generator 5.9
 #
@@ -192,6 +192,8 @@ class Ui_MainWindow(object):
         self.menuExport_All.setObjectName("menuExport_All")
         self.menuOpen = QtWidgets.QMenu(self.menuFile)
         self.menuOpen.setObjectName("menuOpen")
+        self.menuHelp = QtWidgets.QMenu(self.menubar)
+        self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -210,6 +212,8 @@ class Ui_MainWindow(object):
         self.actionStatic_Tiles.setObjectName("actionStatic_Tiles")
         self.actionOpen_Map = QtWidgets.QAction(MainWindow)
         self.actionOpen_Map.setObjectName("actionOpen_Map")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setObjectName("actionAbout")
         self.menuExport_All.addAction(self.actionA_Tiles)
         self.menuExport_All.addAction(self.actionB_Tiles)
         self.menuExport_All.addAction(self.actionC_Tiles)
@@ -219,14 +223,16 @@ class Ui_MainWindow(object):
         self.menuOpen.addAction(self.actionOpen_Map)
         self.menuFile.addAction(self.menuOpen.menuAction())
         self.menuFile.addAction(self.menuExport_All.menuAction())
+        self.menuHelp.addAction(self.actionAbout)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "EPF Viewer"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "TKViewer"))
         self.a_tiles_label.setText(_translate("MainWindow", "A Tiles"))
         self.b_tiles_label.setText(_translate("MainWindow", "B Tiles"))
         self.c_tiles_label.setText(_translate("MainWindow", "C Tiles"))
@@ -234,6 +240,7 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuExport_All.setTitle(_translate("MainWindow", "Export"))
         self.menuOpen.setTitle(_translate("MainWindow", "Open"))
+        self.menuHelp.setTitle(_translate("MainWindow", "Help"))
         self.actionA_Tiles.setText(_translate("MainWindow", "A Tiles to Bitmaps"))
         self.actionB_Tiles.setText(_translate("MainWindow", "B Tiles to Bitmaps"))
         self.actionHelp.setText(_translate("MainWindow", "About"))
@@ -241,4 +248,5 @@ class Ui_MainWindow(object):
         self.actionExport_All.setText(_translate("MainWindow", "Export All to Bitmaps"))
         self.actionStatic_Tiles.setText(_translate("MainWindow", "Static Objects to Bitmaps"))
         self.actionOpen_Map.setText(_translate("MainWindow", "Map File (*.map)"))
+        self.actionAbout.setText(_translate("MainWindow", "About"))
 
