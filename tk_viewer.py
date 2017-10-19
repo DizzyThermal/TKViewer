@@ -3,8 +3,8 @@
 __author__ = 'DizzyThermal'
 __email__ = 'DizzyThermal@gmail.com'
 __license__ = 'GNU GPLv3'
-__version__ = '1.3'
-__version_codename__ = 'Rooster'
+__version__ = '1.4'
+__version_codename__ = 'Rat'
 
 import binascii
 import io
@@ -14,8 +14,10 @@ import sys
 
 from tk_gui import Ui_MainWindow
 from file_reader import EPFHandler
+from file_reader import PALHandler
 from file_reader import MAPHandler
 from file_reader import SObjTBLHandler
+from file_reader import TBLHandler
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
@@ -38,10 +40,11 @@ from PyQt5.QtWidgets import QWidget
 
 _CUR_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 _ICON = os.path.join(_CUR_DIR, 'icon.png')
-_TILE_A = os.path.join(_CUR_DIR, 'Data/TileA.epf')
-_TILE_B = os.path.join(_CUR_DIR, 'Data/TileB.epf')
-_TILE_C = os.path.join(_CUR_DIR, 'Data/TileC.epf')
-_SOBJ = os.path.join(_CUR_DIR, 'Data/SObj.tbl')
+_DATA_DIR = os.path.join(_CUR_DIR, 'Data')
+_TILE_A = os.path.join(_DATA_DIR, 'TileA')
+_TILE_B = os.path.join(_DATA_DIR, 'TileB')
+_TILE_C = os.path.join(_DATA_DIR, 'TileC')
+_SOBJ = os.path.join(_DATA_DIR, 'SObj')
 _TILE_BYTES = 1728
 _TILE_B_OFFSET = 49151
 
@@ -177,24 +180,46 @@ class EPFViewer(QMainWindow):
                     'Formerly known as: EPFViewer')))
 
 def main(argv):
-    epf_a = EPFHandler(_TILE_A)
-    a_images = epf_a.get_tiles()
+    tbl_a = TBLHandler('.'.join((_TILE_A, 'tbl')))
+    pals_a = []
+    for i in range(tbl_a.palette_count):
+        pal = PALHandler('.'.join((_TILE_A + '{}'.format(i), 'pal')))
+        pals_a.append(pal.pals[0])
+        pal.close()
+
+    epf_a = EPFHandler('.'.join((_TILE_A, 'epf')), pals=pals_a, tbl=tbl_a)
+    a_images = epf_a.get_frames()
     epf_a.close()
+    tbl_a.close()
 
-    epf_b = EPFHandler(_TILE_B)
-    b_images = epf_b.get_tiles()
+    tbl_b = TBLHandler('.'.join((_TILE_B, 'tbl')))
+    pals_b = []
+    for i in range(tbl_b.palette_count):
+        pal = PALHandler('.'.join((_TILE_B + '{}'.format(i), 'pal')))
+        pals_b.append(pal.pals[0])
+        pal.close()
+    epf_b = EPFHandler('.'.join((_TILE_B, 'epf')), pals=pals_b, tbl=tbl_b)
+    b_images = epf_b.get_frames()
     epf_b.close()
+    tbl_b.close()
 
-    epf_c = EPFHandler(_TILE_C)
-    c_images = epf_c.get_tiles()
+    tbl_c = TBLHandler('.'.join((_TILE_C, 'tbl')))
+    pals_c = []
+    for i in range(tbl_c.palette_count):
+        pal = PALHandler('.'.join((_TILE_C + '{}'.format(i), 'pal')))
+        pals_c.append(pal.pals[0])
+        pal.close()
+    epf_c = EPFHandler('.'.join((_TILE_C, 'epf')), pals=pals_c, tbl=tbl_c)
+    c_images = epf_c.get_frames()
 
-    sobj = SObjTBLHandler(_SOBJ, epf=epf_c)
+    sobj = SObjTBLHandler('.'.join((_SOBJ, 'tbl')), epf=epf_c)
     sobj_images = sobj.get_images(alpha_rgb=(0, 0, 255),
             background_color='blue', height_pad=10)
     sobj_images_raw = sobj.get_images(alpha_rgb=(0, 0, 0, 0),
             background_color=None)
     sobj.close()
     epf_c.close()
+    tbl_c.close()
 
     app = QApplication(argv)
     ui = Ui_MainWindow()

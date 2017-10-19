@@ -4,34 +4,18 @@ NexusTK DAT Object Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
 
 ![TK Viewer](https://i.imgur.com/5Vdb2xW.png)
 
-Huge thank you to [herbert3000](http://forum.xentax.com/memberlist.php?mode=viewprofile&u=27966)
-from [XeNTaX Game Research Forum](http://forum.xentax.com/) for helping me with
-the header files for most of the structures!
-
-*Formly named EPFViewer before it became more than just that.*
-
-**Table of Contents**
-
-- [TKViewer](#)
-	- [Quickstart](#)
-	- [FileHandler Module](#)
-		- [File Structures](#)
-			- [Tile{A,B,C} TBL File Structure](#)
-			- [SObj TBL File Structure](#)
-			- [PAL File Structure](#)
-			- [EPF File Structure](#)
-			- [MAP File Structure](#)
-	- [TKViewer GUI (PyQt5)](#)
-
 ## Quickstart
 
-This script will take a while to initially load up, give it some time.
+This script will take a bit to load up, give it some time.
 
 **Dependencies**:
 * Python 3 (PyQt5)
 * Python pip3 dependencies:
-  * pyqt5
-  * pillow
+
+```bash
+pip install pyqt5
+pip install pillow
+```
 
 **Running the script**:
 
@@ -42,14 +26,15 @@ python3 epf_viewer.py
 ## FileReader Module
 
 This module contains readers for the following files:
-* TBL (TileA, TileB, TileC, SObj)
-* PAL
+* DSC
 * EPF
 * MAP
+* PAL
+* TBL (TileA, TileB, TileC, SObj)
 
 ### File Structures
 
-#### Tile{A,B,C} TBL File Structure
+#### TBL File Structure (Tile TBL)
 
 ```cpp
 int tile_count                     (4 bytes)
@@ -60,7 +45,7 @@ short[tile_count] palette_indicies (2 * tile_count bytes)
 
 **Note**: TileX.tbl will refer to various TileX[0-(palette_count-1)].pal files.
 
-#### SObj TBL File Structure (Work in Progress)
+#### TBL File Structure (SObj TBL)
 
 ```cpp
 int obj_count               (4 bytes)
@@ -68,20 +53,13 @@ short unknown               (2 bytes)
 obj[obj_count]              (obj_count * ((2 * tile_count) + 2) bytes)
 
 typedef struct {
-  byte movement_directions  (1 byte)  Map Editor:
-                                        0x00 (Empty)
-                                        0x01 (Bottom)
-                                        0x02 (Top)
-                                        0x04 (Left)
-                                        0x08 (Right)
-                                        0x0F (All Sides)
+  byte movement_directions  (1 byte)
   byte tile_count           (1 byte)
-                                      MAX of 0x0A
   short[tile_count]         (2 * tile_count bytes)
 } obj
 ```
 
-**Note**: Movement Directions appears to have 6 states:
+**Note**: Movement Directions appear to have 6 states:
 * 0x00 (Empty)
 * 0x01 (Bottom)
 * 0x02 (Top)
@@ -133,13 +111,11 @@ typedef struct {
   short height                      (2 bytes)
   short width                       (2 bytes)
   int pixel_data_offset             (4 bytes)
-  int unknown_offset                (4 bytes)
+  int stencil_data_offset           (4 bytes)
 } tile_entry                        (16 bytes)
 ```
 
 #### MAP File Structure
-
-*Work in Progress*
 
 ```cpp
 short width              (2 bytes)
@@ -162,6 +138,7 @@ The TKViewer attempts to mimic parts of the NexusTK Map Editor.
 
 The **Data** directory (from NexusTK Map Editor) is required. This contains the
 following files:
+
 ```cpp
 SObj.tbl
 TileA0.pal
@@ -196,8 +173,8 @@ TileC.epf
 TileC.tbl
 ```
 
-This editor and its **Data** directory contents are intentionally
-**NOT INCLUDED** here. These files are binary files and certainly do not belong
+The Map Editor and its **Data** directory contents are intentionally
+**NOT INCLUDED** here. These files are binary files and do not belong
 in this repository.
 
 These Data files are **required**
@@ -211,3 +188,11 @@ reference TileA, TileB, TileC format - this can be modified for custom projects.
 * Export Static Objects to Bitmaps
 * Export All Tile Groups (A, B, C, and Static Objects)
 * Export individual Tiles to Bitmap (Right-Click)
+
+## Contributors
+
+Huge thank you to everyone who helps figure out NTK file structures:
+
+  * DDeokk
+  * herbert3000
+  * wattostudios

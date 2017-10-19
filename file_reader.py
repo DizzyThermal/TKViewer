@@ -104,7 +104,7 @@ class SObjTBLHandler(FileHandler):
             if obj['tile_indices'][i] == -1:
                 im = Image.new('RGBA', (24, 24), background_color)
             else:
-                im = self.epf.get_tile(obj['tile_indices'][i],
+                im = self.epf.get_frame(obj['tile_indices'][i],
                         alpha_rgb=alpha_rgb, background_color=background_color)
 
             b = ((height_pad - i) * 24)
@@ -140,7 +140,7 @@ class PALHandler(FileHandler):
         self.pals = []
         for i in range(number_of_pals):
             pal = {}
-            self.seek(self._ANIMATION_COUNT_POS, 1)
+            self.seek(self._ANIMATION_COUNT_POS, whence=1)
             pal['animation_color_count'] = self.read('byte')
             self.seek(7, whence=1)
             pal['animation_color_offsets'] = []
@@ -170,69 +170,67 @@ class EPFHandler(FileHandler):
     _ALPHA_COLORS = (
             (0x00, 0x3B, 0x00),
             (0x00, 0xC8, 0xC8),
-            (0xFF, 0xFF, 0xFF))
+            (0xFF, 0xFF, 0xFF),
+            (0x00, 0x3F, 0x00))
     _TILE_B_OFFSET = 49151
 
-    def __init__(self, *args, pals=[], tbl=None):
+    def __init__(self, *args, pals=None, tbl=None):
         super(EPFHandler, self).__init__(*args)
-        self.tile_count = self.read('short')
-        self.height = self.read('short')
+        self.frame_count = self.read('short')
         self.width = self.read('short')
+        self.height = self.read('short')
         self.seek(2, whence=1)
         self.pixel_data_length = self.read('int')
         self.pixel_data = self.file_handler.read(self.pixel_data_length)
+        self.pals = pals or []
+        self.tbl = tbl
 
-        self.tiles = []
-        for i in range(self.tile_count):
-            padding = self.read('int')
-            pad_top = (padding & 0x0000FFFF)
-            pad_left = (padding >> 0x10)
+        self.frames = []
+        for i in range(self.frame_count):
+            top_left = self.read('int')
+            top = (top_left & 0x0000FFFF)
+            left = (top_left >> 0x10)
 
-            dims = self.read('int')
-            height = (dims & 0x0000FFFF)
-            width = (dims >> 0x10)
+            bottom_right = self.read('int')
+            bottom = (bottom_right & 0x0000FFFF)
+            right = (bottom_right >> 0x10)
+
             pixel_data_offset = self.read('int')
             stencil_data_offset = self.read('int')
-            tile = {
-                    'pad_top': pad_top,
-                    'pad_left': pad_left,
-                    'height': height,
-                    'width': width,
-                    'pixel_data_offset': pixel_data_offset or 0,
-                    'stencil_data_offset': stencil_data_offset or 0}
-            self.tiles.append(tile)
 
-        tbl_file_path = self.file_path.replace('epf', 'tbl')
-        self.tbl = TBLHandler(tbl_file_path)
-
-        self.pals = []
-        for i in range(self.tbl.palette_count):
-            pal_file_path = self.file_path.replace(
-                '.epf', '{}.pal'.format(i))
-            pal = PALHandler(pal_file_path)
-            self.pals.append(pal.pals[0])
-            pal.close()
+            frame = {
+                    'top': top,
+                    'left': left,
+                    'bottom': bottom,
+                    'right': right,
+                    'width': right - left,
+                    'height': bottom - top,
+                    'pixel_data_offset': pixel_data_offset,
+                    'stencil_data_offset': stencil_data_offset
+            }
+            self.frames.append(frame)
 
     def close(self):
         super(EPFHandler, self).close()
         if self.tbl and not self.tbl.closed():
             self.tbl.close()
 
-    def get_tile(self, index, alpha_rgb=(0, 0, 0), background_color='black',
-            sub=True):
-        tile = self.tiles[index]
-        height = tile['height'] - tile['pad_top']
-        width = tile['width'] - tile['pad_left']
+    def get_frame(self, index, alpha_rgb=(0, 0, 0), background_color='black'):
+        frame = self.frames[index]
+        width = frame['width']
+        height = frame['height']
 
-        pixel_data_offset = tile['pixel_data_offset']
-        pixel_data = self.pixel_data[pixel_data_offset:pixel_data_offset+(height*width)]
+        pixel_data_offset = frame['pixel_data_offset']
+        stencil_data_offset = frame['stencil_data_offset']
+
+        pixel_data = self.pixel_data[pixel_data_offset:pixel_data_offset+(width*height)]
+
         if not self.tbl:
             palette_index = 0
         else:
             palette_index = self.tbl.palette_indices[index]
 
         pixel_bytes = []
-        self.pals
         for i in range(height * width):
             pixel_byte = (
                     self.pals[palette_index]['colors'][pixel_data[i]]['rgb'])
@@ -241,30 +239,26 @@ class EPFHandler(FileHandler):
 
             pixel_bytes.append(pixel_byte)
 
-        if tile['pad_top'] or tile['pad_left'] or (sub and (
-            height != 24 or width != 24)):
+        if frame['top'] or frame['left'] or (height != 24 or width != 24):
             sub_image = Image.new('RGBA', (width, height), background_color)
             sub_image.putdata(pixel_bytes)
+
             image = Image.new('RGBA', (24, 24), background_color)
-            image.paste(sub_image, (tile['pad_left'], tile['pad_top']))
+            image.paste(sub_image, (frame['left'], frame['top']))
         else:
             image = Image.new('RGBA', (width, height))
             image.putdata(pixel_bytes)
 
         return image
 
-    def get_tiles(self, max=None, alpha_rgb=(0, 0, 0), background_color='black',
-            sub=True):
+    def get_frames(self, max=None, alpha_rgb=(0, 0, 0), background_color='black'):
         if not max:
-            max = self.tile_count
+            max = self.frame_count
 
         images = []
-        for i in range(self.tile_count):
-            if i >= max:
-                break
-
-            images.append(self.get_tile(i, alpha_rgb=alpha_rgb,
-                background_color=background_color, sub=sub))
+        for i in range(max):
+            images.append(self.get_frame(i, alpha_rgb=alpha_rgb,
+                background_color=background_color))
 
         return images
 
@@ -284,3 +278,37 @@ class MAPHandler(FileHandler):
             tile['ab_tile'] = (tiles >> 0x10) - 1
             tile['sobj_tile'] = (tiles & 0x0000FFFF) + 1
             self.tiles.append(tile)
+
+
+"""The DSC file handler representing *.dsc files."""
+class DSCHandler(FileHandler):
+    _PART_COUNT_POS = 23
+
+    def __init__(self, *args):
+        super(DSCHandler, self).__init__(*args)
+        self.seek(self._PART_COUNT_POS)
+        self.part_count = self.read('int')
+        self.parts = []
+        for i in range(self.part_count):
+            part = {}
+            part['id'] = self.read('int')
+            part['palette_id'] = self.read('int')
+            part['frame_index'] = self.read('int')
+            part['frame_count'] = self.read('int')
+            self.seek(14, whence=1)
+            part['chunk_count'] = self.read('int')
+            part['chunks'] = []
+            for j in range(part['chunk_count']):
+                chunk = {}
+                chunk['id'] = self.read('int')
+                chunk['unk'] = self.read('int')
+                chunk['block_count'] = self.read('int')
+                chunk['blocks'] = []
+                for k in range(chunk['block_count']):
+                    block = {}
+                    block['id'] = self.read('byte')
+                    self.seek(4, whence=1)
+                    block['unk'] = self.read('int')
+                    chunk['blocks'].append(block)
+                part['chunks'].append(chunk)
+            self.parts.append(part)
