@@ -20,7 +20,7 @@ pip install pillow
 **Running the script**:
 
 ```bash
-python3 epf_viewer.py
+python3 tk_viewer.py
 ```
 
 ## FileReader Module
