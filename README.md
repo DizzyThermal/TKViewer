@@ -128,6 +128,42 @@ typedef struct {
 } tile                   (4 bytes)
 ```
 
+#### DSC File Structure
+```cpp
+byte[15] header              (15 bytes) # PartDescription
+byte[7] null                 (7 bytes)
+byte unknown1                (1 byte)
+int part_count               (4 bytes)
+part[part_count] parts       (27 + (part_count * part_size) bytes)
+
+typedef struct {
+  int id                     (4 bytes)
+  int palette_id             (4 bytes)
+  int frame_index            (4 bytes)
+  int frame_count            (4 bytes)
+  byte unknown2              (1 byte)
+  int unknown3               (4 bytes)
+  byte unknown4              (1 byte)
+  int unknown5               (4 bytes)
+  int unknown6               (4 bytes)
+  int chunk_count            (4 bytes)
+  chunk[chunk_count] chunks  (?)
+} part                       (34 + (chunk_count * chunk_size) bytes)
+
+typedef struct {
+  int id                     (4 bytes)
+  int unknown                (4 bytes)
+  int block_count            (4 bytes)
+  block[block_count] blocks  (16 + (block_count * block_size) bytes)
+} chunk
+
+typedef struct {
+  byte id                    (1 byte)
+  int null                   (4 bytes)
+  int unknown                (4 bytes)
+} block                      (9 bytes)
+```
+
 ## TKViewer GUI (PyQt5)
 
 A GUI using the FileReader module to perform some functions.
