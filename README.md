@@ -147,8 +147,8 @@ typedef struct {
   int unknown5               (4 bytes)
   int unknown6               (4 bytes)
   int chunk_count            (4 bytes)
-  chunk[chunk_count] chunks  (?)
-} part                       (34 + (chunk_count * chunk_size) bytes)
+  chunk[chunk_count] chunks  (34 + (chunk_count * chunk_size) bytes)
+} part
 
 typedef struct {
   int id                     (4 bytes)
