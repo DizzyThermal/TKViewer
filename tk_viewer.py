@@ -6,8 +6,6 @@ __license__ = 'GNU GPLv3'
 __version__ = '1.4'
 __version_codename__ = 'Rat'
 
-import binascii
-import io
 import os
 import signal
 import sys
@@ -18,6 +16,7 @@ from file_reader import PALHandler
 from file_reader import MAPHandler
 from file_reader import SObjTBLHandler
 from file_reader import TBLHandler
+from renderer import Renderer
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
@@ -187,8 +186,10 @@ def main(argv):
         pals_a.append(pal.pals[0])
         pal.close()
 
-    epf_a = EPFHandler('.'.join((_TILE_A, 'epf')), pals=pals_a, tbl=tbl_a)
-    a_images = epf_a.get_frames()
+    epf_a = EPFHandler('.'.join((_TILE_A, 'epf')))
+    a_tile_renderer = Renderer(epf=epf_a, pals=pals_a, tbl=tbl_a)
+    render = a_tile_renderer.render_tile
+    a_images = [render(x) for x in range(tbl_a.tile_count)]
     epf_a.close()
     tbl_a.close()
 
@@ -198,26 +199,30 @@ def main(argv):
         pal = PALHandler('.'.join((_TILE_B + '{}'.format(i), 'pal')))
         pals_b.append(pal.pals[0])
         pal.close()
-    epf_b = EPFHandler('.'.join((_TILE_B, 'epf')), pals=pals_b, tbl=tbl_b)
-    b_images = epf_b.get_frames()
+
+    epf_b = EPFHandler('.'.join((_TILE_B, 'epf')))
+    b_tile_renderer = Renderer(epf=epf_b, pals=pals_b, tbl=tbl_b)
+    render = b_tile_renderer.render_tile
+    b_images = [render(x) for x in range(tbl_b.tile_count)]
     epf_b.close()
     tbl_b.close()
 
     tbl_c = TBLHandler('.'.join((_TILE_C, 'tbl')))
+    sobj_tbl = SObjTBLHandler('.'.join((_SOBJ, 'tbl')))
     pals_c = []
     for i in range(tbl_c.palette_count):
         pal = PALHandler('.'.join((_TILE_C + '{}'.format(i), 'pal')))
         pals_c.append(pal.pals[0])
         pal.close()
-    epf_c = EPFHandler('.'.join((_TILE_C, 'epf')), pals=pals_c, tbl=tbl_c)
-    c_images = epf_c.get_frames()
 
-    sobj = SObjTBLHandler('.'.join((_SOBJ, 'tbl')), epf=epf_c)
-    sobj_images = sobj.get_images(alpha_rgb=(0, 0, 255),
-            background_color='blue', height_pad=10)
-    sobj_images_raw = sobj.get_images(alpha_rgb=(0, 0, 0, 0),
-            background_color=None)
-    sobj.close()
+    epf_c = EPFHandler('.'.join((_TILE_C, 'epf')))
+    c_tile_renderer = Renderer(epf=epf_c, pals=pals_c, tbl=tbl_c, sobj_tbl=sobj_tbl)
+    render = c_tile_renderer.render_tile
+    sobj_render = c_tile_renderer.render_static_object
+    c_images = [render(x) for x in range(tbl_c.tile_count)]
+    sobj_images = [sobj_render(x, alpha_rgb=(0, 0, 255),
+            background_color='blue', height_pad=10) for x in range(sobj_tbl.object_count)]
+    sobj_images_raw = [sobj_render(x, alpha_rgb=(0, 0, 0, 0), background_color=None) for x in range(sobj_tbl.object_count)]
     epf_c.close()
     tbl_c.close()
 
@@ -238,7 +243,7 @@ def main(argv):
     ui.actionExport_All.triggered.connect(lambda: window.export_all(
         [a_images, b_images, c_images, sobj_images]))
     ui.actionOpen_Map.triggered.connect(lambda: window.view_map(a_images,
-        b_images, sobj.objects, sobj_images_raw))
+        b_images, sobj_tbl.objects, sobj_images_raw))
     ui.actionAbout.triggered.connect(lambda: window.show_about())
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
