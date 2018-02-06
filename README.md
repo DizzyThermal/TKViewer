@@ -30,11 +30,11 @@ This module contains readers for the following files:
   * [DSC](#dsc)
   * [EPF](#epf)
   * [MAP](#map)
-  * [PAL (Single)](#pal-(single))
-  * [PAL (Packed)](#pal-(packed))
-  * [TBL (Tiles - Modern)](#tbl-(tiles---modern))
-  * [TBL (Tiles - Legacy)](#tbl-(tiles---legacy))
-  * [TBL (Static Objects)](#tbl-(tiles---legacy))
+  * [PAL (Single)](#pal-single)
+  * [PAL (Packed)](#pal-packed)
+  * [TBL (Tiles - Modern)](#tbl-tiles---modern)
+  * [TBL (Tiles - Legacy)](#tbl-tiles---legacy)
+  * [TBL (Static Objects)](#tbl-static-objects)
 
 ### File Structures
 
