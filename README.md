@@ -122,7 +122,7 @@ typedef struct {
   byte blue                         (1 byte)
   byte green                        (1 byte)
   byte red                          (1 byte)
-  byte padding                      (1 byte)
+  byte alpha                        (1 byte)
 } color                             (4 bytes)
 ```
 
@@ -144,7 +144,7 @@ typedef struct {
     byte blue                       (1 byte)
     byte green                      (1 byte)
     byte red                        (1 byte)
-    byte padding                    (1 byte)
+    byte alpha                      (1 byte)
   } color                           (4 bytes)
 } PAL
 ```
