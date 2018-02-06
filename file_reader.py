@@ -19,7 +19,7 @@ class FileHandler(object):
         self.file_name = os.path.split(self.file_path)[1]
 
     def read(self, read_type='int', seek_pos=None, little_endian=False,
-            items_to_read=1):
+            signed=False, items_to_read=1):
         if seek_pos:
             self.seek(seek_pos)
 
@@ -27,11 +27,17 @@ class FileHandler(object):
             fmt = 'I'
             items_to_read = 2
         elif read_type == 'short':
-            fmt = 'H'
+            if signed:
+                fmt = 'h'
+            else:
+                fmt = 'H'
         elif read_type == 'byte':
             fmt = 'B'
         else: # int
-            fmt = 'I'
+            if signed:
+                fmt = 'i'
+            else:
+                fmt = 'I'
 
         a = array.array(fmt)
         a.fromfile(self.file_handler, items_to_read)
@@ -108,11 +114,11 @@ class EPFHandler(FileHandler):
 
         self.frames = []
         for i in range(self.frame_count):
-            top_left = self.read('int')
+            top_left = self.read('int', signed=True)
             top = (top_left & 0x0000FFFF)
             left = (top_left >> 0x10)
 
-            bottom_right = self.read('int')
+            bottom_right = self.read('int', signed=True)
             bottom = (bottom_right & 0x0000FFFF)
             right = (bottom_right >> 0x10)
 
@@ -215,11 +221,13 @@ class SObjTBLHandler(FileHandler):
 
 """The TBL file handler representing Tile{A,B,C}.tbl files."""
 class TBLHandler(FileHandler):
-    def __init__(self, *args):
+    def __init__(self, *args, old_format=False):
         super(TBLHandler, self).__init__(*args)
         self.tile_count = self.read('int')
-        self.palette_count = self.read('int')
-        self.seek(3, 1) # unknown
+        if old_format:
+            self.palette_count = self.read('int')
+            self.seek(3, 1) # unknown
         self.palette_indices = []
         for i in range(self.tile_count):
-            self.palette_indices.append(self.read('short'))
+            self.palette_indices.append(self.read('byte'))
+            self.seek(1,1)

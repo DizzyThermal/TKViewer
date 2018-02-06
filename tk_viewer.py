@@ -179,7 +179,7 @@ class EPFViewer(QMainWindow):
                     'Formerly known as: EPFViewer')))
 
 def main(argv):
-    tbl_a = TBLHandler('.'.join((_TILE_A, 'tbl')))
+    tbl_a = TBLHandler('.'.join((_TILE_A, 'tbl')), old_format=True)
     pals_a = []
     for i in range(tbl_a.palette_count):
         pal = PALHandler('.'.join((_TILE_A + '{}'.format(i), 'pal')))
@@ -187,13 +187,13 @@ def main(argv):
         pal.close()
 
     epf_a = EPFHandler('.'.join((_TILE_A, 'epf')))
-    a_tile_renderer = Renderer(epf=epf_a, pals=pals_a, tbl=tbl_a)
+    a_tile_renderer = Renderer(epfs=[epf_a], pals=pals_a, tbl=tbl_a)
     render = a_tile_renderer.render_tile
     a_images = [render(x) for x in range(tbl_a.tile_count)]
     epf_a.close()
     tbl_a.close()
 
-    tbl_b = TBLHandler('.'.join((_TILE_B, 'tbl')))
+    tbl_b = TBLHandler('.'.join((_TILE_B, 'tbl')), old_format=True)
     pals_b = []
     for i in range(tbl_b.palette_count):
         pal = PALHandler('.'.join((_TILE_B + '{}'.format(i), 'pal')))
@@ -201,13 +201,13 @@ def main(argv):
         pal.close()
 
     epf_b = EPFHandler('.'.join((_TILE_B, 'epf')))
-    b_tile_renderer = Renderer(epf=epf_b, pals=pals_b, tbl=tbl_b)
+    b_tile_renderer = Renderer(epfs=[epf_b], pals=pals_b, tbl=tbl_b)
     render = b_tile_renderer.render_tile
     b_images = [render(x) for x in range(tbl_b.tile_count)]
     epf_b.close()
     tbl_b.close()
 
-    tbl_c = TBLHandler('.'.join((_TILE_C, 'tbl')))
+    tbl_c = TBLHandler('.'.join((_TILE_C, 'tbl')), old_format=True)
     sobj_tbl = SObjTBLHandler('.'.join((_SOBJ, 'tbl')))
     pals_c = []
     for i in range(tbl_c.palette_count):
@@ -216,7 +216,7 @@ def main(argv):
         pal.close()
 
     epf_c = EPFHandler('.'.join((_TILE_C, 'epf')))
-    c_tile_renderer = Renderer(epf=epf_c, pals=pals_c, tbl=tbl_c, sobj_tbl=sobj_tbl)
+    c_tile_renderer = Renderer(epfs=[epf_c], pals=pals_c, tbl=tbl_c, sobj_tbl=sobj_tbl)
     render = c_tile_renderer.render_tile
     sobj_render = c_tile_renderer.render_static_object
     c_images = [render(x) for x in range(tbl_c.tile_count)]

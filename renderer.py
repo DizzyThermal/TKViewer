@@ -20,9 +20,9 @@ class Renderer(object):
             (0x00, 0x3F, 0x00))
     _TILE_B_OFFSET = 49151
     
-    def __init__(self, *args, epf, dsc=None, pals=None, sobj_tbl=None, tbl=None):
+    def __init__(self, *args, epfs=[], dsc=None, pals=[], sobj_tbl=None, tbl=None):
         super(Renderer, self).__init__(*args)
-        self.epf = epf
+        self.epfs = epfs
         self.pals = pals
         # Tile Description File
         self.tbl = tbl
@@ -33,14 +33,25 @@ class Renderer(object):
 
     # Required: PAL, TBL (Tiles)
     def render_tile(self, index, alpha_rgb=(0, 0, 0), background_color='black'):
-        frame = self.epf.frames[index]
+        def get_epf_index(index):
+            idx = 0
+            frame_count = 0
+            while idx < len(self.epfs):
+                if index >= (frame_count + self.epfs[idx].frame_count):
+                    frame_count += self.epfs[idx].frame_count
+                    idx += 1
+                else:
+                    return idx, frame_count
+
+            return idx, frame_count
+
+        (epf_index, offset) = get_epf_index(index)
+        frame = self.epfs[epf_index].frames[index-offset]
         width = frame['width']
         height = frame['height']
 
         pixel_data_offset = frame['pixel_data_offset']
-        stencil_data_offset = frame['stencil_data_offset']
-
-        pixel_data = self.epf.pixel_data[pixel_data_offset:pixel_data_offset+(width*height)]
+        pixel_data = self.epfs[epf_index].pixel_data[pixel_data_offset:pixel_data_offset+(width*height)]
 
         if not self.tbl:
             palette_index = 0

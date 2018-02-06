@@ -1,6 +1,6 @@
 # TKViewer
 
-NexusTK DAT Object Viewer for viewing and exporting EPF/TBL/PAL/MAP files.
+NexusTK Resource Viewer for EPF and related files.
 
 ![TK Viewer](https://i.imgur.com/5Vdb2xW.png)
 
@@ -30,69 +30,46 @@ This module contains readers for the following files:
 * EPF
 * MAP
 * PAL
-* TBL (TileA, TileB, TileC, SObj)
+* TBL (Tiles)
+* TBL (Static Objects)
 
 ### File Structures
 
-#### TBL File Structure (Tile TBL)
-
+#### DSC File Structure
 ```cpp
-int tile_count                     (4 bytes)
-int palette_count                  (4 bytes)
-byte[3] unknown                    (3 bytes)
-short[tile_count] palette_indicies (2 * tile_count bytes)
-```
-
-**Note**: TileX.tbl will refer to various TileX[0-(palette_count-1)].pal files.
-
-#### TBL File Structure (SObj TBL)
-
-```cpp
-int obj_count               (4 bytes)
-short unknown               (2 bytes)
-obj[obj_count]              (obj_count * ((2 * tile_count) + 2) bytes)
+byte[15] header                     (15 bytes) # PartDescription
+byte[7] null                        (7 bytes)
+byte unknown1                       (1 byte)
+int part_count                      (4 bytes)
+part[part_count] parts              (27 + (part_count * part_size) bytes)
 
 typedef struct {
-  byte movement_directions  (1 byte)
-  byte tile_count           (1 byte)
-  short[tile_count]         (2 * tile_count bytes)
-} obj
-```
-
-**Note**: Movement Directions appear to have 6 states:
-* 0x00 (Empty)
-* 0x01 (Bottom)
-* 0x02 (Top)
-* 0x04 (Left)
-* 0x08 (Right)
-* 0x0F (Full)
-
-#### PAL File Structure
-
-```cpp
-byte[9] header               (9 bytes) # DLPalette
-byte[15] unknown             (15 bytes)
-byte animation_color_count   (1 byte)
-byte[7] unknown2             (7 bytes)
-short[animation_color_count] (animation_color_count * 2 bytes)
-color[256] palette           (1024 bytes)
+  int id                            (4 bytes)
+  int palette_id                    (4 bytes)
+  int frame_index                   (4 bytes)
+  int frame_count                   (4 bytes)
+  byte unknown2                     (1 byte)
+  int unknown3                      (4 bytes)
+  byte unknown4                     (1 byte)
+  int unknown5                      (4 bytes)
+  int unknown6                      (4 bytes)
+  int chunk_count                   (4 bytes)
+  chunk[chunk_count] chunks         (34 + (chunk_count * chunk_size) bytes)
+} part
 
 typedef struct {
-  byte blue        (1 byte)
-  byte green       (1 byte)
-  byte red         (1 byte)
-  byte padding     (1 byte)
-} color            (4 bytes)
+  int id                            (4 bytes)
+  int unknown                       (4 bytes)
+  int block_count                   (4 bytes)
+  block[block_count] blocks         (16 + (block_count * block_size) bytes)
+} chunk
+
+typedef struct {
+  byte id                           (1 byte)
+  int null                          (4 bytes)
+  int unknown                       (4 bytes)
+} block                             (9 bytes)
 ```
-
-#### Packed PAL File Structure
-
-```cpp
-int palette_count
-PAL[palette_count] palettes
-```
-
-**Note**: `PAL` refers to the File Structure of PAL (above)
 
 #### EPF File Structure
 
@@ -128,45 +105,93 @@ typedef struct {
 } tile                   (4 bytes)
 ```
 
-#### DSC File Structure
+#### PAL (Single)
+
 ```cpp
-byte[15] header              (15 bytes) # PartDescription
-byte[7] null                 (7 bytes)
-byte unknown1                (1 byte)
-int part_count               (4 bytes)
-part[part_count] parts       (27 + (part_count * part_size) bytes)
+byte[9] header                      (9 bytes) # DLPalette
+byte[15] unknown                    (15 bytes)
+byte animation_color_count          (1 byte)
+byte[7] unknown2                    (7 bytes)
+short[animation_color_count]        (animation_color_count * 2 bytes)
+color[256] palette                  (1024 bytes)
 
 typedef struct {
-  int id                     (4 bytes)
-  int palette_id             (4 bytes)
-  int frame_index            (4 bytes)
-  int frame_count            (4 bytes)
-  byte unknown2              (1 byte)
-  int unknown3               (4 bytes)
-  byte unknown4              (1 byte)
-  int unknown5               (4 bytes)
-  int unknown6               (4 bytes)
-  int chunk_count            (4 bytes)
-  chunk[chunk_count] chunks  (34 + (chunk_count * chunk_size) bytes)
-} part
+  byte blue                         (1 byte)
+  byte green                        (1 byte)
+  byte red                          (1 byte)
+  byte padding                      (1 byte)
+} color                             (4 bytes)
+```
+
+#### PAL (Packed)
+
+```cpp
+int palette_count
+PAL[palette_count] palettes
 
 typedef struct {
-  int id                     (4 bytes)
-  int unknown                (4 bytes)
-  int block_count            (4 bytes)
-  block[block_count] blocks  (16 + (block_count * block_size) bytes)
-} chunk
+  byte[9] header                    (9 bytes) # DLPalette
+  byte[15] unknown                  (15 bytes)
+  byte animation_color_count        (1 byte)
+  byte[7] unknown2                  (7 bytes)
+  short[animation_color_count]      (animation_color_count * 2 bytes)
+  color[256] palette                (1024 bytes)
+
+  typedef struct {
+    byte blue                       (1 byte)
+    byte green                      (1 byte)
+    byte red                        (1 byte)
+    byte padding                    (1 byte)
+  } color                           (4 bytes)
+} PAL
+```
+
+#### TBL (Static Objects)
+```cpp
+int obj_count                       (4 bytes)
+short unknown                       (2 bytes)
+obj[obj_count]                      (obj_count * ((tile_count * 2) + 2) bytes)
 
 typedef struct {
-  byte id                    (1 byte)
-  int null                   (4 bytes)
-  int unknown                (4 bytes)
-} block                      (9 bytes)
+  byte movement_directions          (1 byte)
+  byte tile_count                   (1 byte)
+  short[tile_count]                 (tile_count * 2 bytes)
+} obj
+```
+
+**Note**: Movement Directions appear to have 6 states:
+* 0x00 (Empty)
+* 0x01 (Bottom)
+* 0x02 (Top)
+* 0x04 (Left)
+* 0x08 (Right)
+* 0x0F (Full)
+
+#### TBL (Tiles - Modern)
+```cpp
+int tile_count                       (4 bytes)
+tile[tile_count] tiles               (tile_count * 2 bytes)
+
+typedef struct {
+  byte palette_index                 (1 byte)
+  byte unknown                       (1 byte)
+} tile                               (2 bytes)
+```
+
+#### TBL (Tiles - Legacy)
+```cpp
+int tile_count                       (4 bytes)
+int palette_count                    (4 bytes)
+byte[3] unknown                      (3 bytes)
+tile[tile_count] palette_indicies    (tile_count * 2 bytes)
+
+typedef struct {
+  byte palette_index                 (1 byte)
+  byte unknown                       (1 byte)
+} tile
 ```
 
 ## TKViewer GUI (PyQt5)
-
-A GUI using the FileReader module to perform some functions.
 
 **Features**:
 
