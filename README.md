@@ -26,16 +26,19 @@ python3 tk_viewer.py
 ## FileReader Module
 
 This module contains readers for the following files:
-* DSC
-* EPF
-* MAP
-* PAL
-* TBL (Tiles)
-* TBL (Static Objects)
+- **File Structures**
+  * [DSC](#dsc)
+  * [EPF](#epf)
+  * [MAP](#map)
+  * [PAL (Single)](#pal-(single))
+  * [PAL (Packed)](#pal-(packed))
+  * [TBL (Tiles - Modern)](#tbl-(tiles---modern))
+  * [TBL (Tiles - Legacy)](#tbl-(tiles---legacy))
+  * [TBL (Static Objects)](#tbl-(tiles---legacy))
 
 ### File Structures
 
-#### DSC File Structure
+#### DSC
 ```cpp
 byte[15] header                     (15 bytes) # PartDescription
 byte[7] null                        (7 bytes)
@@ -71,7 +74,7 @@ typedef struct {
 } block                             (9 bytes)
 ```
 
-#### EPF File Structure
+#### EPF
 
 ```cpp
 short frame_count                      (2 bytes)
@@ -92,7 +95,7 @@ typedef struct {
 } frame_entry                          (16 bytes)
 ```
 
-#### MAP File Structure
+#### MAP
 
 ```cpp
 short width              (2 bytes)
