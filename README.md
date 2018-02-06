@@ -74,22 +74,22 @@ typedef struct {
 #### EPF File Structure
 
 ```cpp
-short tile_count                    (2 bytes)
-short height                        (2 bytes)
-short width                         (2 bytes)
-short unknown                       (2 bytes)
-int pixel_data_length               (4 bytes)
-byte[pixel_data_length] pixel_data  (pixel_data_length bytes)
-tile_entry[tile_count] tile_entries (tile_count * 16 bytes)
+short frame_count                      (2 bytes)
+short height                           (2 bytes)
+short width                            (2 bytes)
+short unknown                          (2 bytes)
+int pixel_data_length                  (4 bytes)
+byte[pixel_data_length] pixel_data     (pixel_data_length bytes)
+frame_entry[frame_count] frame_entries (frame_count * 16 bytes)
 
 typedef struct {
-  short pad_top                     (2 bytes)
-  short pad_left                    (2 bytes)
-  short height                      (2 bytes)
-  short width                       (2 bytes)
-  int pixel_data_offset             (4 bytes)
-  int stencil_data_offset           (4 bytes)
-} tile_entry                        (16 bytes)
+  short pad_top                        (2 bytes)
+  short pad_left                       (2 bytes)
+  short height                         (2 bytes)
+  short width                          (2 bytes)
+  int pixel_data_offset                (4 bytes)
+  int stencil_data_offset              (4 bytes)
+} frame_entry                          (16 bytes)
 ```
 
 #### MAP File Structure
