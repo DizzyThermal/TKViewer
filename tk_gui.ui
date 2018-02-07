@@ -122,7 +122,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>369</width>
+       <width>366</width>
        <height>398</height>
       </rect>
      </property>
@@ -224,7 +224,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>369</width>
+       <width>366</width>
        <height>398</height>
       </rect>
      </property>
@@ -362,7 +362,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>369</width>
+       <width>366</width>
        <height>398</height>
       </rect>
      </property>
@@ -486,7 +486,7 @@
        <x>0</x>
        <y>0</y>
        <width>1179</width>
-       <height>259</height>
+       <height>256</height>
       </rect>
      </property>
     </widget>
@@ -498,7 +498,7 @@
      <x>0</x>
      <y>0</y>
      <width>1202</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -522,8 +522,16 @@
      </property>
      <addaction name="actionOpen_Map"/>
     </widget>
+    <widget class="QMenu" name="menuExtract">
+     <property name="title">
+      <string>Extract</string>
+     </property>
+     <addaction name="actionData_Files"/>
+    </widget>
     <addaction name="menuOpen"/>
     <addaction name="menuExport_All"/>
+    <addaction name="separator"/>
+    <addaction name="menuExtract"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -573,6 +581,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionData_Files">
+   <property name="text">
+    <string>Data Files (*.dat)</string>
    </property>
   </action>
  </widget>

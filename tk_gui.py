@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tk_gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -52,7 +52,7 @@ class Ui_MainWindow(object):
         self.a_tiles_scroll_area.setWidgetResizable(True)
         self.a_tiles_scroll_area.setObjectName("a_tiles_scroll_area")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 369, 398))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 366, 398))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.a_tiles_scroll_area.setWidget(self.scrollAreaWidgetContents)
         self.b_tiles_scroll_area = QtWidgets.QScrollArea(self.central_widget)
@@ -88,7 +88,7 @@ class Ui_MainWindow(object):
         self.b_tiles_scroll_area.setWidgetResizable(True)
         self.b_tiles_scroll_area.setObjectName("b_tiles_scroll_area")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 369, 398))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 366, 398))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.b_tiles_scroll_area.setWidget(self.scrollAreaWidgetContents_2)
         self.b_tiles_label = QtWidgets.QLabel(self.central_widget)
@@ -136,7 +136,7 @@ class Ui_MainWindow(object):
         self.c_tiles_scroll_area.setWidgetResizable(True)
         self.c_tiles_scroll_area.setObjectName("c_tiles_scroll_area")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 369, 398))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 366, 398))
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
         self.c_tiles_scroll_area.setWidget(self.scrollAreaWidgetContents_3)
         self.sobj_tiles_label = QtWidgets.QLabel(self.central_widget)
@@ -179,12 +179,12 @@ class Ui_MainWindow(object):
         self.sobj_tiles_scroll_area.setWidgetResizable(True)
         self.sobj_tiles_scroll_area.setObjectName("sobj_tiles_scroll_area")
         self.scrollAreaWidgetContents_4 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 1179, 259))
+        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 1179, 256))
         self.scrollAreaWidgetContents_4.setObjectName("scrollAreaWidgetContents_4")
         self.sobj_tiles_scroll_area.setWidget(self.scrollAreaWidgetContents_4)
         MainWindow.setCentralWidget(self.central_widget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1202, 19))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1202, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -192,6 +192,8 @@ class Ui_MainWindow(object):
         self.menuExport_All.setObjectName("menuExport_All")
         self.menuOpen = QtWidgets.QMenu(self.menuFile)
         self.menuOpen.setObjectName("menuOpen")
+        self.menuExtract = QtWidgets.QMenu(self.menuFile)
+        self.menuExtract.setObjectName("menuExtract")
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menubar)
@@ -214,6 +216,8 @@ class Ui_MainWindow(object):
         self.actionOpen_Map.setObjectName("actionOpen_Map")
         self.actionAbout = QtWidgets.QAction(MainWindow)
         self.actionAbout.setObjectName("actionAbout")
+        self.actionData_Files = QtWidgets.QAction(MainWindow)
+        self.actionData_Files.setObjectName("actionData_Files")
         self.menuExport_All.addAction(self.actionA_Tiles)
         self.menuExport_All.addAction(self.actionB_Tiles)
         self.menuExport_All.addAction(self.actionC_Tiles)
@@ -221,8 +225,11 @@ class Ui_MainWindow(object):
         self.menuExport_All.addSeparator()
         self.menuExport_All.addAction(self.actionExport_All)
         self.menuOpen.addAction(self.actionOpen_Map)
+        self.menuExtract.addAction(self.actionData_Files)
         self.menuFile.addAction(self.menuOpen.menuAction())
         self.menuFile.addAction(self.menuExport_All.menuAction())
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.menuExtract.menuAction())
         self.menuHelp.addAction(self.actionAbout)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -240,6 +247,7 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuExport_All.setTitle(_translate("MainWindow", "Export"))
         self.menuOpen.setTitle(_translate("MainWindow", "Open"))
+        self.menuExtract.setTitle(_translate("MainWindow", "Extract"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
         self.actionA_Tiles.setText(_translate("MainWindow", "A Tiles to Bitmaps"))
         self.actionB_Tiles.setText(_translate("MainWindow", "B Tiles to Bitmaps"))
@@ -249,4 +257,5 @@ class Ui_MainWindow(object):
         self.actionStatic_Tiles.setText(_translate("MainWindow", "Static Objects to Bitmaps"))
         self.actionOpen_Map.setText(_translate("MainWindow", "Map File (*.map)"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
+        self.actionData_Files.setText(_translate("MainWindow", "Data Files (*.dat)"))
 

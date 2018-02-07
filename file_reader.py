@@ -9,8 +9,6 @@ __license__ = 'GNU GPLv3'
 import array
 import os
 
-from PIL import Image
-
 """Base Class for other Handlers."""
 class FileHandler(object):
     def __init__(self, file_path):
@@ -163,8 +161,12 @@ class PALHandler(FileHandler):
     def __init__(self, *args):
         super(PALHandler, self).__init__(*args)
         self.pal_count = 1
-        
-        header = self.peek(9).decode()
+
+        try:
+            header = self.peek(9).decode()
+        except UnicodeDecodeError:
+            header = self.peek(9)
+
         if header != 'DLPalette':
             self.pal_count = self.read('int')
 
@@ -180,7 +182,7 @@ class PALHandler(FileHandler):
 
             pal['colors'] = []
             for j in range(self._COLOR_COUNT):
-                colors = self.read('int', little_endian='True')
+                colors = self.read('int', little_endian=True)
                 color = {
                     'red':      (colors >> 0x18),
                     'green':    (colors & 0x00FF0000) >> 16,
@@ -198,12 +200,15 @@ class PALHandler(FileHandler):
 
 """The SObj.tbl file handler, defining static objects."""
 class SObjTBLHandler(FileHandler):
-    def __init__(self, *args):
+    def __init__(self, *args, old_format=False):
         super(SObjTBLHandler, self).__init__(*args)
-        self.object_count = self.read('short')
+        self.object_count = self.read('int')
+        self.seek(2, whence=1) # unknown short
 
         self.objects = []
         for i in range(self.object_count):
+            if not old_format:
+                self.seek(5, whence=1) # unknown int/byte
 
             movement_direction = self.read('byte')
             height = self.read('byte')

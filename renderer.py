@@ -6,12 +6,9 @@ __author__ = 'DizzyThermal'
 __email__ = 'DizzyThermal@gmail.com'
 __license__ = 'GNU GPLv3'
 
-import array
-import os
-
 from PIL import Image
 
-"""?"""
+
 class Renderer(object):
     _ALPHA_COLORS = (
             (0x00, 0x3B, 0x00),
@@ -32,7 +29,7 @@ class Renderer(object):
         self.dsc = dsc
 
     # Required: PAL, TBL (Tiles)
-    def render_tile(self, index, alpha_rgb=(0, 0, 0), background_color='black'):
+    def render_tile(self, index, alpha_rgb=(0, 0, 0), background_color='black', sub_dim=()):
         def get_epf_index(index):
             idx = 0
             frame_count = 0
@@ -66,11 +63,11 @@ class Renderer(object):
 
             pixel_bytes.append(pixel_byte)
 
-        if frame['top'] or frame['left'] or (height != 24 or width != 24):
+        if sub_dim:
             sub_image = Image.new('RGBA', (width, height), background_color)
             sub_image.putdata(pixel_bytes)
 
-            image = Image.new('RGBA', (24, 24), background_color)
+            image = Image.new('RGBA', sub_dim, background_color)
             image.paste(sub_image, (frame['left'], frame['top']))
         else:
             image = Image.new('RGBA', (width, height))
@@ -80,7 +77,7 @@ class Renderer(object):
 
     # Required: PAL, SOBJ_TBL (Static Objects)
     def render_static_object(self, index, alpha_rgb=(0, 0, 0), background_color='black',
-                             height_pad=0):
+                             height_pad=0, sub_dim=()):
         obj = self.sobj_tbl.objects[index]
         if not height_pad:
             height_pad = obj['height']
@@ -91,7 +88,7 @@ class Renderer(object):
                 im = Image.new('RGBA', (24, 24), background_color)
             else:
                 im = self.render_tile(obj['tile_indices'][i],
-                        alpha_rgb=alpha_rgb, background_color=background_color)
+                        alpha_rgb=alpha_rgb, background_color=background_color, sub_dim=sub_dim)
 
             b = ((height_pad - i) * 24)
             image.paste(im, (0, b - 24, 24, b))
