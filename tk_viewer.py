@@ -42,53 +42,56 @@ _TILE_A = os.path.join(_DATA_DIR, 'TileA')
 _TILE_B = os.path.join(_DATA_DIR, 'TileB')
 _TILE_C = os.path.join(_DATA_DIR, 'TileC')
 _SOBJ = os.path.join(_DATA_DIR, 'SObj')
-_TILE_BYTES = 1728
+
+_DIM = (24, 24)
+_W, _H = 0, 0
+_HEIGHT_PAD = 10
 _TILE_B_OFFSET = 49151
-_SUB_DIM=(24, 24)
+_TILE_BYTES = 1728
 
 
 class EPFViewer(QMainWindow):
-    _TILE_WIDTH = 24
-    _TILE_HEIGHT = 24
 
     def __init__(self, app=None, ui=None):
         super().__init__()
         self.app = app
         self.ui = ui
+        self._actions = list()
 
-    def set_images(self, images, scroll_area, start_index=1, col_width=14):
-        row = 0
-        col = 0
+    def set_images(self, images, scroll_area, start_index=1, column_width=14):
+        def update_dimensions(rows, columns, column_width):
+            columns += 1
+            if columns >= column_width > 0:
+                rows += 1
+                columns = 0
+
+            return rows, columns
+
+        rows, columns = 0, 0
         grid_layout = QGridLayout()
         grid_layout.setHorizontalSpacing(1)
         grid_layout.setVerticalSpacing(1)
-        self._actions = []
         for i in range(len(images)):
-            qim = ImageQt(images[i])
-            pixmap = QPixmap.fromImage(qim)
             ql = QLabel()
-            ql.setPixmap(pixmap)
+            ql.setPixmap(QPixmap.fromImage(ImageQt(images[i])))
             ql.setScaledContents(True)
             ql.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             ql.setContextMenuPolicy(Qt.ActionsContextMenu)
-            action = QAction('Export to BMP'.format((i+start_index)), self)
+            action = QAction('Export Tile {} to BMP'.format((i + start_index)), self)
             action.triggered.connect((lambda idx: lambda: self.export_tile(images[idx]))(i))
             self._actions.append(action)
             ql.addAction(action)
-            grid_layout.addWidget(ql, row, col)
+            grid_layout.addWidget(ql, rows, columns)
 
-            col += 1
-            if col >= col_width and col_width > 0:
-                row += 1
-                col = 0
+            rows, columns = update_dimensions(rows, columns, column_width)
 
         client = QWidget()
         scroll_area.setWidget(client)
         client.setLayout(grid_layout)
-        
+
     def export(self, images, prefix='tile', dir_path=None, multi=True):
         if not dir_path:
-            multi=False
+            multi = False
             dir_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 
         if not dir_path:
@@ -99,9 +102,10 @@ class EPFViewer(QMainWindow):
             images[i].save(os.path.join(dir_path, '_'.join(
                 (prefix, str(i).zfill(pad_length))) + '.bmp'))
         if not multi:
-            QMessageBox.about(self, 'TKViewer', 'Successfully exported tiles to: "{}"'.format(dir_path))
+            QMessageBox.about(self,
+                              'TKViewer', 'Successfully exported tiles to: "{}"'.format(dir_path))
 
-    def export_all(self, images, prefixes=['tileA', 'tileB', 'tileC', 'tileStatic']):
+    def export_all(self, images, prefixes=('tileA', 'tileB', 'tileC', 'tileStatic')):
         dir_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 
         if not dir_path:
@@ -110,13 +114,14 @@ class EPFViewer(QMainWindow):
         for i in range(len(images)):
             self.export(images[i], prefix=prefixes[i], dir_path=dir_path)
 
-        QMessageBox.about(self, 'TKViewer', 'Successfully exported tiles to: "{}"'.format(dir_path))
+        QMessageBox.about(self,
+                          'TKViewer', 'Successfully exported tiles to: "{}"'.format(dir_path))
 
     def export_tile(self, image):
         dir_path = QFileDialog.getSaveFileName(self,
-                'Save Tile', os.path.join(os.path.expanduser('~'),
-                    'tile.bmp'))
-    
+                                               'Save Tile', os.path.join(os.path.expanduser('~'),
+                                                                         'tile.bmp'))
+
         if not dir_path:
             return
 
@@ -125,7 +130,7 @@ class EPFViewer(QMainWindow):
 
     def view_map(self, a_images, b_images, sobj_objects, sobj_images):
         dir_path = QFileDialog.getOpenFileName(self,
-                'Map File', os.path.join(os.path.expanduser('~')))
+                                               'Map File', os.path.join(os.path.expanduser('~')))
 
         if not dir_path:
             return
@@ -136,31 +141,31 @@ class EPFViewer(QMainWindow):
         map_height = map_handler.height
         tiles = map_handler.tiles
 
-        black = Image.new('RGBA', (24, 24), 'black')
-        im = Image.new('RGBA', (map_width * 24, map_height * 24), 'black')
+        black = Image.new('RGBA', _DIM, 'black')
+        im = Image.new('RGBA', (map_width * _DIM[_W], map_height * _DIM[_H]), 'black')
         depth = 0
         length = 0
 
         for i in range(len(tiles)):
             if tiles[i]['ab_tile'] >= _TILE_B_OFFSET:
-                tile = b_images[tiles[i]['ab_tile']-_TILE_B_OFFSET]
+                tile = b_images[tiles[i]['ab_tile'] - _TILE_B_OFFSET]
             elif tiles[i]['ab_tile'] > 0:
                 tile = a_images[tiles[i]['ab_tile']]
             else:
                 tile = black
 
-            im.paste(tile, (length * 24, depth * 24))
+            im.paste(tile, (length * _DIM[_W], depth * _DIM[_H]))
 
             # If a Static Object is here, render upwards to height
             if tiles[i]['sobj_tile']:
                 tile_index = tiles[i]['sobj_tile']
                 sobj_image = sobj_images[tile_index]
 
-                height = sobj_objects[tile_index]['height']-1
-                im.paste(sobj_image, (length * 24, (depth-height) * 24),
-                        sobj_image)
+                height = sobj_objects[tile_index]['height'] - 1
+                im.paste(sobj_image, (length * _DIM[_W], (depth - height) * _DIM[_H]),
+                         sobj_image)
 
-            if (((i+1) % map_width) == 0) and (i != 0):
+            if (((i + 1) % map_width) == 0) and (i != 0):
                 depth += 1
                 length = 0
             else:
@@ -172,10 +177,7 @@ class EPFViewer(QMainWindow):
         dialog = QMessageBox.information(self, 'TKViewer v{} ({})'.format(
             __version__,
             __version_codename__),
-                '\n'.join((
-                    'Github: https://github.com/DizzyThermal/TKViewer',
-                    '',
-                    'Formerly known as: EPFViewer')))
+                                         'Github: https://github.com/DizzyThermal/TKViewer')
 
     def extract_dats(self):
         dir_path = QFileDialog.getOpenFileNames(
@@ -185,7 +187,8 @@ class EPFViewer(QMainWindow):
         if not dir_path:
             return
 
-        output_dir = str(QFileDialog.getExistingDirectory(self, "Select Extraction Output Directory"))
+        output_dir = str(QFileDialog.getExistingDirectory(self,
+                                                          'Select Extraction Output Directory'))
 
         if not output_dir:
             return
@@ -228,58 +231,59 @@ class EPFViewer(QMainWindow):
 
             dat_file_handler.close()
 
-        QMessageBox.about(self, 'TKViewer', 'Successfully extracted {} DAT files to: "{}"'.format(len(dir_path[0]),
-                                                                                                  output_dir))
+        QMessageBox.about(self, 'TKViewer',
+                          'Successfully extracted {} DAT files to: "{}"'.format(len(dir_path[0]),
+                                                                                output_dir))
 
 
 def main(argv):
-    tbl_a = TBLHandler('.'.join((_TILE_A, 'tbl')), old_format=True)
-    pals_a = []
-    for i in range(tbl_a.palette_count):
+    a_tbl = TBLHandler('.'.join((_TILE_A, 'tbl')), old_format=True)
+    a_pals = list()
+    for i in range(a_tbl.palette_count):
         pal = PALHandler('.'.join((_TILE_A + '{}'.format(i), 'pal')))
-        pals_a.append(pal.pals[0])
+        a_pals.append(pal.pals[0])
         pal.close()
+    a_renderer = Renderer(
+        epfs=EPFHandler('.'.join((_TILE_A, 'epf'))),
+        pals=a_pals,
+        tbl=a_tbl)
+    a_images = [a_renderer.render_tile(x, dim=_DIM) for x in range(a_tbl.tile_count)]
+    a_tbl.close()
 
-    epf_a = EPFHandler('.'.join((_TILE_A, 'epf')))
-    a_tile_renderer = Renderer(epfs=[epf_a], pals=pals_a, tbl=tbl_a)
-    render = a_tile_renderer.render_tile
-    a_images = [render(x, sub_dim=_SUB_DIM) for x in range(tbl_a.tile_count)]
-    epf_a.close()
-    tbl_a.close()
-
-    tbl_b = TBLHandler('.'.join((_TILE_B, 'tbl')), old_format=True)
-    pals_b = []
-    for i in range(tbl_b.palette_count):
+    b_tbl = TBLHandler('.'.join((_TILE_B, 'tbl')), old_format=True)
+    b_pals = list()
+    for i in range(b_tbl.palette_count):
         pal = PALHandler('.'.join((_TILE_B + '{}'.format(i), 'pal')))
-        pals_b.append(pal.pals[0])
+        b_pals.append(pal.pals[0])
         pal.close()
+    b_renderer = Renderer(
+        epfs=EPFHandler('.'.join((_TILE_B, 'epf'))),
+        pals=b_pals,
+        tbl=b_tbl)
+    b_images = [b_renderer.render_tile(x, dim=_DIM) for x in range(b_tbl.tile_count)]
+    b_tbl.close()
 
-    epf_b = EPFHandler('.'.join((_TILE_B, 'epf')))
-    b_tile_renderer = Renderer(epfs=[epf_b], pals=pals_b, tbl=tbl_b)
-    render = b_tile_renderer.render_tile
-    b_images = [render(x, sub_dim=_SUB_DIM) for x in range(tbl_b.tile_count)]
-    epf_b.close()
-    tbl_b.close()
-
-    tbl_c = TBLHandler('.'.join((_TILE_C, 'tbl')), old_format=True)
+    c_tbl = TBLHandler('.'.join((_TILE_C, 'tbl')), old_format=True)
     sobj_tbl = SObjTBLHandler('.'.join((_SOBJ, 'tbl')), old_format=True)
-    pals_c = []
-    for i in range(tbl_c.palette_count):
+    c_pals = list()
+    for i in range(c_tbl.palette_count):
         pal = PALHandler('.'.join((_TILE_C + '{}'.format(i), 'pal')))
-        pals_c.append(pal.pals[0])
+        c_pals.append(pal.pals[0])
         pal.close()
-
-    epf_c = EPFHandler('.'.join((_TILE_C, 'epf')))
-    c_tile_renderer = Renderer(epfs=[epf_c], pals=pals_c, tbl=tbl_c, sobj_tbl=sobj_tbl)
-    render = c_tile_renderer.render_tile
-    sobj_render = c_tile_renderer.render_static_object
-    c_images = [render(x, sub_dim=_SUB_DIM) for x in range(tbl_c.tile_count)]
-    sobj_images = [sobj_render(x, alpha_rgb=(0, 0, 255),
-            background_color='blue', height_pad=10, sub_dim=(24, 24)) for x in range(sobj_tbl.object_count)]
-    sobj_images_raw = [sobj_render(x, alpha_rgb=(0, 0, 0, 0), background_color=None, sub_dim=(24, 24))
-                       for x in range(sobj_tbl.object_count)]
-    epf_c.close()
-    tbl_c.close()
+    c_renderer = Renderer(
+        epfs=EPFHandler('.'.join((_TILE_C, 'epf'))),
+        pals=c_pals,
+        tbl=c_tbl,
+        sobj_tbl=sobj_tbl)
+    c_images = [c_renderer.render_tile(x, dim=_DIM) for x in range(c_tbl.tile_count)]
+    sobj_images = [c_renderer.render_static_object(
+        x, alpha_rgb=(0, 0, 255), background_color='blue', height_pad=10, dim=_DIM)
+        for x in range(sobj_tbl.object_count)]
+    sobj_images_raw = [c_renderer.render_static_object(
+        x, alpha_rgb=(0, 0, 0, 0), background_color=None, dim=_DIM)
+        for x in range(sobj_tbl.object_count)]
+    c_tbl.close()
+    sobj_tbl.close()
 
     app = QApplication(argv)
     ui = Ui_MainWindow()
@@ -287,9 +291,9 @@ def main(argv):
     ui.setupUi(window)
 
     window.set_images(a_images, ui.a_tiles_scroll_area)
-    window.set_images(b_images, ui.b_tiles_scroll_area, start_index=49152)
+    window.set_images(b_images, ui.b_tiles_scroll_area, start_index=(_TILE_B_OFFSET + 1))
     window.set_images(c_images, ui.c_tiles_scroll_area)
-    window.set_images(sobj_images, ui.sobj_tiles_scroll_area, col_width=-1)
+    window.set_images(sobj_images, ui.sobj_tiles_scroll_area, column_width=-1)
 
     ui.actionA_Tiles.triggered.connect(lambda: window.export(a_images))
     ui.actionB_Tiles.triggered.connect(lambda: window.export(b_images))
@@ -298,7 +302,9 @@ def main(argv):
     ui.actionExport_All.triggered.connect(lambda: window.export_all(
         [a_images, b_images, c_images, sobj_images]))
     ui.actionOpen_Map.triggered.connect(lambda: window.view_map(a_images,
-        b_images, sobj_tbl.objects, sobj_images_raw))
+                                                                b_images,
+                                                                sobj_tbl.objects,
+                                                                sobj_images_raw))
     ui.actionAbout.triggered.connect(lambda: window.show_about())
     ui.actionData_Files.triggered.connect(lambda: window.extract_dats())
 
@@ -308,6 +314,7 @@ def main(argv):
 
     window.show()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main(sys.argv)

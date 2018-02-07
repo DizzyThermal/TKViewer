@@ -10,6 +10,8 @@ import array
 import os
 
 """Base Class for other Handlers."""
+
+
 class FileHandler(object):
     def __init__(self, file_path):
         self.file_path = file_path
@@ -17,7 +19,7 @@ class FileHandler(object):
         self.file_name = os.path.split(self.file_path)[1]
 
     def read(self, read_type='int', seek_pos=None, little_endian=False,
-            signed=False, items_to_read=1):
+             signed=False, items_to_read=1):
         if seek_pos:
             self.seek(seek_pos)
 
@@ -31,7 +33,7 @@ class FileHandler(object):
                 fmt = 'H'
         elif read_type == 'byte':
             fmt = 'B'
-        else: # int
+        else:  # int
             if signed:
                 fmt = 'i'
             else:
@@ -62,7 +64,6 @@ class FileHandler(object):
         return self.file_handler.closed
 
 
-"""The DSC file handler representing *.dsc files."""
 class DSCHandler(FileHandler):
     _PART_COUNT_POS = 23
 
@@ -70,27 +71,27 @@ class DSCHandler(FileHandler):
         super(DSCHandler, self).__init__(*args)
         self.seek(self._PART_COUNT_POS)
         self.part_count = self.read('int')
-        self.parts = []
+        self.parts = list()
         for i in range(self.part_count):
-            part = {}
+            part = dict()
             part['id'] = self.read('int')
             part['palette_id'] = self.read('int')
             part['frame_index'] = self.read('int')
             part['frame_count'] = self.read('int')
             self.seek(14, whence=1)
-            
-            # Skip chunks/blocks
+
+            # Skip chunks/blocks for now
             self.seek(1036, whence=1)
-            #part['chunk_count'] = self.read('int')
-            #part['chunks'] = []
-            #for j in range(part['chunk_count']):
-            #    chunk = {}
+            # part['chunk_count'] = self.read('int')
+            # part['chunks'] = list()
+            # for j in range(part['chunk_count']):
+            #    chunk = dict()
             #    chunk['id'] = self.read('int')
             #    chunk['unk'] = self.read('int')
             #    chunk['block_count'] = self.read('int')
-            #    chunk['blocks'] = []
+            #    chunk['blocks'] = list()
             #    for k in range(chunk['block_count']):
-            #        block = {}
+            #        block = dict()
             #        block['id'] = self.read('byte')
             #        self.seek(4, whence=1)
             #        block['unk'] = self.read('int')
@@ -99,7 +100,6 @@ class DSCHandler(FileHandler):
             self.parts.append(part)
 
 
-"""The EPF file handler representing *.epf files."""
 class EPFHandler(FileHandler):
     def __init__(self, *args):
         super(EPFHandler, self).__init__(*args)
@@ -110,7 +110,7 @@ class EPFHandler(FileHandler):
         self.pixel_data_length = self.read('int')
         self.pixel_data = self.file_handler.read(self.pixel_data_length)
 
-        self.frames = []
+        self.frames = list()
         for i in range(self.frame_count):
             top_left = self.read('int', signed=True)
             top = (top_left & 0x0000FFFF)
@@ -124,19 +124,18 @@ class EPFHandler(FileHandler):
             stencil_data_offset = self.read('int')
 
             frame = {
-                    'top': top,
-                    'left': left,
-                    'bottom': bottom,
-                    'right': right,
-                    'width': right - left,
-                    'height': bottom - top,
-                    'pixel_data_offset': pixel_data_offset,
-                    'stencil_data_offset': stencil_data_offset
+                'top': top,
+                'left': left,
+                'bottom': bottom,
+                'right': right,
+                'width': right - left,
+                'height': bottom - top,
+                'pixel_data_offset': pixel_data_offset,
+                'stencil_data_offset': stencil_data_offset
             }
             self.frames.append(frame)
 
 
-"""The MAP file handler representing *.map files."""
 class MAPHandler(FileHandler):
     def __init__(self, *args):
         super(MAPHandler, self).__init__(*args)
@@ -144,16 +143,15 @@ class MAPHandler(FileHandler):
         self.width = dims >> 0x10
         self.height = dims & 0x0000FFFF
 
-        self.tiles = []
+        self.tiles = list()
         for i in range(self.width * self.height):
-            tile = {}
+            tile = dict()
             tiles = self.read('int', little_endian=True)
             tile['ab_tile'] = (tiles >> 0x10) - 1
             tile['sobj_tile'] = (tiles & 0x0000FFFF) + 1
             self.tiles.append(tile)
 
 
-"""The PAL file handler representing *.pal files."""
 class PALHandler(FileHandler):
     _ANIMATION_COUNT_POS = 24
     _COLOR_COUNT = 256
@@ -170,69 +168,67 @@ class PALHandler(FileHandler):
         if header != 'DLPalette':
             self.pal_count = self.read('int')
 
-        self.pals = []
+        self.pals = list()
         for i in range(self.pal_count):
-            pal = {}
+            pal = dict()
             self.seek(self._ANIMATION_COUNT_POS, whence=1)
             pal['animation_color_count'] = self.read('byte')
             self.seek(7, whence=1)
-            pal['animation_color_offsets'] = []
+            pal['animation_color_offsets'] = list()
             for j in range(pal['animation_color_count']):
                 pal['animation_color_offsets'].append(self.read('short'))
 
-            pal['colors'] = []
+            pal['colors'] = list()
             for j in range(self._COLOR_COUNT):
                 colors = self.read('int', little_endian=True)
                 color = {
-                    'red':      (colors >> 0x18),
-                    'green':    (colors & 0x00FF0000) >> 16,
-                    'blue':     (colors & 0x0000FF00) >> 8,
-                    'alpha':    (colors & 0x000000FF)
+                    'red': (colors >> 0x18),
+                    'green': (colors & 0x00FF0000) >> 16,
+                    'blue': (colors & 0x0000FF00) >> 8,
+                    'alpha': (colors & 0x000000FF)
                 }
                 color['rgb'] = (color['red'], color['green'], color['blue'])
                 color['rgba'] = (color['red'], color['green'], color['blue'],
-                        color['alpha'])
+                                 color['alpha'])
 
                 pal['colors'].append(color)
 
             self.pals.append(pal)
 
 
-"""The SObj.tbl file handler, defining static objects."""
 class SObjTBLHandler(FileHandler):
     def __init__(self, *args, old_format=False):
         super(SObjTBLHandler, self).__init__(*args)
         self.object_count = self.read('int')
-        self.seek(2, whence=1) # unknown short
+        self.seek(2, whence=1)  # unknown short
 
-        self.objects = []
+        self.objects = list()
         for i in range(self.object_count):
             if not old_format:
-                self.seek(5, whence=1) # unknown int/byte
+                self.seek(5, whence=1)  # unknown int/byte
 
             movement_direction = self.read('byte')
             height = self.read('byte')
-            tile_indices = []
+            tile_indices = list()
             for j in range(height):
                 tile_index = self.read('short')
-                tile_indices.append(tile_index - 1) # Zero-based
+                tile_indices.append(tile_index - 1)  # Zero-based
 
             obj = {
-                    'movement_direction': movement_direction,
-                    'height': height,
-                    'tile_indices': tile_indices}
+                'movement_direction': movement_direction,
+                'height': height,
+                'tile_indices': tile_indices}
             self.objects.append(obj)
 
 
-"""The TBL file handler representing Tile{A,B,C}.tbl files."""
 class TBLHandler(FileHandler):
     def __init__(self, *args, old_format=False):
         super(TBLHandler, self).__init__(*args)
         self.tile_count = self.read('int')
         if old_format:
             self.palette_count = self.read('int')
-            self.seek(3, 1) # unknown
-        self.palette_indices = []
+            self.seek(3, 1)  # unknown
+        self.palette_indices = list()
         for i in range(self.tile_count):
             self.palette_indices.append(self.read('byte'))
-            self.seek(1,1)
+            self.seek(1, 1)
