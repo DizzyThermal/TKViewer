@@ -30,11 +30,11 @@ This module contains readers for the following files:
   * [DSC](#dsc)
   * [EPF](#epf)
   * [MAP](#map)
-  * [PAL (Single)](#pal-(single))
-  * [PAL (Packed)](#pal-(packed))
-  * [TBL (Tiles - Modern)](#tbl-(tiles---modern))
-  * [TBL (Tiles - Legacy)](#tbl-(tiles---legacy))
-  * [TBL (Static Objects)](#tbl-(tiles---legacy))
+  * [PAL (Single)](#pal-single)
+  * [PAL (Packed)](#pal-packed)
+  * [TBL (Tiles - Modern)](#tbl-tiles---modern)
+  * [TBL (Tiles - Legacy)](#tbl-tiles---legacy)
+  * [TBL (Static Objects)](#tbl-static-objects)
 
 ### File Structures
 
@@ -122,7 +122,7 @@ typedef struct {
   byte blue                         (1 byte)
   byte green                        (1 byte)
   byte red                          (1 byte)
-  byte padding                      (1 byte)
+  byte alpha                        (1 byte)
 } color                             (4 bytes)
 ```
 
@@ -144,7 +144,7 @@ typedef struct {
     byte blue                       (1 byte)
     byte green                      (1 byte)
     byte red                        (1 byte)
-    byte padding                    (1 byte)
+    byte alpha                      (1 byte)
   } color                           (4 bytes)
 } PAL
 ```
