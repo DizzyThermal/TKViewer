@@ -8,6 +8,7 @@ __license__ = 'GNU GPLv3'
 
 import array
 import os
+import zlib
 
 """Base Class for other Handlers."""
 
@@ -64,6 +65,60 @@ class FileHandler(object):
         return self.file_handler.closed
 
 
+class CMPHandler(FileHandler):
+    def __init__(self, *args):
+        super(CMPHandler, self).__init__(*args)
+        self.seek(4)  # CMAP
+
+        dims = self.read('int')
+        self.width = dims & 0x0000FFFF
+        self.height = dims >> 0x10
+
+        compressed_data = self.file_handler.read()
+        map_data = zlib.decompress(compressed_data, 15 + 32)
+
+        self.tiles = list()
+        # Length of the data divided by 3 shorts (each tile's data)
+        for i in range(int(len(map_data) / 6)):
+            idx = (i * 6)
+            tile = dict()
+            tile['ab_tile'] = int.from_bytes(map_data[idx:(idx + 2)], byteorder='little') - 1
+            tile['unknown'] = map_data[(idx + 2):(idx + 4)]
+            tile['sobj_tile'] = int.from_bytes(map_data[(idx + 4):(idx + 6)], byteorder='little') - 1
+            self.tiles.append(tile)
+
+        self.close()
+
+
+class DATHandler(FileHandler):
+    def __init__(self, *args):
+        super(DATHandler, self).__init__(*args)
+        self.file_count = self.read('int') - 1
+
+        self.files = list()
+        next_file_location = 0
+        for i in range(self.file_count):
+            data_location = self.read('int')
+            file_name = self.file_handler.read(13).split(b'\0', 1)[0].decode()
+            next_file_location = self.file_handler.tell()
+            size = self.read('int') - data_location
+            file_data = self.file_handler.read(size)
+            file = {
+                'name': file_name,
+                'data': file_data
+            }
+            self.files.append(file)
+            self.seek(next_file_location)
+
+        self.close()
+
+    def export_files(self, extract_dir):
+        for file in self.files:
+            out_file = open(os.path.join(extract_dir, file['name']), 'wb')
+            out_file.write(file['data'])
+
+
+
 class DSCHandler(FileHandler):
     _PART_COUNT_POS = 23
 
@@ -98,6 +153,8 @@ class DSCHandler(FileHandler):
             #        chunk['blocks'].append(block)
             #    part['chunks'].append(chunk)
             self.parts.append(part)
+
+        self.close()
 
 
 class EPFHandler(FileHandler):
@@ -135,6 +192,8 @@ class EPFHandler(FileHandler):
             }
             self.frames.append(frame)
 
+        self.close()
+
 
 class MAPHandler(FileHandler):
     def __init__(self, *args):
@@ -150,6 +209,8 @@ class MAPHandler(FileHandler):
             tile['ab_tile'] = (tiles >> 0x10) - 1
             tile['sobj_tile'] = (tiles & 0x0000FFFF) + 1
             self.tiles.append(tile)
+
+        self.close()
 
 
 class PALHandler(FileHandler):
@@ -179,6 +240,7 @@ class PALHandler(FileHandler):
                 pal['animation_color_offsets'].append(self.read('short'))
 
             pal['colors'] = list()
+            pal['color_stream'] = bytearray()
             for j in range(self._COLOR_COUNT):
                 colors = self.read('int', little_endian=True)
                 color = {
@@ -192,27 +254,31 @@ class PALHandler(FileHandler):
                                  color['alpha'])
 
                 pal['colors'].append(color)
+                pal['color_stream'].append(color['red'])
+                pal['color_stream'].append(color['green'])
+                pal['color_stream'].append(color['blue'])
 
             self.pals.append(pal)
 
+        self.close()
+
 
 class SObjTBLHandler(FileHandler):
-    def __init__(self, *args, old_format=False):
+    _MASK = 0x7F
+
+    def __init__(self, *args):
         super(SObjTBLHandler, self).__init__(*args)
         self.object_count = self.read('int')
         self.seek(2, whence=1)  # unknown short
 
         self.objects = list()
         for i in range(self.object_count):
-            if not old_format:
-                self.seek(5, whence=1)  # unknown int/byte
-
+            self.seek(5, whence=1)  # unknown int/byte
             movement_direction = self.read('byte')
             height = self.read('byte')
             tile_indices = list()
             for j in range(height):
-                tile_index = self.read('short')
-                tile_indices.append(tile_index - 1)  # Zero-based
+                tile_indices.append(self.read('short'))
 
             obj = {
                 'movement_direction': movement_direction,
@@ -220,15 +286,18 @@ class SObjTBLHandler(FileHandler):
                 'tile_indices': tile_indices}
             self.objects.append(obj)
 
+        self.close()
+
 
 class TBLHandler(FileHandler):
-    def __init__(self, *args, old_format=False):
+    def __init__(self, *args):
         super(TBLHandler, self).__init__(*args)
         self.tile_count = self.read('int')
-        if old_format:
-            self.palette_count = self.read('int')
-            self.seek(3, 1)  # unknown
         self.palette_indices = list()
         for i in range(self.tile_count):
-            self.palette_indices.append(self.read('byte'))
-            self.seek(1, 1)
+            lsb = self.read('byte')
+            msb = self.read('byte')
+
+            self.palette_indices.append(((msb & 0x7F) << 8) | lsb)
+
+        self.close()

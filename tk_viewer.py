@@ -1,320 +1,159 @@
 #!/usr/bin/env python3
 
-__author__ = 'DizzyThermal'
-__email__ = 'DizzyThermal@gmail.com'
-__license__ = 'GNU GPLv3'
-__version__ = '1.4'
-__version_codename__ = 'Rat'
-
-import array
+import glob
 import os
-import signal
-import sys
+import tkinter
 
-from tk_gui import Ui_MainWindow
+from tkinter import Menu
+from tkinter import filedialog
+from tkinter import messagebox
+
+from file_reader import DATHandler
 from file_reader import EPFHandler
 from file_reader import PALHandler
-from file_reader import MAPHandler
 from file_reader import SObjTBLHandler
 from file_reader import TBLHandler
+from renderer import MapRenderer
 from renderer import Renderer
-
-from PIL import Image
-from PIL.ImageQt import ImageQt
-
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5.QtWidgets import QWidget
-
-_CUR_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
-_ICON = os.path.join(_CUR_DIR, 'icon.png')
-_DATA_DIR = os.path.join(_CUR_DIR, 'Data')
-_TILE_A = os.path.join(_DATA_DIR, 'TileA')
-_TILE_B = os.path.join(_DATA_DIR, 'TileB')
-_TILE_C = os.path.join(_DATA_DIR, 'TileC')
-_SOBJ = os.path.join(_DATA_DIR, 'SObj')
-
-_DIM = (24, 24)
-_W, _H = 0, 0
-_HEIGHT_PAD = 10
-_TILE_B_OFFSET = 49151
-_TILE_BYTES = 1728
+from resources import config
 
 
-class EPFViewer(QMainWindow):
+class TKViewer(tkinter.Frame):
+    def __init__(self, parent, tile_renderer, sobj_renderer):
+        tkinter.Frame.__init__(self, parent)
+        self.parent = parent
+        self.parent.title('TKViewer')
+        self.tile_renderer = tile_renderer
+        self.sobj_renderer = sobj_renderer
+        self.map_renderer = MapRenderer(tile_renderer=self.tile_renderer, sobj_renderer=self.sobj_renderer)
+        self.init_ui()
 
-    def __init__(self, app=None, ui=None):
-        super().__init__()
-        self.app = app
-        self.ui = ui
-        self._actions = list()
+    def init_ui(self):
+        menu_bar = Menu(self.parent, tearoff=False)
+        self.parent.config(menu=menu_bar)
 
-    def set_images(self, images, scroll_area, start_index=1, column_width=14):
-        def update_dimensions(rows, columns, column_width):
-            columns += 1
-            if columns >= column_width > 0:
-                rows += 1
-                columns = 0
+        file_menu = Menu(menu_bar, tearoff=False)
 
-            return rows, columns
+        open_menu = Menu(file_menu, tearoff=False)
+        open_menu.add_command(label="Map File (*.cmp | *.map)", command=self.open_map)
 
-        rows, columns = 0, 0
-        grid_layout = QGridLayout()
-        grid_layout.setHorizontalSpacing(1)
-        grid_layout.setVerticalSpacing(1)
-        for i in range(len(images)):
-            ql = QLabel()
-            ql.setPixmap(QPixmap.fromImage(ImageQt(images[i])))
-            ql.setScaledContents(True)
-            ql.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-            ql.setContextMenuPolicy(Qt.ActionsContextMenu)
-            action = QAction('Export Tile {} to BMP'.format((i + start_index)), self)
-            action.triggered.connect((lambda idx: lambda: self.export_tile(images[idx]))(i))
-            self._actions.append(action)
-            ql.addAction(action)
-            grid_layout.addWidget(ql, rows, columns)
+        export_menu = Menu(file_menu, tearoff=False)
+        export_menu.add_command(label="Tiles to Bitmaps", command=self.export_tiles)
+        export_menu.add_command(label="Static Objects to Bitmaps", command=self.export_sobjs)
 
-            rows, columns = update_dimensions(rows, columns, column_width)
+        extract_menu = Menu(file_menu, tearoff=False)
+        extract_menu.add_command(label="Data Files (*.dat)", command=self.extract_dats)
 
-        client = QWidget()
-        scroll_area.setWidget(client)
-        client.setLayout(grid_layout)
+        file_menu.add_cascade(label="Open", menu=open_menu)
+        file_menu.add_cascade(label="Export", menu=export_menu)
+        file_menu.add_cascade(label="Extract", menu=extract_menu)
+        menu_bar.add_cascade(label="File", menu=file_menu)
 
-    def export(self, images, prefix='tile', dir_path=None, multi=True):
-        if not dir_path:
-            multi = False
-            dir_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    def open_map(self):
+        file_path = filedialog.Open(self, filetypes=[('NexusTK Maps', 'cmp map')]).show()
 
-        if not dir_path:
-            return
+        if os.path.exists(file_path):
+            self.map_renderer.render_map_from_file(file_path).show()
 
-        pad_length = len(str(len(images)))
-        for i in range(len(images)):
-            images[i].save(os.path.join(dir_path, '_'.join(
-                (prefix, str(i).zfill(pad_length))) + '.bmp'))
-        if not multi:
-            QMessageBox.about(self,
-                              'TKViewer', 'Successfully exported tiles to: "{}"'.format(dir_path))
+    def export_tiles(self):
+        if not os.path.exists(config['tile_export_dir']):
+            os.makedirs(config['tile_export_dir'])
 
-    def export_all(self, images, prefixes=('tileA', 'tileB', 'tileC', 'tileStatic')):
-        dir_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        export_dir = filedialog.askdirectory(initialdir=config['tile_export_dir'])
 
-        if not dir_path:
-            return
+        if os.path.exists(export_dir):
+            tile_count = self.tile_renderer.tbl.tile_count
+            if tile_count > 1000:
+                if not messagebox.askokcancel('TKViewer',
+                                              'There are {} tiles to extract, this may take a very '
+                                              'long time to complete, are you sure want to '
+                                              'continue?'.format(tile_count)):
+                    return
 
-        for i in range(len(images)):
-            self.export(images[i], prefix=prefixes[i], dir_path=dir_path)
+            for i in range(tile_count):
+                self.tile_renderer.render_tile(i).save(
+                    os.path.join(export_dir, 'tile-{0:05d}.bmp'.format(i)))
 
-        QMessageBox.about(self,
-                          'TKViewer', 'Successfully exported tiles to: "{}"'.format(dir_path))
+            messagebox.showinfo('TKViewer',
+                                '{} tiles were successfully exported.'.format(tile_count))
 
-    def export_tile(self, image):
-        dir_path = QFileDialog.getSaveFileName(self,
-                                               'Save Tile', os.path.join(os.path.expanduser('~'),
-                                                                         'tile.bmp'))
 
-        if not dir_path:
-            return
+    def export_sobjs(self):
+        if not os.path.exists(config['sobj_export_dir']):
+            os.makedirs(config['sobj_export_dir'])
 
-        image.save(dir_path[0])
-        QMessageBox.about(self, 'TKViewer', 'Successfully exported tile')
+        export_dir = filedialog.askdirectory(initialdir=config['sobj_export_dir'])
 
-    def view_map(self, a_images, b_images, sobj_objects, sobj_images):
-        dir_path = QFileDialog.getOpenFileName(self,
-                                               'Map File', os.path.join(os.path.expanduser('~')))
+        if os.path.exists(export_dir):
+            sobj_count = self.sobj_renderer.sobj_tbl.object_count
+            if sobj_count > 1000:
+                if not messagebox.askokcancel('TKViewer',
+                                              'There are {} static objects to extract, this may '
+                                              'take a very long time to complete, are you sure '
+                                              'want to continue?'.format(sobj_count)):
+                    return
 
-        if not dir_path:
-            return
+            for i in range(self.sobj_renderer.sobj_tbl.object_count):
+                self.sobj_renderer.render_static_object(i).save(
+                    os.path.join(export_dir, 'sobj-{0:05d}.bmp'.format(i)))
 
-        map_name = os.path.split(dir_path[0])[1]
-        map_handler = MAPHandler(dir_path[0])
-        map_width = map_handler.width
-        map_height = map_handler.height
-        tiles = map_handler.tiles
-
-        black = Image.new('RGBA', _DIM, 'black')
-        im = Image.new('RGBA', (map_width * _DIM[_W], map_height * _DIM[_H]), 'black')
-        depth = 0
-        length = 0
-
-        for i in range(len(tiles)):
-            if tiles[i]['ab_tile'] >= _TILE_B_OFFSET:
-                tile = b_images[tiles[i]['ab_tile'] - _TILE_B_OFFSET]
-            elif tiles[i]['ab_tile'] > 0:
-                tile = a_images[tiles[i]['ab_tile']]
-            else:
-                tile = black
-
-            im.paste(tile, (length * _DIM[_W], depth * _DIM[_H]))
-
-            # If a Static Object is here, render upwards to height
-            if tiles[i]['sobj_tile']:
-                tile_index = tiles[i]['sobj_tile']
-                sobj_image = sobj_images[tile_index]
-
-                height = sobj_objects[tile_index]['height'] - 1
-                im.paste(sobj_image, (length * _DIM[_W], (depth - height) * _DIM[_H]),
-                         sobj_image)
-
-            if (((i + 1) % map_width) == 0) and (i != 0):
-                depth += 1
-                length = 0
-            else:
-                length += 1
-
-        im.show(map_name)
-
-    def show_about(self):
-        dialog = QMessageBox.information(self, 'TKViewer v{} ({})'.format(
-            __version__,
-            __version_codename__),
-                                         'Github: https://github.com/DizzyThermal/TKViewer')
+            messagebox.showinfo('TKViewer',
+                                '{} static objects were successfully exported.'.format(sobj_count))
 
     def extract_dats(self):
-        dir_path = QFileDialog.getOpenFileNames(
-            self, 'Select Data File(s) to Extract', os.path.join(os.path.expanduser('~')),
-            'Data File(s) (*.dat);;All Files (*.*)')
+        initialdir = None
+        if os.path.exists(config['nexus_data_dir']):
+            initialdir = config['nexus_data_dir']
 
-        if not dir_path:
-            return
+        dat_files = filedialog.askopenfilenames(parent=self,
+                                                title='Select Data File(s) to Extract',
+                                                initialdir=initialdir)
 
-        output_dir = str(QFileDialog.getExistingDirectory(self,
-                                                          'Select Extraction Output Directory'))
+        if not os.path.exists(config['data_dir']):
+            os.makedirs(config['data_dir'])
 
-        if not output_dir:
-            return
-
-        int_read = array.array('I')
+        extract_dir = filedialog.askdirectory(initialdir=config['data_dir'])
 
         total_files = 0
-        for dat_file in dir_path[0]:
-            dat_file_handler = open(dat_file, 'rb')
+        if os.path.exists(extract_dir):
+            for i in range(len(dat_files)):
+                dat = DATHandler(dat_files[i])
+                dat.export_files(extract_dir=extract_dir)
+                total_files += dat.file_count
 
-            # Read number of Files
-            int_read.fromfile(dat_file_handler, 1)
-            num_of_files = int_read.pop() - 1
-            total_files += num_of_files
-
-            # Next File Location
-            for k in range(num_of_files):
-                # Read File Data Location
-                int_read.fromfile(dat_file_handler, 1)
-                data_location = int_read.pop()
-
-                # Read File Name
-                name = dat_file_handler.read(13).split(b'\0', 1)[0].decode()
-                next_file_location = dat_file_handler.tell()
-
-                # Read File Size (minus offset)
-                int_read.fromfile(dat_file_handler, 1)
-                size = int_read.pop() - data_location
-
-                # Create Inner File Handler
-                fn = os.path.join(output_dir, name)
-                inner_file_handler = open(fn, 'wb')
-
-                dat_file_handler.seek(data_location)
-                inner_file_handler.write(dat_file_handler.read(size))
-
-                # Close Inner File Handler and Seek
-                inner_file_handler.close()
-                dat_file_handler.seek(next_file_location)
-
-            dat_file_handler.close()
-
-        QMessageBox.about(self, 'TKViewer',
-                          'Successfully extracted {} DAT files to: "{}"'.format(len(dir_path[0]),
-                                                                                output_dir))
+        messagebox.showinfo('TKViewer',
+                            '{} data files were successfully extracted.'.format(total_files))
 
 
-def main(argv):
-    a_tbl = TBLHandler('.'.join((_TILE_A, 'tbl')), old_format=True)
-    a_pals = list()
-    for i in range(a_tbl.palette_count):
-        pal = PALHandler('.'.join((_TILE_A + '{}'.format(i), 'pal')))
-        a_pals.append(pal.pals[0])
-        pal.close()
-    a_renderer = Renderer(
-        epfs=EPFHandler('.'.join((_TILE_A, 'epf'))),
-        pals=a_pals,
-        tbl=a_tbl)
-    a_images = [a_renderer.render_tile(x, dim=_DIM) for x in range(a_tbl.tile_count)]
-    a_tbl.close()
+def main():
+    tile_pal = PALHandler(os.path.join(config['data_dir'], 'tile.pal'))
+    tile_tbl = TBLHandler(os.path.join(config['data_dir'], 'tile.tbl'))
+    tilec_pal = PALHandler(os.path.join(config['data_dir'], 'TileC.pal'))
+    tilec_tbl = TBLHandler(os.path.join(config['data_dir'], 'TILEC.TBL'))
+    sobj_tbl = SObjTBLHandler(os.path.join(config['data_dir'], 'SObj.tbl'))
+    tile_epf_files = glob.glob(os.path.join(config['data_dir'], 'tile*.epf'))
+    tilec_epf_files = glob.glob(os.path.join(config['data_dir'], 'tilec*.epf'))
 
-    b_tbl = TBLHandler('.'.join((_TILE_B, 'tbl')), old_format=True)
-    b_pals = list()
-    for i in range(b_tbl.palette_count):
-        pal = PALHandler('.'.join((_TILE_B + '{}'.format(i), 'pal')))
-        b_pals.append(pal.pals[0])
-        pal.close()
-    b_renderer = Renderer(
-        epfs=EPFHandler('.'.join((_TILE_B, 'epf'))),
-        pals=b_pals,
-        tbl=b_tbl)
-    b_images = [b_renderer.render_tile(x, dim=_DIM) for x in range(b_tbl.tile_count)]
-    b_tbl.close()
+    tile_epfs = []
+    for i in range(len(tile_epf_files)):
+        if 'tilec' not in tile_epf_files[i]:
+            epf = EPFHandler(os.path.join(config['data_dir'], 'tile{}.epf'.format(i)))
+            tile_epfs.append(epf)
 
-    c_tbl = TBLHandler('.'.join((_TILE_C, 'tbl')), old_format=True)
-    sobj_tbl = SObjTBLHandler('.'.join((_SOBJ, 'tbl')), old_format=True)
-    c_pals = list()
-    for i in range(c_tbl.palette_count):
-        pal = PALHandler('.'.join((_TILE_C + '{}'.format(i), 'pal')))
-        c_pals.append(pal.pals[0])
-        pal.close()
-    c_renderer = Renderer(
-        epfs=EPFHandler('.'.join((_TILE_C, 'epf'))),
-        pals=c_pals,
-        tbl=c_tbl,
-        sobj_tbl=sobj_tbl)
-    c_images = [c_renderer.render_tile(x, dim=_DIM) for x in range(c_tbl.tile_count)]
-    sobj_images = [c_renderer.render_static_object(
-        x, alpha_rgb=(0, 0, 255), background_color='blue', height_pad=10, dim=_DIM)
-        for x in range(sobj_tbl.object_count)]
-    sobj_images_raw = [c_renderer.render_static_object(
-        x, alpha_rgb=(0, 0, 0, 0), background_color=None, dim=_DIM)
-        for x in range(sobj_tbl.object_count)]
-    c_tbl.close()
-    sobj_tbl.close()
+    tilec_epfs = []
+    for i in range(len(tilec_epf_files)):
+        epf = EPFHandler(os.path.join(config['data_dir'], 'tilec{}.epf'.format(i)))
+        tilec_epfs.append(epf)
 
-    app = QApplication(argv)
-    ui = Ui_MainWindow()
-    window = EPFViewer(app, ui)
-    ui.setupUi(window)
+    tile_renderer = Renderer(epfs=tile_epfs, pals=tile_pal.pals, tbl=tile_tbl)
+    sobj_renderer = Renderer(epfs=tilec_epfs, pals=tilec_pal.pals, tbl=tilec_tbl, sobj_tbl=sobj_tbl)
 
-    window.set_images(a_images, ui.a_tiles_scroll_area)
-    window.set_images(b_images, ui.b_tiles_scroll_area, start_index=(_TILE_B_OFFSET + 1))
-    window.set_images(c_images, ui.c_tiles_scroll_area)
-    window.set_images(sobj_images, ui.sobj_tiles_scroll_area, column_width=-1)
-
-    ui.actionA_Tiles.triggered.connect(lambda: window.export(a_images))
-    ui.actionB_Tiles.triggered.connect(lambda: window.export(b_images))
-    ui.actionC_Tiles.triggered.connect(lambda: window.export(c_images))
-    ui.actionStatic_Tiles.triggered.connect(lambda: window.export(sobj_images))
-    ui.actionExport_All.triggered.connect(lambda: window.export_all(
-        [a_images, b_images, c_images, sobj_images]))
-    ui.actionOpen_Map.triggered.connect(lambda: window.view_map(a_images,
-                                                                b_images,
-                                                                sobj_tbl.objects,
-                                                                sobj_images_raw))
-    ui.actionAbout.triggered.connect(lambda: window.show_about())
-    ui.actionData_Files.triggered.connect(lambda: window.extract_dats())
-
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-    app.setWindowIcon(QIcon(_ICON))
-
-    window.show()
-    sys.exit(app.exec_())
+    root = tkinter.Tk()
+    ex = TKViewer(root, tile_renderer=tile_renderer, sobj_renderer=sobj_renderer)
+    root.geometry("640x480")
+    root.iconbitmap(config['viewer_icon'])
+    root.mainloop()
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
