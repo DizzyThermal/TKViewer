@@ -6,3 +6,4 @@ __pycache__/
 *.pal
 *.tbl
 .idea/
+/myvenv
