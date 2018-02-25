@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""NexusTK DAT Object Viewer"""
+
+__author__ = 'DizzyThermal'
+__email__ = 'DizzyThermal@gmail.com'
+__license__ = 'GNU GPLv3'
+
 import glob
 import os
 import tkinter
@@ -7,6 +13,7 @@ import tkinter
 from tkinter import Menu
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import ttk
 
 from file_reader import DATHandler
 from file_reader import EPFHandler
@@ -16,6 +23,7 @@ from file_reader import TBLHandler
 from renderer import MapRenderer
 from renderer import Renderer
 from resources import config
+from resources import extract_dats
 
 
 class TKViewer(tkinter.Frame):
@@ -70,10 +78,15 @@ class TKViewer(tkinter.Frame):
                                               'continue?'.format(tile_count)):
                     return
 
+            progress_bar = ttk.Progressbar(self.parent, length=tile_count)
+            progress_bar.pack()
             for i in range(tile_count):
                 self.tile_renderer.render_tile(i).save(
                     os.path.join(export_dir, 'tile-{0:05d}.bmp'.format(i)))
+                progress_bar.step(100 / tile_count)
+                progress_bar.update()
 
+            progress_bar.destroy()
             messagebox.showinfo('TKViewer',
                                 '{} tiles were successfully exported.'.format(tile_count))
 
@@ -93,39 +106,56 @@ class TKViewer(tkinter.Frame):
                                               'want to continue?'.format(sobj_count)):
                     return
 
+            progress_bar = ttk.Progressbar(self.parent, length=self.sobj_renderer.sobj_tbl.object_count)
+            progress_bar.pack()
             for i in range(self.sobj_renderer.sobj_tbl.object_count):
                 self.sobj_renderer.render_static_object(i).save(
                     os.path.join(export_dir, 'sobj-{0:05d}.bmp'.format(i)))
+                progress_bar.step(100 / self.sobj_renderer.sobj_tbl.object_count)
+                progress_bar.update()
 
+            progress_bar.destroy()
             messagebox.showinfo('TKViewer',
                                 '{} static objects were successfully exported.'.format(sobj_count))
 
-    def extract_dats(self):
-        initialdir = None
-        if os.path.exists(config['nexus_data_dir']):
-            initialdir = config['nexus_data_dir']
+    def extract_dats(self, dats=None):
+        if not dats:
+            initialdir = None
+            if os.path.exists(config['nexus_data_dir']):
+                initialdir = config['nexus_data_dir']
 
-        dat_files = filedialog.askopenfilenames(parent=self,
-                                                title='Select Data File(s) to Extract',
-                                                initialdir=initialdir)
+            dat_files = filedialog.askopenfilenames(parent=self,
+                                                    title='Select Data File(s) to Extract',
+                                                    initialdir=initialdir)
 
-        if not os.path.exists(config['data_dir']):
-            os.makedirs(config['data_dir'])
+            if not os.path.exists(config['data_dir']):
+                os.makedirs(config['data_dir'])
 
         extract_dir = filedialog.askdirectory(initialdir=config['data_dir'])
 
+        progress_bar = ttk.Progressbar(self.parent, length=len(dat_files))
+        progress_bar.pack()
         total_files = 0
         if os.path.exists(extract_dir):
             for i in range(len(dat_files)):
                 dat = DATHandler(dat_files[i])
                 dat.export_files(extract_dir=extract_dir)
                 total_files += dat.file_count
+                progress_bar.step(100 / len(dat_files))
+                progress_bar.update()
 
+        progress_bar.destroy()
         messagebox.showinfo('TKViewer',
                             '{} data files were successfully extracted.'.format(total_files))
 
 
 def main():
+    if not os.path.exists(os.path.join(config['data_dir'], 'tile.pal')):
+        if not os.path.exists(config['data_dir']):
+            os.makedirs(config['data_dir'])
+        tile_dats = glob.glob(os.path.join(config['nexus_data_dir'], 'tile*.dat'))
+        extract_dats(dats=tile_dats)
+
     tile_pal = PALHandler(os.path.join(config['data_dir'], 'tile.pal'))
     tile_tbl = TBLHandler(os.path.join(config['data_dir'], 'tile.tbl'))
     tilec_pal = PALHandler(os.path.join(config['data_dir'], 'TileC.pal'))

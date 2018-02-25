@@ -19,9 +19,23 @@ from file_reader import SObjTBLHandler
 from file_reader import TBLHandler
 from renderer import MapRenderer
 from renderer import Renderer
-from resources import config
 from resources import Part
+from resources import config
+from resources import extract_dats
 from resources import get_id_from_map_name
+
+
+if not os.path.exists(os.path.join(config['data_dir'], 'Body.pal')):
+    if not os.path.exists(config['data_dir']):
+        os.makedirs(config['data_dir'])
+    extract_dats(dats=glob.glob(os.path.join(config['nexus_data_dir'], 'tile*.dat')))
+    extract_dats(dats=glob.glob(os.path.join(config['nexus_data_dir'], 'char*.dat')))
+    extract_dats(dats=glob.glob(os.path.join(config['nexus_data_dir'], 'body*.dat')))
+    extract_dats(dats=glob.glob(os.path.join(config['nexus_data_dir'], 'head*.dat')))
+    extract_dats(dats=glob.glob(os.path.join(config['nexus_data_dir'], 'face*.dat')))
+
+if not os.path.exists(config['maps_dir']):
+    os.makedirs(config['maps_dir'])
 
 tile_pal = PALHandler(os.path.join(config['data_dir'], 'tile.pal'))
 tile_tbl = TBLHandler(os.path.join(config['data_dir'], 'tile.tbl'))
@@ -39,27 +53,28 @@ body_epf_files = glob.glob(os.path.join(config['data_dir'], 'Body*.epf'))
 
 # Load Buya (Must have TK000330.cmp in Data Directory)
 _MAP_ID = get_id_from_map_name('Buya')
-_CMP = '{}\\TK{}.cmp'.format(config['map_name'], _MAP_ID)
+_CMP = '{}\\TK{}.cmp'.format(config['maps_dir'], _MAP_ID)
 
 tile_epfs = []
 for i in range(len(tile_epf_files)):
     if 'tilec' not in tile_epf_files[i]:
-        epf = EPFHandler(os.path.join(config['data_dir'], 'tile{}.epf'.format(i)))
+        epf = EPFHandler(os.path.join(config['data_dir'], 'tile{}.epf'.format(len(tile_epfs))))
         tile_epfs.append(epf)
 
 tilec_epfs = []
 for i in range(len(tilec_epf_files)):
-    epf = EPFHandler(os.path.join(config['data_dir'], 'tilec{}.epf'.format(i)))
+    epf = EPFHandler(os.path.join(config['data_dir'], 'tilec{}.epf'.format(len(tilec_epfs))))
     tilec_epfs.append(epf)
 
 head_epfs = []
 for i in range(len(head_epf_files)):
-    epf = EPFHandler(os.path.join(config['data_dir'], 'Head{}.epf'.format(i)))
-    head_epfs.append(epf)
+    if 'SP' not in head_epf_files[i]:
+        epf = EPFHandler(os.path.join(config['data_dir'], 'Head{}.epf'.format(len(head_epfs))))
+        head_epfs.append(epf)
 
 body_epfs = []
 for i in range(len(body_epf_files)):
-    epf = EPFHandler(os.path.join(config['data_dir'], 'Body{}.epf'.format(i)))
+    epf = EPFHandler(os.path.join(config['data_dir'], 'Body{}.epf'.format(len(body_epfs))))
     body_epfs.append(epf)
 
 tile_renderer = Renderer(epfs=tile_epfs, pals=tile_pal.pals, tbl=tile_tbl)

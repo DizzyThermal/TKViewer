@@ -9,6 +9,8 @@ __license__ = 'GNU GPLv3'
 import os
 import pygame
 
+from file_reader import DATHandler
+
 """Config Values :: Edit these values to match your system."""
 config = dict()
 config['nexus_data_dir'] = r'C:\Program Files (x86)\KRU\NexusTK\Data'
@@ -17,7 +19,7 @@ config['resources_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__
 config['export_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Exports')
 config['tile_export_dir'] = os.path.join(config['export_dir'], 'Tiles')
 config['sobj_export_dir'] = os.path.join(config['export_dir'], 'Static Objects')
-config['map_name'] = os.path.join(config['data_dir'], 'Maps')
+config['maps_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Maps')
 config['client_icon'] = os.path.join(config['resources_dir'], 'client_icon.png')
 config['client_width'] = 17
 config['client_height'] = 15
@@ -29,6 +31,13 @@ MAP_IDS = {
     '003941': {'map_name': 'Phoenix Hall'},
     '027800': {'map_name': 'Malgalod'}
 }
+
+"""Extracts dats to the Data Directory"""
+def extract_dats(dats, extract_directory=config['data_dir']):
+    if os.path.exists(extract_directory):
+        for i in range(len(dats)):
+            dat = DATHandler(dats[i])
+            dat.export_files(extract_dir=extract_directory)
 
 """Returns the TK ID of the Map Name passed in, defined above in MAP_IDS."""
 def get_id_from_map_name(map_name):

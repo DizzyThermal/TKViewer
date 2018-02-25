@@ -7,11 +7,12 @@ NexusTK Resource Viewer for EPF and related files.
 This script will take a bit to load up, give it some time.
 
 **Dependencies**:
-* Python 3 (PyQt5)
+* Python 3
 * Python pip3 dependencies:
 
 ```bash
 pip install pillow
+pip install pygame
 ```
 
 **Running the scripts**:

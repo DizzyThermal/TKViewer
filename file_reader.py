@@ -96,17 +96,19 @@ class DATHandler(FileHandler):
         self.file_count = self.read('int') - 1
 
         self.files = list()
-        next_file_location = 0
         for i in range(self.file_count):
             data_location = self.read('int')
             file_name = self.file_handler.read(13).split(b'\0', 1)[0].decode()
             next_file_location = self.file_handler.tell()
             size = self.read('int') - data_location
+            self.seek(data_location)
             file_data = self.file_handler.read(size)
             file = {
                 'name': file_name,
                 'data': file_data
             }
+            if file['name'] == 'Face.pal':
+                print('Filename: {}'.format(self.file_name))
             self.files.append(file)
             self.seek(next_file_location)
 
