@@ -107,8 +107,6 @@ class DATHandler(FileHandler):
                 'name': file_name,
                 'data': file_data
             }
-            if file['name'] == 'Face.pal':
-                print('Filename: {}'.format(self.file_name))
             self.files.append(file)
             self.seek(next_file_location)
 
