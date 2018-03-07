@@ -81,8 +81,9 @@ class TKViewer(tkinter.Frame):
             progress_bar = ttk.Progressbar(self.parent, length=tile_count)
             progress_bar.pack()
             for i in range(tile_count):
-                self.tile_renderer.render_tile(i).save(
-                    os.path.join(export_dir, 'tile-{0:05d}.bmp'.format(i)))
+                tile = self.tile_renderer.render_tile(i)
+                if tile.size[1] > 0:
+                    tile.save(os.path.join(export_dir, 'tile-{0:05d}.bmp'.format(i)))
                 progress_bar.step(100 / tile_count)
                 progress_bar.update()
 
@@ -109,8 +110,9 @@ class TKViewer(tkinter.Frame):
             progress_bar = ttk.Progressbar(self.parent, length=self.sobj_renderer.sobj_tbl.object_count)
             progress_bar.pack()
             for i in range(self.sobj_renderer.sobj_tbl.object_count):
-                self.sobj_renderer.render_static_object(i).save(
-                    os.path.join(export_dir, 'sobj-{0:05d}.bmp'.format(i)))
+                sobj = self.sobj_renderer.render_static_object(i)
+                if sobj.size[1] > 0:
+                    sobj.save(os.path.join(export_dir, 'sobj-{0:05d}.bmp'.format(i)))
                 progress_bar.step(100 / self.sobj_renderer.sobj_tbl.object_count)
                 progress_bar.update()
 
