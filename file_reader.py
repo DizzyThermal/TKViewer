@@ -201,14 +201,25 @@ class MAPHandler(FileHandler):
         dims = self.read('int', little_endian=True)
         self.width = dims >> 0x10
         self.height = dims & 0x0000FFFF
-
         self.tiles = list()
-        for i in range(self.width * self.height):
-            tile = dict()
-            tiles = self.read('int', little_endian=True)
-            tile['ab_tile'] = (tiles >> 0x10) - 1
-            tile['sobj_tile'] = (tiles & 0x0000FFFF) + 1
-            self.tiles.append(tile)
+        
+        data_len = len(self.file_handler.read())
+        self.seek(-data_len, whence=1)
+        if (self.width * self.height ) * 6 == data_len:
+            # Includes passable titles
+            for i in range(self.width * self.height):
+                tile = dict()
+                tile['ab_tile'] = self.read('short', little_endian=True) - 1
+                tile['pass'] = self.read('short', little_endian=True) 
+                tile['sobj_tile'] = self.read('short', little_endian=True) - 1
+                self.tiles.append(tile)
+        else:
+            for i in range(self.width * self.height):
+                tile = dict()
+                tiles = self.read('int', little_endian=True)
+                tile['ab_tile'] = (tiles >> 0x10) - 1
+                tile['sobj_tile'] = (tiles & 0x0000FFFF) - 1
+                self.tiles.append(tile)
 
         self.close()
 

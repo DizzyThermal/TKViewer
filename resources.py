@@ -213,6 +213,7 @@ MAP_IDS = {
     "003639": {"map_name": "Flight of Fancy"},
     "003640": {"map_name": "The Road Not Taken"},
     "003658": {"map_name": "Hsien Courtyard"},
+    "003682": {"map_name": "Buyan Stables"},
     "003703": {"map_name": "Kugnae Mage's Hall"},
     "003705": {"map_name": "Buya Warrior's Hall"},
     "003706": {"map_name": "Buya Rogue's Hall"},
@@ -242,6 +243,7 @@ MAP_IDS = {
     "003960": {"map_name": "Lost Kingdom Clan"},
     "003970": {"map_name": "Dharma Clan"},
     "003990": {"map_name": "Elendhirin Clan"},
+    "004501": {"map_name": "Kugnae Marketplace"},
     "004504": {"map_name": "Koguryo Palace Courtyard"},
     "004505": {"map_name": "Royal Palace Mezzanine"},
     "004506": {"map_name": "Koguryo Throne Room"},
@@ -287,6 +289,9 @@ MAP_IDS = {
     "006599": {"map_name": "Buya Library Caverns"},
     "008200": {"map_name": "Incubator"},
     "009000": {"map_name": "Woodlands Entrance"},
+    "009001": {"map_name": "Woodlands"},
+    "009096": {"map_name": "Raheem Desert"},
+    "009097": {"map_name": "Forgotten Places"},
     "013000": {"map_name": "Prince Study"},
     "013001": {"map_name": "Prince Mobon"},
     "013002": {"map_name": "Prince MingJung"},
@@ -313,7 +318,8 @@ MAP_IDS = {
     "030823": {"map_name": "South Expansion"},
     "030824": {"map_name": "East Tunnel"},
     "030825": {"map_name": "East Expansion"},
-    "032095": {"map_name": "Entrance to Omphalos"}
+    "032095": {"map_name": "Entrance to Omphalos"},
+    "051453": {"map_name": "Maze House"} # Kugnae Onyang House
 }
 
 """Extracts dats to the Data Directory"""
