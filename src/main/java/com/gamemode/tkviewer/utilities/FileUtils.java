@@ -1,19 +1,18 @@
 package com.gamemode.tkviewer.utilities;
 
-import com.gamemode.tkviewer.file_handlers.DatFileHandler;
-import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
+import com.gamemode.tkviewer.file_handlers.*;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.Resources;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 // Static Utility Class
 public class FileUtils {
-    public FileUtils() {}
+    public FileUtils() {
+    }
 
     public static File[] getEpfs(String dataDirectory, String prefix) {
         File[] files = new File(dataDirectory).listFiles(new FilenameFilter() {
@@ -33,11 +32,11 @@ public class FileUtils {
             private int extractNumber(String name, String prefix) {
                 int i = 0;
                 try {
-                    int s = name.indexOf(prefix.substring(prefix.length() - 1))+1;
+                    int s = name.indexOf(prefix.substring(prefix.length() - 1)) + 1;
                     int e = name.lastIndexOf('.');
                     String number = name.substring(s, e);
                     i = Integer.parseInt(number);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     i = 0;
                 }
                 return i;
@@ -145,13 +144,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Body\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_BODY_FILES) {
+        }).length < Resources.REQUIRED_BODY_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -183,13 +182,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Bow\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_BOW_FILES) {
+        }).length < Resources.REQUIRED_BOW_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -227,7 +226,7 @@ public class FileUtils {
             }
         }).length < Resources.REQUIRED_COAT_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -259,13 +258,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Face\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_FACE_FILES) {
+        }).length < Resources.REQUIRED_FACE_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -297,13 +296,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Fan\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_FAN_FILES) {
+        }).length < Resources.REQUIRED_FAN_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -335,13 +334,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Hair\\d+\\.[Ee][Pp][Ff]")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_HAIR_FILES) {
+        }).length < Resources.REQUIRED_HAIR_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -373,13 +372,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Helmet\\d+\\.[Ee][Pp][Ff]")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_HELMET_FILES) {
+        }).length < Resources.REQUIRED_HELMET_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -423,9 +422,9 @@ public class FileUtils {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_MAP_FILES) {
+        }).length < Resources.REQUIRED_MAP_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -467,13 +466,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Mantle\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_MANTLE_FILES) {
+        }).length < Resources.REQUIRED_MANTLE_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -505,13 +504,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Spear\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_SPEAR_FILES) {
+        }).length < Resources.REQUIRED_SPEAR_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -543,13 +542,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Shield\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_SHIELD_FILES) {
+        }).length < Resources.REQUIRED_SHIELD_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -581,13 +580,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Shoes\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_SHOES_FILES) {
+        }).length < Resources.REQUIRED_SHOES_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -619,13 +618,13 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("Sword\\d+\\.epf")) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
-        } ).length < Resources.REQUIRED_SWORD_FILES) {
+        }).length < Resources.REQUIRED_SWORD_FILES) {
             // Create Directory if it doesn't exist
-            if(!dataDirectoryFile.exists()) {
+            if (!dataDirectoryFile.exists()) {
                 dataDirectoryFile.mkdirs();
             }
 
@@ -642,6 +641,131 @@ public class FileUtils {
             })) {
                 new DatFileHandler(swordFile).exportFiles(dataDirectory);
             }
+        }
+    }
+
+    public static void cmpFileToTmxFile(final File cmpFile, final File tmxFile) {
+        CmpFileHandler cmp = new CmpFileHandler(cmpFile);
+
+        try {
+            FileWriter writer = new FileWriter(tmxFile);
+            writer.write("");   // Clear File
+
+            writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.append("<map version=\"1.2\" tiledversion=\"1.2.4\" orientation=\"orthogonal\" renderorder=\"right-down\" width=\"" + cmp.mapWidth + "\" height=\"" + cmp.mapHeight + "\" tilewidth=\"48\" tileheight=\"48\" infinite=\"0\" nextlayerid=\"3\" nextobjectid=\"4\">\n");
+            writer.append(" <tileset firstgid=\"1\" source=\"../NTK.tsx\"/>\n");
+            writer.append(" <tileset firstgid=\"47913\" source=\"../NTK_Objects.tsx\"/>\n");
+            writer.append(" <layer id=\"1\" name=\"Ground\" width=\"" + cmp.mapWidth + "\" height=\"" + cmp.mapHeight + "\">\n");
+            writer.append("  <data encoding=\"csv\">\n");
+
+            int tileCount = 0;
+            for (int i = 0; i < cmp.mapWidth; i++) {
+                for (int j = 0; j < cmp.mapHeight; j++) {
+                    writer.append(cmp.mapTiles.get(tileCount).getAbTile() + 2 + ((i == (cmp.mapWidth - 1) && j == (cmp.mapHeight - 1)) ? "" : ","));
+                    tileCount++;
+                }
+                writer.append("\n");
+            }
+
+            writer.append("  </data>\n");
+            writer.append(" </layer>\n");
+            writer.append(" <objectgroup id=\"2\" name=\"Objects\">\n");
+
+            int objCount = 0;
+            tileCount = 0;
+            for (int i = 0; i < cmp.mapHeight; i++) {
+                for (int j = 0; j < cmp.mapWidth; j++) {
+                    if (cmp.mapTiles.get(tileCount).getSObjTile() > 0) {
+                        writer.append("  <object id=\"" + (objCount++) + "\" gid=\"" + (47913 + cmp.mapTiles.get(tileCount).getSObjTile()) + "\" x=\"" + (j * 48) + "\" y=\"" + ((i + 1) * 48) + "\"/>\n");
+                    }
+                    tileCount++;
+                }
+            }
+
+            writer.append(" </objectgroup>\n");
+            writer.append("</map>\n");
+
+            writer.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static String pad(int number, int length) {
+        String val = Integer.toString(number);
+        while (val.length() < length) {
+            val = "0" + val;
+        }
+
+        return val;
+    }
+
+    public static void generateSObjTileSet(File outputFile) {
+        try {
+            FileWriter writer = new FileWriter(outputFile);
+            writer.write("");   // Clear File
+
+            FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+            SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
+
+            writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.append("<tileset version=\"1.2\" tiledversion=\"1.2.4\" name=\"SObjects\" tilewidth=\"48\" tileheight=\"576\" tilecount=\"" + sObjTblFileHandler.objectCount + "\" columns=\"5\">\n");
+            writer.append(" <grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
+
+            for (int i = 0 ; i < sObjTblFileHandler.objectCount; i++) {
+                writer.append(" <tile id=\"" + i + "\">\n");
+                int height = 1;
+                if (sObjTblFileHandler.objects.get(i).getHeight() > 1) {
+                    height = sObjTblFileHandler.objects.get(i).getHeight();
+                }
+                writer.append("  <image width=\"48\" height=\"" + (48 * height) + "\" source=\"objects/" + pad(i, 5) + ".png\"/>\n");
+                if (sObjTblFileHandler.objects.get(i).getMovementDirection() > 0) {
+                    writer.append("  <objectgroup draworder=\"index\">\n");
+                    switch (sObjTblFileHandler.objects.get(i).getMovementDirection()) {
+                        case 0x1:
+                            writer.append("   <object id=\"1\" x=\"0\" y=\"" + (48 * height) + "\" width=\"48\"/>\n");
+                        case 0x2:
+                            writer.append("   <object id=\"1\" x=\"0\" y=\"" + (48 * (height - 1)) + "\" width=\"48\"/>\n");
+                        case 0x4:
+                            writer.append("   <object id=\"1\" x=\"0\" y=\"" + (48 * (height - 1)) + "\" height=\"48\"/>\n");
+                        case 0x8:
+                            writer.append("   <object id=\"1\" x=\"48\" y=\"" +  (48 * (height - 1)) + "\" height=\"48\"/>\n");
+                        case 0xF:
+                            writer.append("   <object id=\"1\" x=\"0\" y=\"" + (48 * (height - 1)) + "\" width=\"48\" height=\"48\"/>\n");
+                    }
+                    writer.append("  </objectgroup>\n");
+                }
+                writer.append(" </tile>\n");
+            }
+
+            writer.append("</tileset>\n");
+            writer.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void generateTileSet(File outputFile) {
+        try {
+            FileWriter writer = new FileWriter(outputFile);
+            writer.write("");   // Clear File
+
+            TblFileHandler tblFileHandler = new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl"));
+
+            writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.append("<tileset version=\"1.2\" tiledversion=\"1.2.4\" name=\"Tiles\" tilewidth=\"48\" tileheight=\"48\" tilecount=\"" + tblFileHandler.tileCount + "\" columns=\"5\">\n");
+            writer.append(" <grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
+
+            for (int i = 0 ; i < tblFileHandler.tileCount; i++) {
+                writer.append(" <tile id=\"" + i + "\">\n");
+                writer.append("  <image width=\"48\" height=\"48\" source=\"tiles/" + pad(i, 5) + ".png\"/>\n");
+                writer.append(" </tile>\n");
+            }
+
+            writer.append("</tileset>\n");
+            writer.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
         }
     }
 }

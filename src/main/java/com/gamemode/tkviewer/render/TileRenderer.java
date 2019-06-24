@@ -80,6 +80,9 @@ public class TileRenderer implements Renderer {
         if (this.tileTbl != null) {
             paletteIndex = this.tileTbl.paletteIndices.get(tileIndex);
         }
+        if (paletteIndex > this.tilePal.paletteCount) {
+            paletteIndex = 0;
+        }
         Palette palette = this.tilePal.palettes.get(paletteIndex);
         IndexColorModel icm = new IndexColorModel(
                 8,
