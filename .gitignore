@@ -1,3 +1,8 @@
+
+# Created by https://www.gitignore.io/api/intellij+all
+# Edit at https://www.gitignore.io/?templates=intellij+all
+
+### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
@@ -7,6 +12,9 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -25,9 +33,9 @@
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
-.idea/modules.xml
-.idea/*.iml
-.idea/modules
+# .idea/modules.xml
+# .idea/*.iml
+# .idea/modules
 
 # CMake
 cmake-build-*/
@@ -59,7 +67,31 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
-# Maven
+# Android studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
+
+# JetBrains templates
+**___jb_tmp___
+
+### Intellij+all Patch ###
+# Ignores the whole .idea folder and all .iml files
+# See https://github.com/joeblau/gitignore.io/issues/186 and https://github.com/joeblau/gitignore.io/issues/360
+
+.idea/
+
+# Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
+
+*.iml
+modules.xml
+.idea/misc.xml
+*.ipr
+
+# Sonarlint plugin
+.idea/sonarlint
+
+# End of https://www.gitignore.io/api/intellij+all
+
+### Maven ###
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -71,5 +103,4 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
-# NexusTK Specific
-data/
+# End of https://www.gitignore.io/api/maven
