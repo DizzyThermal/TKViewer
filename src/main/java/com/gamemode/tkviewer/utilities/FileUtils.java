@@ -1,15 +1,24 @@
 package com.gamemode.tkviewer.utilities;
 
 import com.gamemode.tkviewer.file_handlers.*;
+import com.gamemode.tkviewer.render.MapRenderer;
+import com.gamemode.tkviewer.render.SObjRenderer;
+import com.gamemode.tkviewer.render.TileRenderer;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.Resources;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-// Static Utility Class
+import static com.gamemode.tkviewer.utilities.Utils.pad;
+
+// Static File Utilities Class
 public class FileUtils {
     public FileUtils() {
     }
@@ -691,15 +700,6 @@ public class FileUtils {
         }
     }
 
-    public static String pad(int number, int length) {
-        String val = Integer.toString(number);
-        while (val.length() < length) {
-            val = "0" + val;
-        }
-
-        return val;
-    }
-
     public static void generateSObjTileSet(File outputFile) {
         try {
             FileWriter writer = new FileWriter(outputFile);
@@ -766,6 +766,105 @@ public class FileUtils {
             writer.close();
         } catch (IOException ioe) {
             ioe.printStackTrace();
+        }
+    }
+
+    public static void generateTileImages(Path outputDirectory) {
+        if (!outputDirectory.toFile().exists()) {
+            outputDirectory.toFile().mkdirs();
+        }
+
+        TileRenderer tileRenderer =
+                new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
+                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
+
+        for (int i = 0 ; i < tileRenderer.getCount(); i++) {
+            File tileFile = Paths.get(outputDirectory.toString(), pad(i, 5) + ".png").toFile();
+            try {
+                ImageIO.write(tileRenderer.renderTile(i), "png", tileFile);
+            } catch (IOException ioe) {
+                System.out.println("Error writing");
+            }
+        }
+    }
+
+    public static void generateSObjTileImages(Path outputDirectory) {
+        if (!outputDirectory.toFile().exists()) {
+            outputDirectory.toFile().mkdirs();
+        }
+
+        TileRenderer tileRenderer =
+                new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
+                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
+        SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
+        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), sObjTblFileHandler);
+
+        for (int i = 0 ; i < sObjTblFileHandler.objectCount; i++) {
+            File tileFile = Paths.get(outputDirectory.toString(), pad(i, 5) + ".png").toFile();
+            try {
+                if (sObjTblFileHandler.objects.get(i).getHeight() > 0) {
+                    BufferedImage sObjTile = sObjRenderer.renderSObject(i);
+                    ImageIO.write(sObjTile, "png", tileFile);
+                } else {
+                    ImageIO.write(tileRenderer.renderTile(0), "png", tileFile);
+                }
+            } catch (IOException ioe) {
+                System.out.println("Error writing");
+            }
+        }
+    }
+
+    public static void generateStencilsFromMaps(Path mapDirectory, Path outputDirectory) {
+        if (!outputDirectory.toFile().exists()) {
+            outputDirectory.toFile().mkdirs();
+        }
+
+        TileRenderer tileRenderer =
+                new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
+                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
+        // Static Object Renderer (for C (Static Object -- SObj) Tiles)
+        SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
+        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), sObjTblFileHandler);
+        // Map Renderer from TileRenderer and SObjRenderer
+        MapRenderer mapRenderer = new MapRenderer(tileRenderer, sObjRenderer);
+
+        for (File mapFile : mapDirectory.toFile()
+                .listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        boolean matches = false;
+                        if (name.matches("[Tt][Kk]\\d+\\.[Cc][Mm][Pp]")) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                })) {
+            CmpFileHandler mapCmp = new CmpFileHandler(mapFile);
+            Boolean[][] sObjNodes = mapRenderer.renderMapStencil(mapCmp);
+
+            StringBuilder file = new StringBuilder();
+            int newWidth = (mapCmp.mapWidth * 2 + 1);
+            int newHeight = (mapCmp.mapHeight * 2 + 1);
+            //file.append(newWidth + "," + newHeight + "\n");
+            for (int j = 0; j < newHeight; j++) {
+                StringBuilder line = new StringBuilder();
+                for (int i = 0; i < newWidth; i++) {
+                    line.append(sObjNodes[i][j] ? "1" : "0");
+                }
+                file.append(line.toString() + "\r\n");
+            }
+
+            String mapId = mapFile.getName().split("\\.")[0].substring(2);
+            File mapStencil = Paths.get(outputDirectory.toString(), "TK" + mapId + ".gridstencil").toFile();
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(mapStencil));
+                writer.write(file.toString());
+
+                writer.close();
+            } catch (IOException ioe) {
+                System.out.println(ioe.getMessage());
+            }
         }
     }
 }
