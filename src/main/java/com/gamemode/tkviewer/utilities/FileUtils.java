@@ -683,24 +683,42 @@ public class FileUtils {
             writer.append(" </layer>\n");
 
             // Static Object Layer
-            writer.append(" <layer id=\"2\" name=\"Objects\" width=\"" + cmp.mapWidth + "\" height=\"" + cmp.mapHeight + "\">\n");
-            writer.append("  <data encoding=\"csv\">\n");
+            boolean oldWay = false;
+            if (oldWay) {
+                writer.append(" <layer id=\"2\" name=\"Objects\" width=\"" + cmp.mapWidth + "\" height=\"" + cmp.mapHeight + "\">\n");
+                writer.append("  <data encoding=\"csv\">\n");
 
-            tileCount = 0;
-            for (int i = 0; i < cmp.mapHeight; i++) {
-                for (int j = 0; j < cmp.mapWidth; j++) {
-                    if (cmp.mapTiles.get(tileCount).getSObjTile() > 0) {
-                        writer.append((50000 + cmp.mapTiles.get(tileCount).getSObjTile()) + ((i == (cmp.mapWidth - 1) && j == (cmp.mapHeight - 1)) ? "" : ","));
-                    } else {
-                        writer.append(0 + ((i == (cmp.mapWidth - 1) && j == (cmp.mapHeight - 1)) ? "" : ","));
+                tileCount = 0;
+                for (int i = 0; i < cmp.mapHeight; i++) {
+                    for (int j = 0; j < cmp.mapWidth; j++) {
+                        if (cmp.mapTiles.get(tileCount).getSObjTile() > 0) {
+                            writer.append((50000 + cmp.mapTiles.get(tileCount).getSObjTile()) + ((i == (cmp.mapWidth - 1) && j == (cmp.mapHeight - 1)) ? "" : ","));
+                        } else {
+                            writer.append(0 + ((i == (cmp.mapWidth - 1) && j == (cmp.mapHeight - 1)) ? "" : ","));
+                        }
+                        tileCount++;
                     }
-                    tileCount++;
+                    writer.append("\n");
                 }
-                writer.append("\n");
-            }
 
-            writer.append("  </data>\n");
-            writer.append(" </layer>\n");
+                writer.append("  </data>\n");
+                writer.append(" </layer>\n");
+            } else {
+                writer.append(" <objectgroup id=\"2\" name=\"Objects\" visible=\"1\">\n");
+
+                int objCount = 0;
+                tileCount = 0;
+                for (int i = 0; i < cmp.mapHeight; i++) {
+                    for (int j = 0; j < cmp.mapWidth; j++) {
+                        if (cmp.mapTiles.get(tileCount).getSObjTile() > 0) {
+                            writer.append("  <object id=\"" + (objCount++) + "\" type=\"PROP\" gid=\"" + (50000 + cmp.mapTiles.get(tileCount).getSObjTile()) + "\" x=\"" + (j * 48) + "\" y=\"" + ((i + 1) * 48) + "\"/>\n");
+                        }
+                        tileCount++;
+                    }
+                }
+
+                writer.append(" </objectgroup>\n");
+            }
 
             // Collisions
             FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
