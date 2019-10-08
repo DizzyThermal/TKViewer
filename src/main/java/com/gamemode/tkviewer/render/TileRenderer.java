@@ -1,6 +1,7 @@
 package com.gamemode.tkviewer.render;
 
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
+import com.gamemode.tkviewer.file_handlers.FrmFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
 import com.gamemode.tkviewer.file_handlers.TblFileHandler;
 import com.gamemode.tkviewer.resources.Frame;
@@ -23,6 +24,7 @@ public class TileRenderer implements Renderer {
     List<EpfFileHandler> tileEpfs;
     PalFileHandler tilePal;
     TblFileHandler tileTbl;
+    FrmFileHandler tileFrm;
     public int manualPaletteIndex = 0;
 
     public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, TblFileHandler tileTbl) {
@@ -31,6 +33,14 @@ public class TileRenderer implements Renderer {
         this.tileEpfs = tileEpfs;
         this.tilePal = tilePal;
         this.tileTbl = tileTbl;
+    }
+
+    public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, FrmFileHandler tileFrm) {
+        tiles = new HashMap<Integer, BufferedImage>();
+
+        this.tileEpfs = tileEpfs;
+        this.tilePal = tilePal;
+        this.tileFrm = tileFrm;
     }
 
     public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, int manualPaletteIndex) {
@@ -77,7 +87,9 @@ public class TileRenderer implements Renderer {
         }
         // Else
         int paletteIndex = this.manualPaletteIndex;
-        if (this.tileTbl != null) {
+        if (this.isFrmHandled()) {
+            paletteIndex = this.tileFrm.paletteIndices.get(tileIndex);
+        } else if (this.tileTbl != null) {
             paletteIndex = this.tileTbl.paletteIndices.get(tileIndex);
         }
         if (paletteIndex > this.tilePal.paletteCount) {
@@ -92,7 +104,7 @@ public class TileRenderer implements Renderer {
                 palette.getBlueBytes(),
                 Transparency.TRANSLUCENT);
 
-        DataBufferByte buffer = new DataBufferByte(frame.getRawData().array(), frame.getRawData().capacity());
+        DataBufferByte buffer = new DataBufferByte(frame.getRawPixelData().array(), frame.getRawPixelData().capacity());
         WritableRaster raster = Raster.createPackedRaster(buffer, width, height, 8, null);
 
         image = new BufferedImage(icm, raster, icm.isAlphaPremultiplied(), null);
@@ -108,9 +120,14 @@ public class TileRenderer implements Renderer {
         return image;
     }
 
+    private boolean isFrmHandled() {
+        return (this.tileFrm != null);
+    }
+
     @Override
     public int getCount() {
-        return (int)this.tileTbl.tileCount;
+        // Return FRM count if used, else TBL count
+        return (this.isFrmHandled())?(int)this.tileFrm.effectCount:(int)this.tileTbl.tileCount;
     }
 
     @Override

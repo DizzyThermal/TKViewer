@@ -21,6 +21,7 @@ mvn package
   * [DAT](#dat)
   * [DSC](#dsc)
   * [EPF](#epf)
+  * [FRM](#frm)
   * [MAP](#map)
   * [PAL (Single)](#pal-single)
   * [PAL (Packed)](#pal-packed)
@@ -48,18 +49,19 @@ typedef struct {
 #### DAT
 
 ```cpp
-int file_count                         (2 bytes)
+int file_count                         (4 bytes) # File Count + 1
 file[file_count] files                 ((file_count * file_size) bytes)
+byte[] file_data
 
 typedef struct {
   int data_location                    (4 bytes)
   byte[13] file_name                   (4 bytes)
   int size                             (4 bytes)
-  byte[size] file_data                 (size bytes)
 } file                                 (12 + size bytes)
 ```
 
 #### DSC
+
 ```cpp
 byte[15] header                        (15 bytes) # PartDescription
 byte[7] null                           (7 bytes)
@@ -114,6 +116,13 @@ typedef struct {
   int pixel_data_offset                (4 bytes)
   int stencil_data_offset              (4 bytes)
 } frame_entry                          (16 bytes)
+```
+
+#### FRM
+
+```cpp
+int effect_count                       (4 bytes)
+int[effect_count] palette_index        (effect_count * 4 bytes)
 ```
 
 #### MAP

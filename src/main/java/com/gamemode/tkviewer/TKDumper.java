@@ -120,7 +120,7 @@ public class TKDumper {
         FileUtils.extractBodyFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Body Resources
         bodyRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getBodyEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getBodyEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Body.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Body.dsc")));
     }
@@ -130,7 +130,7 @@ public class TKDumper {
         FileUtils.extractBowFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Bow Resources
         bowRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getBowEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getBowEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Bow.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Bow.dsc")));
     }
@@ -140,7 +140,7 @@ public class TKDumper {
         FileUtils.extractCoatFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Coat Resources
         coatRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getCoatEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getCoatEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Coat.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Coat.dsc")));
     }
@@ -150,7 +150,7 @@ public class TKDumper {
         FileUtils.extractFaceFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Face Resources
         faceRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getFaceEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getFaceEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Face.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Face.dsc")));
     }
@@ -160,7 +160,7 @@ public class TKDumper {
         FileUtils.extractFanFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Fan Resources
         fanRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getFanEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getFanEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Fan.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Fan.dsc")));
     }
@@ -170,7 +170,7 @@ public class TKDumper {
         FileUtils.extractHairFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Hair Resources
         hairRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getHairEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getHairEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Hair.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Hair.dsc")));
     }
@@ -180,7 +180,7 @@ public class TKDumper {
         FileUtils.extractMantleFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Mantle Resources
         mantleRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getMantleEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getMantleEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Mantle.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Mantle.dsc")));
     }
@@ -190,7 +190,7 @@ public class TKDumper {
         FileUtils.extractSpearFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Spear Resources
         spearRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getSpearEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getSpearEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Spear.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Spear.dsc")));
     }
@@ -200,7 +200,7 @@ public class TKDumper {
         FileUtils.extractShieldFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Shield Resources
         shieldRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getShieldEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getShieldEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Shield.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Shield.dsc")));
     }
@@ -210,7 +210,7 @@ public class TKDumper {
         FileUtils.extractShoesFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Shoes Resources
         shoesRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getShoesEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getShoesEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Shoes.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Shoes.dsc")));
     }
@@ -220,7 +220,7 @@ public class TKDumper {
         FileUtils.extractSwordFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Sword Resources
         swordRenderer =
-                new PartRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getSwordEpfs(Resources.DATA_DIRECTORY)),
+                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getSwordEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Sword.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Sword.dsc")));
     }

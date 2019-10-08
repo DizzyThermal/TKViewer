@@ -10,8 +10,10 @@ import com.gamemode.tkviewer.resources.Resources;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.io.FileWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +23,15 @@ import static com.gamemode.tkviewer.utilities.Utils.pad;
 // Static File Utilities Class
 public class FileUtils {
     public FileUtils() {
+    }
+
+    public static List<EpfFileHandler> createEpfsFromFiles(File[] epfFiles) {
+        List<EpfFileHandler> epfFileHandlers = new ArrayList<EpfFileHandler>();
+        for (int i = 0; i < epfFiles.length; i++) {
+            epfFileHandlers.add(new EpfFileHandler(epfFiles[i]));
+        }
+
+        return epfFileHandlers;
     }
 
     public static File[] getEpfs(String dataDirectory, String prefix) {
@@ -885,7 +896,7 @@ public class FileUtils {
         }
 
         TileRenderer tileRenderer =
-                new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
+                new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
 
         for (int i = 0 ; i < tileRenderer.getCount(); i++) {
@@ -904,10 +915,10 @@ public class FileUtils {
         }
 
         TileRenderer tileRenderer =
-                new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
+                new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
         SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
-        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), sObjTblFileHandler);
+        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), sObjTblFileHandler);
 
         for (int i = 0 ; i < sObjTblFileHandler.objectCount; i++) {
             File tileFile = Paths.get(outputDirectory.toString(), pad(i, 5) + ".png").toFile();
@@ -930,11 +941,11 @@ public class FileUtils {
         }
 
         TileRenderer tileRenderer =
-                new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
+                new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
         // Static Object Renderer (for C (Static Object -- SObj) Tiles)
         SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
-        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(EpfFileHandler.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), sObjTblFileHandler);
+        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), sObjTblFileHandler);
         // Map Renderer from TileRenderer and SObjRenderer
         MapRenderer mapRenderer = new MapRenderer(tileRenderer, sObjRenderer);
 

@@ -89,7 +89,7 @@ public class PartRenderer implements Renderer {
                 palette.getBlueBytes(),
                 Transparency.TRANSLUCENT);
 
-        DataBufferByte buffer = new DataBufferByte(frame.getRawData().array(), frame.getRawData().capacity());
+        DataBufferByte buffer = new DataBufferByte(frame.getRawPixelData().array(), frame.getRawPixelData().capacity());
         WritableRaster raster = Raster.createPackedRaster(buffer, width, height, 8, null);
 
         image = new BufferedImage(icm, raster, icm.isAlphaPremultiplied(), null);
@@ -113,9 +113,13 @@ public class PartRenderer implements Renderer {
     @Override
     public Image[] getFrames(int index) {
         Image[] frames = new Image[(int)this.partDsc.parts.get(index).getFrameCount()];
+        System.out.println("Frame #: " + index);
+        System.out.print(" - ");
         for (int i = 0; i < this.partDsc.parts.get(index).getFrameCount(); i++) {
+            System.out.print(((int)this.partDsc.parts.get(index).getFrameIndex() + i) + " ");
             frames[i] = this.renderPart(index, (int)this.partDsc.parts.get(index).getFrameIndex(), i);
         }
+        System.out.println();
 
         return frames;
     }

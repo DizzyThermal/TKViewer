@@ -11,6 +11,7 @@ public class Stencil {
 
     public static final int MASK = 0x80; // Hex representation of binary: 10000000
 
+    public ByteBuffer rawStencilData;
     public List<boolean[]> rows;
 
     public Stencil(EpfFileHandler epfFileHandler, Long stencilDataOffset, Dimension dimensions) {
@@ -19,14 +20,16 @@ public class Stencil {
 
         // Rows are boolean arrays (true/false) representing whether or not to draw an individual pixel of *that* row.
         rows = new ArrayList<boolean[]>();
+        ArrayList<Byte> rawStencilDataArray = new ArrayList<Byte>();
 
-        // Absolute offset in pixelData *after* stencilDataOffset.a
+        // Absolute offset in pixelData *after* stencilDataOffset.
         for (int i = 0; i < dimensions.getHeight(); i++) {
             List<Integer> bytes = new ArrayList<Integer>();
 
             // Read row (until we encounter a 0x00 byte)
             while(true) {
                 int stencilValue = epfFileHandler.readUnsignedByte();
+                rawStencilDataArray.add((byte)stencilValue);
 
                 if (stencilValue == 0) {
                     break;
@@ -64,5 +67,14 @@ public class Stencil {
 
             rows.add(row);
         }
+
+        rawStencilData = ByteBuffer.allocate(rawStencilDataArray.size());
+        for (Byte b : rawStencilDataArray) {
+            rawStencilData.put(b);
+        }
+    }
+
+    public ByteBuffer toByteBuffer() {
+        return this.rawStencilData;
     }
 }

@@ -7,16 +7,17 @@ import com.gamemode.tkviewer.resources.Stencil;
 import java.awt.*;
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.nio.ByteOrder;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class EpfFileHandler extends FileHandler {
 
     public static final int HEADER_SIZE = 0xC;
+    public static final int FRAME_SIZE = 0x10;
 
-    private static final int FRAME_SIZE = 0x10;
+    public static int dataSize = 0;
+    public static boolean allFramesLoaded = false;
 
     public int frameCount;
     public int width;
@@ -26,10 +27,18 @@ public class EpfFileHandler extends FileHandler {
     public Map<Integer, Frame> frames_map;
 
     public EpfFileHandler(String filepath) {
-        this(new File(filepath));
+        this(new File(filepath), false);
     }
 
     public EpfFileHandler(File file) {
+        this(file, false);
+    }
+
+    public EpfFileHandler(String filepath, boolean loadAllFrames) {
+        this(new File(filepath), loadAllFrames);
+    }
+
+    public EpfFileHandler(File file, boolean loadAllFrames) {
         super(file);
 
         frames_map = new HashMap<Integer, Frame>();
@@ -39,6 +48,10 @@ public class EpfFileHandler extends FileHandler {
         this.height = this.readShort(true, false);
         this.bitBLT = this.readShort(true, false);
         this.pixelDataLength = this.readInt(true, true);
+
+        if (loadAllFrames) {
+            this.loadAllFrames();
+        }
     }
 
     public Frame getFrame(int index) {
@@ -62,21 +75,73 @@ public class EpfFileHandler extends FileHandler {
 
         // Seek to Pixel Data and Stencil Data
         this.seek(HEADER_SIZE + pixelDataOffset, true);
-        ByteBuffer rawData = this.readBytes((width * height), true);
+        ByteBuffer rawPixelData = this.readBytes((width * height), true);
+        dataSize += rawPixelData.capacity();
         Stencil stencil = new Stencil(this, stencilDataOffset, new Dimension(width, height));
+        ByteBuffer rawStencilData = stencil.toByteBuffer();
+        dataSize += rawStencilData.capacity();
 
-        Frame frame = new Frame(top, left, bottom, right, width, height, pixelDataOffset, stencilDataOffset, rawData, stencil);
+        Frame frame = new Frame(top, left, bottom, right, width, height, pixelDataOffset, stencilDataOffset, rawPixelData, rawStencilData, stencil);
         this.frames_map.put(index, frame);
 
         return this.frames_map.get(index);
     }
 
-    public static List<EpfFileHandler> createEpfsFromFiles(File[] epfFiles) {
-        List<EpfFileHandler> epfFileHandlers = new ArrayList<EpfFileHandler>();
-        for (int i = 0; i < epfFiles.length; i++) {
-            epfFileHandlers.add(new EpfFileHandler(epfFiles[i]));
+    /*
+     * Loads all Frames in the EPF to frames_map.
+     */
+    public void loadAllFrames() {
+        for (int i = 0; i < this.frameCount; i++) {
+            this.getFrame(i);
+        }
+        allFramesLoaded = true;
+    }
+
+    public ByteBuffer toByteBuffer() {
+        if (!allFramesLoaded) {
+            this.loadAllFrames();
         }
 
-        return epfFileHandlers;
+        ByteBuffer epfBytes = ByteBuffer.allocate(HEADER_SIZE + (FRAME_SIZE * this.frameCount) + dataSize);
+        epfBytes.order(ByteOrder.LITTLE_ENDIAN);
+
+        // Header
+        epfBytes.putShort((short)this.frameCount);
+        epfBytes.putShort((short)this.width);
+        epfBytes.putShort((short)this.height);
+        epfBytes.putShort((short)this.bitBLT);
+        epfBytes.putInt((int)this.pixelDataLength);
+
+        // Frames (Pixel Data)
+        for (int i = 0; i < this.frames_map.size(); i++) {
+            Frame frame = this.frames_map.get(i);
+            epfBytes.put(frame.getRawPixelData());
+            //System.out.println(epfBytes.position());
+        }
+
+        // Frames (Stencil Data)
+        for (int i = 0; i < this.frames_map.size(); i++) {
+            Frame frame = this.frames_map.get(i);
+            ByteBuffer stencilData = frame.getRawStencilData();
+            stencilData.order(ByteOrder.LITTLE_ENDIAN);
+            epfBytes.put(stencilData);
+            //System.out.println(epfBytes.position());
+        }
+
+        // Frames (TOC)
+        for (int i = 0; i < this.frames_map.size(); i++) {
+            Frame frame = this.frames_map.get(i);
+
+            epfBytes.putShort((short)frame.getTop());
+            epfBytes.putShort((short)frame.getLeft());
+            epfBytes.putShort((short)frame.getBottom());
+            epfBytes.putShort((short)frame.getRight());
+            epfBytes.putInt((int)frame.getPixelDataOffset());
+            //System.out.println("1: " + epfBytes.position());
+            epfBytes.putInt((int)frame.getStencilDataOffset());
+            //System.out.println("2: " + epfBytes.position());
+        }
+
+        return epfBytes;
     }
 }

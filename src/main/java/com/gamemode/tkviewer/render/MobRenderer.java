@@ -89,7 +89,7 @@ public class MobRenderer implements Renderer {
                 palette.getBlueBytes(),
                 Transparency.TRANSLUCENT);
 
-        DataBufferByte buffer = new DataBufferByte(frame.getRawData().array(), frame.getRawData().capacity());
+        DataBufferByte buffer = new DataBufferByte(frame.getRawPixelData().array(), frame.getRawPixelData().capacity());
         WritableRaster raster = Raster.createPackedRaster(buffer, width, height, 8, null);
 
         image = new BufferedImage(icm, raster, icm.isAlphaPremultiplied(), null);

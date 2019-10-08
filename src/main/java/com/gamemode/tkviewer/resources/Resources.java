@@ -61,7 +61,7 @@ public class Resources {
     public static final String PROGRAM_FILES_X86 = "C:\\Program Files (x86)";
     public static final String PATH_PREFIX = (System.getProperty("os.arch").contains("64"))?PROGRAM_FILES_X86:PROGRAM_FILES;
 
-    public static final String NEXUSTK_DATA_DIRECTORY = PATH_PREFIX + File.separator + "KRU\\NexusTK\\Data";
+    public static final String NEXUSTK_DATA_DIRECTORY = PROGRAM_FILES_X86 + File.separator + "KRU\\NexusTK\\Data";
     public static final String DATA_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "TKViewer\\NexusTK-Data";
 
     public static final String CLIENT_ICON = "client_icon.png";

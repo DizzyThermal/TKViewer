@@ -3,14 +3,19 @@ package com.gamemode.tkviewer.file_handlers;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DatFileHandler extends FileHandler {
 
     public long fileCount;
-    public Map<String, ByteBuffer> files = new HashMap<String, ByteBuffer>();
+    public Map<String, ByteBuffer> files = new LinkedHashMap<>();
+
+    public DatFileHandler(Path filepath) { this(filepath.toFile()); }
 
     public DatFileHandler(String filepath) {
         this(new File(filepath));
@@ -37,6 +42,46 @@ public class DatFileHandler extends FileHandler {
         }
 
         this.close();
+    }
+
+    public void writeDatFile(Path outputPath) {
+        FileWriter fileOutputStream;
+        fileOutputStream = new FileWriter(outputPath);
+
+        // Write File Count ( + 1 )
+        fileOutputStream.writeInt(Math.toIntExact(this.fileCount + 1), false);
+
+        // Write Table of Contents
+        long filePointer = 8 + (this.fileCount * 17) + 13; // Header (File Count + TOC)
+        for (Map.Entry<String, ByteBuffer> entry : this.files.entrySet()) {
+            // Data Location
+            fileOutputStream.writeInt(Math.toIntExact(filePointer), false);
+
+            // File Name (Pad 13 bytes)
+            byte[] fileName = new byte[13];
+            byte[] fileNameBytes = entry.getKey().getBytes();
+            for (byte b = 0; b < fileName.length; b++) {
+                if (b < fileNameBytes.length) {
+                    fileName[b] = fileNameBytes[b];
+                } else {
+                    fileName[b] = 0;
+                }
+            }
+            fileOutputStream.write(fileName);
+
+            // Update File Pointer
+            filePointer += entry.getValue().array().length;
+        }
+        fileOutputStream.writeInt(Math.toIntExact(filePointer), false);
+        fileOutputStream.write(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
+
+        // Dump Binary Data
+        for (Map.Entry<String, ByteBuffer> entry : this.files.entrySet()) {
+            fileOutputStream.write(entry.getValue().array());
+        }
+
+        // Close File
+        fileOutputStream.close();
     }
 
     public void exportFiles(String outputDirectory) {
@@ -72,7 +117,7 @@ public class DatFileHandler extends FileHandler {
         }
     }
 
-    public int lengthUntilZero() {
+    private int lengthUntilZero() {
         long currentPosition = this.filePosition;
         int length = 0;
         while(true) {
