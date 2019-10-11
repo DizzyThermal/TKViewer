@@ -11,9 +11,14 @@ public class TblFileHandler extends FileHandler {
 
     private final byte TBL_MASK = 0x7F;
 
+    public static final int HEADER_SIZE = 0x4;
+    public static final int FRAME_SIZE = 0x2;
+
     public long tileCount;
 
     public List<Integer> paletteIndices;
+
+    ByteBuffer rawBytes;
 
     public TblFileHandler(String filepath) {
         this(new File(filepath));
@@ -39,11 +44,16 @@ public class TblFileHandler extends FileHandler {
 
     public void readInPlain(File file) {
         this.tileCount = this.readInt(true, true);
+        this.rawBytes = ByteBuffer.allocate(HEADER_SIZE + (FRAME_SIZE * (int)this.tileCount));
+        this.rawBytes.order(ByteOrder.LITTLE_ENDIAN);
+        this.rawBytes.putInt((int)this.tileCount);
 
         this.paletteIndices = new ArrayList<Integer>();
         for (int i = 0; i < this.tileCount; i++) {
             int lsb = this.readUnsignedByte();
+            this.rawBytes.put((byte)lsb);
             int msb = this.readUnsignedByte();
+            this.rawBytes.put((byte)msb);
 
             this.paletteIndices.add(((msb & this.TBL_MASK) << 8) | lsb);
         }
@@ -70,14 +80,22 @@ public class TblFileHandler extends FileHandler {
         ByteBuffer decoded = ByteBuffer.wrap(decodedBytes).order(ByteOrder.LITTLE_ENDIAN);
 
         this.tileCount = decoded.getInt(0);
+        this.rawBytes = ByteBuffer.allocate(HEADER_SIZE + (FRAME_SIZE * (int)this.tileCount));
+        this.rawBytes.order(ByteOrder.LITTLE_ENDIAN);
+        this.rawBytes.putInt((int)this.tileCount);
 
         this.paletteIndices = new ArrayList<Integer>();
         for (int i = 0; i < this.tileCount; i++) {
-            int lsb = decoded.array()[4 + (i*2)] & 0xFF;
-            int msb = decoded.array()[4 + (i*2) + 1] & 0xFF;
+            // Unsigned Byte DOES NOT EXIST IN JAVA (wut?) - so we need to use an int
+            int lsb = decoded.array()[HEADER_SIZE + (i * FRAME_SIZE)] & 0xFF;
+            this.rawBytes.put((byte)lsb);
+            int msb = decoded.array()[HEADER_SIZE + (i * FRAME_SIZE) + 1] & 0xFF;
+            this.rawBytes.put((byte)msb);
 
             this.paletteIndices.add(((msb & this.TBL_MASK) << 8) | lsb);
+            System.out.println("i: " + i);
         }
+        System.out.println("decoded size: " + decoded.array().length);
     }
 
     public ByteBuffer decodeBytes(int offset, ByteBuffer encodedBytes) {
@@ -111,6 +129,10 @@ public class TblFileHandler extends FileHandler {
         decodedBytes.putInt((int)(first ^ (first ^ second) & 0x55555555));
 
         return decodedBytes;
+    }
+
+    public ByteBuffer toByteBuffer() {
+        return this.rawBytes;
     }
 
     public boolean compareTo(TblFileHandler tbl2) {

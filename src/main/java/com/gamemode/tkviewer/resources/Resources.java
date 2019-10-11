@@ -21,6 +21,10 @@ public class Resources {
     //   Coat*.epf | Coat.pal | Coat.dsc
     public static final int REQUIRED_COAT_FILES = 16;
 
+    // Count of required Effect resource files:
+    //   EFFECT*.epf | EFFECT.PAL | EFFECT.FRM
+    public static final int REQUIRED_EFFECT_FILES = 41;
+
     // Count of required Face resource files:
     //   Face*.epf | Face.pal | Face.dsc
     public static final int REQUIRED_FACE_FILES = 3;
@@ -40,6 +44,10 @@ public class Resources {
     // Count of required Mantle resource files:
     //   Mantle*.epf | Mantle.pal | Mantle.dsc
     public static final int REQUIRED_MANTLE_FILES = 6;
+
+    // Count of required Mob resource files:
+    //   mon*.epf | monster.pal | monster.dna
+    public static final int REQUIRED_MOB_FILES = 70;
 
     // Count of required Shield resource files:
     //   Spear*.epf | Spear.pal | Spear.dsc
@@ -67,6 +75,6 @@ public class Resources {
     public static final String CLIENT_ICON = "client_icon.png";
 
     public static enum GUI_LOADING_FUNCTION {
-        BODIES, BOWS, COATS, FACES, FANS, HAIR, HELMETS, MANTLES, MAPS, SPEARS, SHIELDS, SHOES, SWORDS
+        BODIES, BOWS, COATS, EFFECTS, FACES, FANS, HAIR, HELMETS, MANTLES, MAPS, MOBS, SPEARS, SHIELDS, SHOES, SWORDS
     }
 }

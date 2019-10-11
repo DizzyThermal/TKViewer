@@ -106,14 +106,32 @@ public class MobRenderer implements Renderer {
     }
 
     @Override
+    public int getCount(boolean useEpfCount) {
+        int output = 0;
+
+        if (!useEpfCount) {
+            output = (int)this.mobDna.mobCount;
+        } else {
+            for (EpfFileHandler epf : this.mobEpfs) {
+                output += epf.frameCount;
+            }
+        }
+
+        return output;
+    }
+
+    @Override
     public int getCount() {
-        return (int)this.mobDna.mobCount;
+        return getCount(false);
     }
 
     @Override
     public Image[] getFrames(int index) {
-        Image[] frames = new Image[1];
-        frames[0] = this.renderMob(index);
+        int imageCount = this.mobDna.mobs.get(index).getChunkCount();
+        Image[] frames = new Image[imageCount];
+        for (int i = 0; i < imageCount; i++) {
+            frames[i] = this.renderMob(index + i);
+        }
 
         return frames;
     }

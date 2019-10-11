@@ -106,8 +106,23 @@ public class PartRenderer implements Renderer {
     }
 
     @Override
+    public int getCount(boolean useEpfCount) {
+        int output = 0;
+
+        if (!useEpfCount) {
+            output = (int)this.partDsc.partCount;
+        } else {
+            for (EpfFileHandler epf : this.partEpfs) {
+                output += epf.frameCount;
+            }
+        }
+
+        return output;
+    }
+
+    @Override
     public int getCount() {
-        return (int)this.partDsc.partCount;
+        return getCount(false);
     }
 
     @Override

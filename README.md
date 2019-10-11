@@ -19,6 +19,7 @@ mvn package
 - **File Structures**
   * [CMP](#cmp)
   * [DAT](#dat)
+  * [DNA](#dna)
   * [DSC](#dsc)
   * [EPF](#epf)
   * [FRM](#frm)
@@ -58,6 +59,20 @@ typedef struct {
   byte[13] file_name                   (4 bytes)
   int size                             (4 bytes)
 } file                                 (12 + size bytes)
+```
+
+#### DNA
+
+```cpp
+int mob_count                          (4 bytes)
+mob[mob_count] mobs                    ((mob_count * 8) bytes)
+
+typedef struct {
+  int frame_index                      (4 bytes)
+  byte chunk_count                     (1 byte)
+  byte unknown1                        (1 byte)
+  short palette_index                  (2 bytes)
+} mob                                  (8 bytes)
 ```
 
 #### DSC

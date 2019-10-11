@@ -2,10 +2,7 @@ package com.gamemode.tkviewer;
 
 import com.gamemode.tkviewer.file_handlers.*;
 import com.gamemode.tkviewer.gui.ViewFrame;
-import com.gamemode.tkviewer.render.MapRenderer;
-import com.gamemode.tkviewer.render.PartRenderer;
-import com.gamemode.tkviewer.render.SObjRenderer;
-import com.gamemode.tkviewer.render.TileRenderer;
+import com.gamemode.tkviewer.render.*;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -37,11 +34,13 @@ public class GUI extends JFrame implements ActionListener {
     JMenuItem viewBodyMenuItem = new JMenuItem("Bodies");
     JMenuItem viewBowMenuItem = new JMenuItem("Bows");
     JMenuItem viewCoatMenuItem = new JMenuItem("Coats");
+    JMenuItem viewEffectMenuItem = new JMenuItem("Effects");
     JMenuItem viewFaceMenuItem = new JMenuItem("Faces");
     JMenuItem viewFanMenuItem = new JMenuItem("Fans");
     JMenuItem viewHairMenuItem = new JMenuItem("Hair");
     JMenuItem viewHelmetMenuItem = new JMenuItem("Helmets");
     JMenuItem viewMantleMenuItem = new JMenuItem("Mantles");
+    JMenuItem viewMobMenuItem = new JMenuItem("Mobs");
     JMenuItem viewSpearMenuItem = new JMenuItem("Spears");
     JMenuItem viewShoesMenuItem = new JMenuItem("Shoes");
     JMenuItem viewShieldMenuItem = new JMenuItem("Shields");
@@ -52,11 +51,13 @@ public class GUI extends JFrame implements ActionListener {
     PartRenderer bodyRenderer;
     PartRenderer bowRenderer;
     PartRenderer coatRenderer;
+    TileRenderer effectRenderer;
     PartRenderer faceRenderer;
     PartRenderer fanRenderer;
     PartRenderer hairRenderer;
     PartRenderer helmetRenderer;
     PartRenderer mantleRenderer;
+    MobRenderer mobRenderer;
     PartRenderer spearRenderer;
     PartRenderer shoesRenderer;
     PartRenderer shieldRenderer;
@@ -107,6 +108,10 @@ public class GUI extends JFrame implements ActionListener {
         viewCoatMenuItem.addActionListener(this);
         viewMenu.add(viewCoatMenuItem);
 
+        // View > Effects
+        viewEffectMenuItem.addActionListener(this);
+        viewMenu.add(viewEffectMenuItem);
+
         // View > Faces
         viewFaceMenuItem.addActionListener(this);
         viewMenu.add(viewFaceMenuItem);
@@ -126,6 +131,10 @@ public class GUI extends JFrame implements ActionListener {
         // View > Mantles
         viewMantleMenuItem.addActionListener(this);
         viewMenu.add(viewMantleMenuItem);
+
+        // View > Mobs
+        viewMobMenuItem.addActionListener(this);
+        viewMenu.add(viewMobMenuItem);
 
         // View > Spears
         viewSpearMenuItem.addActionListener(this);
@@ -190,6 +199,9 @@ public class GUI extends JFrame implements ActionListener {
                     case COATS:
                         loadCoatResources();
                         break;
+                    case EFFECTS:
+                        loadEffectResources();
+                        break;
                     case FACES:
                         loadFaceResources();
                         break;
@@ -207,6 +219,9 @@ public class GUI extends JFrame implements ActionListener {
                         break;
                     case MAPS:
                         loadMapResources();
+                        break;
+                    case MOBS:
+                        loadMobResources();
                         break;
                     case SPEARS:
                         loadSpearResources();
@@ -400,6 +415,13 @@ public class GUI extends JFrame implements ActionListener {
             }
 
             new ViewFrame("Coats", "Coat", "Coats", this.coatRenderer);
+        } else if (ae.getSource() == this.viewEffectMenuItem) {
+            // Initialize Effect Data if needed
+            if (this.effectRenderer == null) {
+                showLoadingDialog("Loading effect resources, please wait...", Resources.GUI_LOADING_FUNCTION.EFFECTS);
+            }
+
+            new ViewFrame("Effects", "Effect", "Effects", this.effectRenderer, true);
         } else if (ae.getSource() == this.viewFaceMenuItem) {
             // Initialize Face Data if needed
             if (this.faceRenderer == null) {
@@ -429,12 +451,19 @@ public class GUI extends JFrame implements ActionListener {
 
             new ViewFrame("Helmets", "Helmet", "Helmets", this.helmetRenderer);
         } else if (ae.getSource() == this.viewMantleMenuItem) {
-            // Initialize Fan Data if needed
+            // Initialize Mantle Data if needed
             if (this.mantleRenderer == null) {
                 showLoadingDialog("Loading mantle resources, please wait...", Resources.GUI_LOADING_FUNCTION.MANTLES);
             }
 
             new ViewFrame("Mantles", "Mantle", "Mantles", this.mantleRenderer);
+        } else if (ae.getSource() == this.viewMobMenuItem) {
+            // Initialize Mob Data if needed
+            if (this.mobRenderer == null) {
+                showLoadingDialog("Loading mob resources, please wait...", Resources.GUI_LOADING_FUNCTION.MOBS);
+            }
+
+            new ViewFrame("Mobs", "Mob", "Mobs", this.mobRenderer);
         } else if (ae.getSource() == this.viewSpearMenuItem) {
             // Initialize Spear Data if needed
             if (this.spearRenderer == null) {
@@ -511,6 +540,16 @@ public class GUI extends JFrame implements ActionListener {
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Coat.dsc")));
     }
 
+    public void loadEffectResources() {
+        // Extract Required Effect Files
+        FileUtils.extractEffectFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        // Part Renderer from Effect Resources
+        effectRenderer =
+                new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getEffectEpfs(Resources.DATA_DIRECTORY)),
+                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.PAL")),
+                        new FrmFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.FRM")));
+    }
+
     public void loadFaceResources() {
         // Extract Required Face Files
         FileUtils.extractFaceFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
@@ -559,6 +598,16 @@ public class GUI extends JFrame implements ActionListener {
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getMantleEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Mantle.pal")),
                         new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Mantle.dsc")));
+    }
+
+    public void loadMobResources() {
+        // Extract Required Mob Files
+        FileUtils.extractMobFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        // Part Renderer from Mob Resources
+        mobRenderer =
+                new MobRenderer(FileUtils.createEpfsFromFiles(FileUtils.getMobEpfs(Resources.DATA_DIRECTORY)),
+                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "monster.pal")),
+                        new DnaFileHandler(new File(Resources.DATA_DIRECTORY, "monster.dna")));
     }
 
     public void loadSpearResources() {

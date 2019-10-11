@@ -124,10 +124,30 @@ public class TileRenderer implements Renderer {
         return (this.tileFrm != null);
     }
 
+    private boolean isTblHandled() { return (this.tileTbl != null); }
+
+    @Override
+    public int getCount(boolean useEpfCount) {
+        // Return FRM count if used, or TBL count, lastly EPF count (overrideable)
+        int output = 0;
+
+        if (this.isFrmHandled() && !useEpfCount) {
+            output = (int)this.tileFrm.effectCount;
+        } else if (this.isTblHandled() && !useEpfCount) {
+            output = (int)this.tileTbl.tileCount;
+        } else {
+            for (EpfFileHandler epf : this.tileEpfs) {
+                output += epf.frameCount;
+            }
+        }
+
+        return output;
+    }
+
     @Override
     public int getCount() {
         // Return FRM count if used, else TBL count
-        return (this.isFrmHandled())?(int)this.tileFrm.effectCount:(int)this.tileTbl.tileCount;
+        return getCount(false);
     }
 
     @Override

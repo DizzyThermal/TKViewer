@@ -117,14 +117,7 @@ public class EpfFileHandler extends FileHandler {
             Frame frame = this.frames_map.get(i);
             epfBytes.put(frame.getRawPixelData());
             //System.out.println(epfBytes.position());
-        }
-
-        // Frames (Stencil Data)
-        for (int i = 0; i < this.frames_map.size(); i++) {
-            Frame frame = this.frames_map.get(i);
-            ByteBuffer stencilData = frame.getRawStencilData();
-            stencilData.order(ByteOrder.LITTLE_ENDIAN);
-            epfBytes.put(stencilData);
+            epfBytes.put(frame.getRawStencilData());
             //System.out.println(epfBytes.position());
         }
 
@@ -137,9 +130,7 @@ public class EpfFileHandler extends FileHandler {
             epfBytes.putShort((short)frame.getBottom());
             epfBytes.putShort((short)frame.getRight());
             epfBytes.putInt((int)frame.getPixelDataOffset());
-            //System.out.println("1: " + epfBytes.position());
             epfBytes.putInt((int)frame.getStencilDataOffset());
-            //System.out.println("2: " + epfBytes.position());
         }
 
         return epfBytes;

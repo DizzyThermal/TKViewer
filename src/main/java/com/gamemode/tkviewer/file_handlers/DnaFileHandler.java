@@ -29,7 +29,7 @@ public class DnaFileHandler extends FileHandler {
             this.seek(1, false);
             int paletteIndex = this.readShort(true, true);
 
-            this.mobs.add(new Mob(frameIndex, paletteIndex));
+            this.mobs.add(new Mob(frameIndex, paletteIndex, (byte)chunkCount));
 
             for (int j = 0; j < chunkCount; j++) {
                 int blockCount = this.readShort(true, true);

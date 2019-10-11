@@ -1,5 +1,6 @@
 package com.gamemode.tkviewer.gui;
 
+import com.gamemode.tkviewer.render.MobRenderer;
 import com.gamemode.tkviewer.render.PartRenderer;
 import com.gamemode.tkviewer.render.Renderer;
 import com.gamemode.tkviewer.render.TileRenderer;
@@ -38,24 +39,34 @@ public class ViewFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
+    public ViewFrame(String title, String singular, String plural, MobRenderer mobRenderer) {
+        this(title, singular, plural);
+        this.renderer = mobRenderer;
+        this.configure(false);
+    }
+
     public ViewFrame(String title, String singular, String plural, PartRenderer partRenderer) {
         this(title, singular, plural);
         this.renderer = partRenderer;
-        this.configure();
+        this.configure(false);
     }
 
     public ViewFrame(String title, String singular, String plural, TileRenderer tileRenderer) {
-        this(title, singular, plural);
-        this.renderer = tileRenderer;
-        this.configure();
+        this(title, singular, plural, tileRenderer, false);
     }
 
-    public void configure() {
+    public ViewFrame(String title, String singular, String plural, TileRenderer tileRenderer, boolean useEpfCount) {
+        this(title, singular, plural);
+        this.renderer = tileRenderer;
+        this.configure(useEpfCount);
+    }
+
+    public void configure(boolean useEpfCount) {
         JPanel imagePanel = new JPanel();
         imagePanel.setBackground(Color.GRAY);
         imagePanel.setPreferredSize(new Dimension(600, 520));
 
-        int count = this.renderer.getCount();
+        int count = this.renderer.getCount(useEpfCount);
         String[] items = new String[count];
         for (int i = 0; i < count; i++) {
             items[i] = this.singular + " " + i;

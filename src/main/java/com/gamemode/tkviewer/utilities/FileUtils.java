@@ -81,6 +81,11 @@ public class FileUtils {
         return getEpfs(dataDirectory, "Coat");
     }
 
+    // Grab files named: EFFECT#.epf and sort by number
+    public static File[] getEffectEpfs(String dataDirectory) {
+        return getEpfs(dataDirectory, "EFFECT");
+    }
+
     // Grab files named: Face#.epf and sort by number
     public static File[] getFaceEpfs(String dataDirectory) {
         return getEpfs(dataDirectory, "Face");
@@ -104,6 +109,11 @@ public class FileUtils {
     // Grab files named: Mantle#.epf and sort by number
     public static File[] getMantleEpfs(String dataDirectory) {
         return getEpfs(dataDirectory, "Mantle");
+    }
+
+    // Grab files named: mon#.epf and sort by number
+    public static File[] getMobEpfs(String dataDirectory) {
+        return getEpfs(dataDirectory, "mon");
     }
 
     // Grab files named: Spear#.epf and sort by number
@@ -262,6 +272,44 @@ public class FileUtils {
                 }
             })) {
                 new DatFileHandler(coatFile).exportFiles(dataDirectory);
+            }
+        }
+    }
+
+    public static void extractEffectFilesIfMissing(String dataDirectory, String nexusTKDataDirectory) {
+        File dataDirectoryFile = new File(dataDirectory);
+        if (!dataDirectoryFile.exists() || dataDirectoryFile.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                boolean matches = false;
+                if (name.equals("EFFECT.FRM")) {
+                    return true;
+                } else if (name.equals("EFFECT.PAL")) {
+                    return true;
+                } else if (name.matches("EFFECT\\d+\\.epf")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }).length < Resources.REQUIRED_EFFECT_FILES) {
+            // Create Directory if it doesn't exist
+            if (!dataDirectoryFile.exists()) {
+                dataDirectoryFile.mkdirs();
+            }
+
+            // EFFECT.PAL, EFFECT.FRM
+            DatFileHandler efxDat = new DatFileHandler(nexusTKDataDirectory + File.separator + "efx.dat");
+            efxDat.exportFiles(dataDirectory);
+
+            // Face*.epf
+            for (File faceFile : new File(nexusTKDataDirectory).listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.matches("efx\\d+\\.dat");
+                }
+            })) {
+                new DatFileHandler(faceFile).exportFiles(dataDirectory);
             }
         }
     }
@@ -508,6 +556,44 @@ public class FileUtils {
                 }
             })) {
                 new DatFileHandler(mantleFile).exportFiles(dataDirectory);
+            }
+        }
+    }
+
+    public static void extractMobFilesIfMissing(String dataDirectory, String nexusTKDataDirectory) {
+        File dataDirectoryFile = new File(dataDirectory);
+        if (!dataDirectoryFile.exists() || dataDirectoryFile.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                boolean matches = false;
+                if (name.equals("monster.dna")) {
+                    return true;
+                } else if (name.equals("monster.pal")) {
+                    return true;
+                } else if (name.matches("mon\\d+\\.epf")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }).length < Resources.REQUIRED_MOB_FILES) {
+            // Create Directory if it doesn't exist
+            if (!dataDirectoryFile.exists()) {
+                dataDirectoryFile.mkdirs();
+            }
+
+            // monster.pal, monster.dna
+            DatFileHandler charDat = new DatFileHandler(nexusTKDataDirectory + File.separator + "mon.dat");
+            charDat.exportFiles(dataDirectory);
+
+            // mon*.epf
+            for (File monFile : new File(nexusTKDataDirectory).listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.matches("mon\\d+\\.dat");
+                }
+            })) {
+                new DatFileHandler(monFile).exportFiles(dataDirectory);
             }
         }
     }
