@@ -78,7 +78,7 @@
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
                 <includes>
-                    <include>**/*</include>
+                    <include>client_icon.png</include>
                 </includes>
             </resource>
         </resources>

@@ -4,6 +4,7 @@ import com.gamemode.tkviewer.file_handlers.DnaFileHandler;
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
 import com.gamemode.tkviewer.resources.Frame;
+import com.gamemode.tkviewer.resources.MobChunk;
 import com.gamemode.tkviewer.resources.Palette;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
@@ -128,6 +129,10 @@ public class MobRenderer implements Renderer {
     @Override
     public Image[] getFrames(int index) {
         int imageCount = this.mobDna.mobs.get(index).getChunkCount();
+        for (int i = 0; i < this.mobDna.mobs.get(index).getChunkCount(); i++) {
+            MobChunk chunk = this.mobDna.mobs.get(index).getChunks().get(i);
+            imageCount += chunk.getBlockCount();
+        }
         Image[] frames = new Image[imageCount];
         for (int i = 0; i < imageCount; i++) {
             frames[i] = this.renderMob(index + i);
