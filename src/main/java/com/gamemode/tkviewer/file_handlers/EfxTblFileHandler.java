@@ -63,7 +63,7 @@ public class EfxTblFileHandler extends FileHandler {
         this.effects = new ArrayList<Effect>();
         for (int i = 0; i < this.effectCount; i++) {
             System.out.println("i: " + i);
-            if (i == 208) {
+            if (i ==70) {
                 System.out.println();
             }
             int effectIndex = rawBytes.getInt();
@@ -72,33 +72,44 @@ public class EfxTblFileHandler extends FileHandler {
             }
             int frameCount = rawBytes.getInt();
 
-            // Unknown
-            rawBytes.get(new byte[20]);
+            if (frameCount == 0) {
+                rawBytes.get(new byte[8]); // skip 4
+                frameCount = rawBytes.getInt(); // different frame count location
+                rawBytes.get(new byte[8]); // skip 12
+            } else {
+                rawBytes.get(new byte[20]);
+            }
 
             // Frame Data
             List<EffectFrame> effectFrames = new ArrayList<EffectFrame>();
             for (int j = 0; j < frameCount; j++) {
                 System.out.println("  j: " + j);
-                int integerLastFrame = 0;
                 int frameIndex = rawBytes.getInt();
                 if (frameIndex == -1) {
-                    integerLastFrame = rawBytes.getInt();
-                    rawBytes.get(new byte[24]);
-                    frameIndex = rawBytes.getInt();
+                    while (frameIndex != i + 1) {
+                        if (frameIndex == -1) {
+                            rawBytes.get(new byte[12]);
+                        } else {
+                            int frameDelay = rawBytes.getInt();
+                            int paletteIndex = rawBytes.getInt();
+                            int unknown2 = rawBytes.getInt();
+                            effectFrames.add(new EffectFrame(frameIndex, frameDelay, paletteIndex, unknown2));
+                            System.out.println("effectFrames.size():" + effectFrames.size());
+                        }
+                        frameIndex = rawBytes.getInt();
+                    }
+                    rawBytes.position(rawBytes.position()-4);
+                    break;
                 }
+                int frameDelay = rawBytes.getInt();
                 int paletteIndex = rawBytes.getInt();
-                int unknown1 = rawBytes.getInt();
                 int unknown2 = rawBytes.getInt();
 
-                effectFrames.add(new EffectFrame(frameIndex, paletteIndex, unknown1, unknown2));
+                effectFrames.add(new EffectFrame(frameIndex, frameDelay, paletteIndex, unknown2));
                 System.out.println("effectFrames.size():" + effectFrames.size());
-
-                if (integerLastFrame > 0 && j == (frameCount - 1)) {
-                    rawBytes.get(new byte[(integerLastFrame - frameIndex) * 16]);
-                }
             }
 
-            effects.add(new Effect(effectIndex, frameCount, effectFrames));
+            effects.add(new Effect(effectIndex, effectFrames.size(), effectFrames));
         }
     }
 
