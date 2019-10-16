@@ -4,10 +4,14 @@ import com.gamemode.tkviewer.file_handlers.*;
 import com.gamemode.tkviewer.render.MapRenderer;
 import com.gamemode.tkviewer.render.SObjRenderer;
 import com.gamemode.tkviewer.render.TileRenderer;
+import com.gamemode.tkviewer.resources.EffectImage;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.Resources;
+import com.gamemode.tkviewer.third_party.GifSequenceWriter;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.io.FileWriter;
@@ -32,6 +36,21 @@ public class FileUtils {
         }
 
         return epfFileHandlers;
+    }
+
+    public static void exportGifFromImages(List<EffectImage> images, String outputFilePath) {
+        try {
+            ImageOutputStream output = new FileImageOutputStream(new File(outputFilePath));
+            GifSequenceWriter gifWriter = new GifSequenceWriter(output, BufferedImage.TYPE_INT_ARGB, images.get(0).getDelay(), true);
+            for (int i = 0; i < images.size(); i++) {
+                gifWriter.writeToSequence(images.get(i).getImage(), images.get(i).getDelay());
+            }
+
+            gifWriter.close();
+            output.close();
+        } catch (IOException ioe) {
+            System.out.println("Error writing");
+        }
     }
 
     public static File[] getEpfs(String dataDirectory, String prefix) {
@@ -147,7 +166,7 @@ public class FileUtils {
     }
 
     public static Frame getFrameFromEpfs(int index, List<EpfFileHandler> epfFiles) {
-        int epfIndex = 0;
+        int epfIndex = -1;
 
         int frameCount = 0;
         for (int i = 0; i < epfFiles.size(); i++) {
@@ -159,7 +178,17 @@ public class FileUtils {
             frameCount += epfFiles.get(i).frameCount;
         }
 
-        return epfFiles.get(epfIndex).getFrame(index - frameCount);
+        Frame returnFrame = null;
+        if (epfIndex != -1) {
+            int relativeFrameIndex = index - frameCount;
+            try {
+                returnFrame = epfFiles.get(epfIndex).getFrame(relativeFrameIndex);
+            } catch (ArrayIndexOutOfBoundsException aioobe) {
+                aioobe.printStackTrace();
+            }
+        }
+
+        return returnFrame;
     }
 
     public static void extractBodyFilesIfMissing(String dataDirectory, String nexusTKDataDirectory) {

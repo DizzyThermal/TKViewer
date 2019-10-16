@@ -62,14 +62,7 @@ public class EfxTblFileHandler extends FileHandler {
 
         this.effects = new ArrayList<Effect>();
         for (int i = 0; i < this.effectCount; i++) {
-            System.out.println("i: " + i);
-            if (i ==70) {
-                System.out.println();
-            }
             int effectIndex = rawBytes.getInt();
-            if (i != effectIndex) {
-                System.out.println(i + " != " + effectIndex);
-            }
             int frameCount = rawBytes.getInt();
 
             if (frameCount == 0) {
@@ -83,7 +76,6 @@ public class EfxTblFileHandler extends FileHandler {
             // Frame Data
             List<EffectFrame> effectFrames = new ArrayList<EffectFrame>();
             for (int j = 0; j < frameCount; j++) {
-                System.out.println("  j: " + j);
                 int frameIndex = rawBytes.getInt();
                 if (frameIndex == -1) {
                     while (frameIndex != i + 1) {
@@ -94,7 +86,6 @@ public class EfxTblFileHandler extends FileHandler {
                             int paletteIndex = rawBytes.getInt();
                             int unknown2 = rawBytes.getInt();
                             effectFrames.add(new EffectFrame(frameIndex, frameDelay, paletteIndex, unknown2));
-                            System.out.println("effectFrames.size():" + effectFrames.size());
                         }
                         frameIndex = rawBytes.getInt();
                     }
@@ -106,7 +97,6 @@ public class EfxTblFileHandler extends FileHandler {
                 int unknown2 = rawBytes.getInt();
 
                 effectFrames.add(new EffectFrame(frameIndex, frameDelay, paletteIndex, unknown2));
-                System.out.println("effectFrames.size():" + effectFrames.size());
             }
 
             effects.add(new Effect(effectIndex, effectFrames.size(), effectFrames));

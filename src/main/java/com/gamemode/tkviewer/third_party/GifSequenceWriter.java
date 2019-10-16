@@ -104,6 +104,18 @@ public class GifSequenceWriter {
                 imageWriteParam);
     }
 
+    public void writeToSequence(RenderedImage img, int delay) throws IOException {
+        setImageDelay(delay);
+        this.writeToSequence(img);
+    }
+
+    public void setImageDelay(int delay) {
+        String metaFormatName = imageMetaData.getNativeMetadataFormatName();
+        IIOMetadataNode root = (IIOMetadataNode) imageMetaData.getAsTree(metaFormatName);
+        IIOMetadataNode graphicsControlExtensionNode = getNode(root,"GraphicControlExtension");
+        graphicsControlExtensionNode.setAttribute("delayTime", Integer.toString(delay / 10));
+    }
+
     /**
      * Close this GifSequenceWriter object. This does not close the underlying
      * stream, just finishes off the GIF.

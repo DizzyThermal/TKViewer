@@ -194,6 +194,25 @@ typedef struct {
 } PAL
 ```
 
+#### TBL (Effects)
+```cpp
+int effect count                     (4 bytes)
+
+effect [effect_count] effects
+typedef struct {
+  int effect index                  (4 bytes)
+  int frame count                    (4 bytes) # number of frames in the effect
+  byte[20] unknown
+  frame [frame_count] frames
+  typedef struct {
+	int frame index                 (4 bytes)
+	int frame delay                 (4 bytes) # ms
+	int pallete number              (4 bytes)
+	byte[4] unknown
+  }
+} effect
+```
+
 #### TBL (Static Objects)
 ```cpp
 int obj_count                        (4 bytes)
@@ -226,22 +245,6 @@ typedef struct {
 } tile                               (2 bytes)
 ```
 
-#### TBL (Effects)
-int effect count                     (4 bytes)
-
-effect [effect_count] effects
-typedef struct {
-  int effect index                  (4 bytes)
-  int frame count                    (4 bytes) # number of frames in the effect
-  byte[20] unknown
-  frame [frame_count] frames
-  typedef struct {
-	int frame index                 (4 bytes)
-	int frame delay                 (4 bytes) # ms
-	int pallete number              (4 bytes)
-	byte[4] unknown
-  }
-} effect
 ## Contributors
 
 Huge thank you to everyone who helps figure out NTK file structures:
