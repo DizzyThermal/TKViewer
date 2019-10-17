@@ -1,27 +1,17 @@
 package com.gamemode.tkviewer.utilities;
 
 import com.gamemode.tkviewer.file_handlers.*;
-import com.gamemode.tkviewer.render.MapRenderer;
-import com.gamemode.tkviewer.render.SObjRenderer;
-import com.gamemode.tkviewer.render.TileRenderer;
-import com.gamemode.tkviewer.resources.EffectImage;
-import com.gamemode.tkviewer.resources.Frame;
-import com.gamemode.tkviewer.resources.Resources;
-import com.gamemode.tkviewer.third_party.GifSequenceWriter;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+import com.gamemode.tkviewer.render.*;
+import com.gamemode.tkviewer.resources.*;
+import com.gamemode.tkviewer.third_party.*;
 
-import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import javax.imageio.*;
+import javax.imageio.stream.*;
+import java.awt.image.*;
 import java.io.FileWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
 
 import static com.gamemode.tkviewer.utilities.Utils.pad;
 
@@ -214,11 +204,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Body.pal")) {
                     return true;
-                } else if (name.matches("Body\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Body\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_BODY_FILES) {
             // Create Directory if it doesn't exist
@@ -252,11 +238,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Bow.pal")) {
                     return true;
-                } else if (name.matches("Bow\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Bow\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_BOW_FILES) {
             // Create Directory if it doesn't exist
@@ -290,11 +272,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Coat.pal")) {
                     return true;
-                } else if (name.matches("Coat\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Coat\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_COAT_FILES) {
             // Create Directory if it doesn't exist
@@ -328,11 +306,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("EFFECT.PAL")) {
                     return true;
-                } else if (name.matches("EFFECT\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("EFFECT\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_EFFECT_FILES) {
             // Create Directory if it doesn't exist
@@ -366,11 +340,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Face.pal")) {
                     return true;
-                } else if (name.matches("Face\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Face\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_FACE_FILES) {
             // Create Directory if it doesn't exist
@@ -404,11 +374,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Fan.pal")) {
                     return true;
-                } else if (name.matches("Fan\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Fan\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_FAN_FILES) {
             // Create Directory if it doesn't exist
@@ -442,11 +408,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Hair.pal")) {
                     return true;
-                } else if (name.matches("Hair\\d+\\.[Ee][Pp][Ff]")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Hair\\d+\\.[Ee][Pp][Ff]");
             }
         }).length < Resources.REQUIRED_HAIR_FILES) {
             // Create Directory if it doesn't exist
@@ -480,11 +442,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Helmet.pal")) {
                     return true;
-                } else if (name.matches("Helmet\\d+\\.[Ee][Pp][Ff]")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Helmet\\d+\\.[Ee][Pp][Ff]");
             }
         }).length < Resources.REQUIRED_HELMET_FILES) {
             // Create Directory if it doesn't exist
@@ -526,11 +484,7 @@ public class FileUtils {
                     return true;
                 } else if (name.matches("tile\\d+\\.epf")) {
                     return true;
-                } else if (name.matches("tilec\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("tilec\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_MAP_FILES) {
             // Create Directory if it doesn't exist
@@ -574,11 +528,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Mantle.pal")) {
                     return true;
-                } else if (name.matches("Mantle\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Mantle\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_MANTLE_FILES) {
             // Create Directory if it doesn't exist
@@ -612,11 +562,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("monster.pal")) {
                     return true;
-                } else if (name.matches("mon\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("mon\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_MOB_FILES) {
             // Create Directory if it doesn't exist
@@ -650,11 +596,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Spear.pal")) {
                     return true;
-                } else if (name.matches("Spear\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Spear\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_SPEAR_FILES) {
             // Create Directory if it doesn't exist
@@ -688,11 +630,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Shield.pal")) {
                     return true;
-                } else if (name.matches("Shield\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Shield\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_SHIELD_FILES) {
             // Create Directory if it doesn't exist
@@ -726,11 +664,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Shoes.pal")) {
                     return true;
-                } else if (name.matches("Shoes\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Shoes\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_SHOES_FILES) {
             // Create Directory if it doesn't exist
@@ -764,11 +698,7 @@ public class FileUtils {
                     return true;
                 } else if (name.equals("Sword.pal")) {
                     return true;
-                } else if (name.matches("Sword\\d+\\.epf")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                } else return name.matches("Sword\\d+\\.epf");
             }
         }).length < Resources.REQUIRED_SWORD_FILES) {
             // Create Directory if it doesn't exist
@@ -885,10 +815,10 @@ public class FileUtils {
                                     writer.append("  <object id=\"" + objCount++ + "\" x=\"" + (j * 48) + "\" y=\"" + (i * 48) + "\" width=\"2\" height=\"48\"/>\n");
                                     break;
                                 case 0x8:
-                                    writer.append("  <object id=\"" + objCount++ + "\" x=\"" + ((j + 1) * 48) + "\" y=\"" +  (i * 48) + "\" width=\"2\" height=\"48\"/>\n");
+                                    writer.append("  <object id=\"" + objCount++ + "\" x=\"" + ((j + 1) * 48) + "\" y=\"" + (i * 48) + "\" width=\"2\" height=\"48\"/>\n");
                                     break;
                                 case 0xF:
-                                    writer.append("  <object id=\""  + objCount++ +"\" x=\"" + (j * 48) + "\" y=\"" + (i * 48) + "\" width=\"48\" height=\"48\"/>\n");
+                                    writer.append("  <object id=\"" + objCount++ + "\" x=\"" + (j * 48) + "\" y=\"" + (i * 48) + "\" width=\"48\" height=\"48\"/>\n");
                                     break;
                             }
                         }
@@ -896,14 +826,13 @@ public class FileUtils {
 
                     // Non-Passable Tiles
                     if (cmp.mapTiles.get(tileCount).getPassableTile() == 1) {
-                        writer.append("  <object id=\""  + objCount++ +"\" x=\"" + (j * 48) + "\" y=\"" + (i * 48) + "\" width=\"48\" height=\"48\"/>\n");
+                        writer.append("  <object id=\"" + objCount++ + "\" x=\"" + (j * 48) + "\" y=\"" + (i * 48) + "\" width=\"48\" height=\"48\"/>\n");
                     }
                     tileCount++;
                 }
             }
 
             writer.append(" </objectgroup>\n");
-
 
 
             writer.append("</map>\n");
@@ -926,7 +855,7 @@ public class FileUtils {
             writer.append("<tileset version=\"1.2\" tiledversion=\"1.2.4\" name=\"SObjects\" tilewidth=\"48\" tileheight=\"576\" tilecount=\"" + sObjTblFileHandler.objectCount + "\" columns=\"5\">\n");
             writer.append(" <grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
 
-            for (int i = 0 ; i < sObjTblFileHandler.objectCount; i++) {
+            for (int i = 0; i < sObjTblFileHandler.objectCount; i++) {
                 writer.append(" <tile id=\"" + i + "\">\n");
                 int height = 1;
                 if (sObjTblFileHandler.objects.get(i).getHeight() > 1) {
@@ -946,7 +875,7 @@ public class FileUtils {
                             writer.append("   <object id=\"1\" x=\"0\" y=\"" + (48 * (height - 1)) + "\" height=\"48\"/>\n");
                             break;
                         case 0x8:
-                            writer.append("   <object id=\"1\" x=\"48\" y=\"" +  (48 * (height - 1)) + "\" height=\"48\"/>\n");
+                            writer.append("   <object id=\"1\" x=\"48\" y=\"" + (48 * (height - 1)) + "\" height=\"48\"/>\n");
                             break;
                         case 0xF:
                             writer.append("   <object id=\"1\" x=\"0\" y=\"" + (48 * (height - 1)) + "\" width=\"48\" height=\"48\"/>\n");
@@ -976,7 +905,7 @@ public class FileUtils {
             writer.append("<tileset version=\"1.2\" tiledversion=\"1.2.4\" name=\"SObjects\" tilewidth=\"48\" tileheight=\"576\" tilecount=\"" + sObjTblFileHandler.objectCount + "\" columns=\"5\">\n");
             writer.append(" <grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
 
-            for (int i = 0 ; i < sObjTblFileHandler.objectCount; i++) {
+            for (int i = 0; i < sObjTblFileHandler.objectCount; i++) {
                 int height = sObjTblFileHandler.objects.get(i).getHeight();
                 if (height == 0) {
                     height = 1;
@@ -1005,7 +934,7 @@ public class FileUtils {
             writer.append("<tileset version=\"1.2\" tiledversion=\"1.2.4\" name=\"Tiles\" tilewidth=\"48\" tileheight=\"48\" tilecount=\"" + tblFileHandler.tileCount + "\" columns=\"5\">\n");
             writer.append(" <grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
 
-            for (int i = 0 ; i < tblFileHandler.tileCount; i++) {
+            for (int i = 0; i < tblFileHandler.tileCount; i++) {
                 writer.append(" <tile id=\"" + i + "\">\n");
                 writer.append("  <image width=\"48\" height=\"48\" source=\"../tiles/" + pad(i, 5) + ".png\"/>\n");
                 writer.append(" </tile>\n");
@@ -1027,7 +956,7 @@ public class FileUtils {
                 new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
 
-        for (int i = 0 ; i < tileRenderer.getCount(); i++) {
+        for (int i = 0; i < tileRenderer.getCount(); i++) {
             File tileFile = Paths.get(outputDirectory.toString(), pad(i, 5) + ".png").toFile();
             try {
                 ImageIO.write(tileRenderer.renderTile(i), "png", tileFile);
@@ -1048,7 +977,7 @@ public class FileUtils {
         SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
         SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), sObjTblFileHandler);
 
-        for (int i = 0 ; i < sObjTblFileHandler.objectCount; i++) {
+        for (int i = 0; i < sObjTblFileHandler.objectCount; i++) {
             File tileFile = Paths.get(outputDirectory.toString(), pad(i, 5) + ".png").toFile();
             try {
                 if (sObjTblFileHandler.objects.get(i).getHeight() > 0) {
@@ -1082,11 +1011,7 @@ public class FileUtils {
                     @Override
                     public boolean accept(File dir, String name) {
                         boolean matches = false;
-                        if (name.matches("[Tt][Kk]\\d+\\.[Cc][Mm][Pp]")) {
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        return name.matches("[Tt][Kk]\\d+\\.[Cc][Mm][Pp]");
                     }
                 })) {
             CmpFileHandler mapCmp = new CmpFileHandler(mapFile);
