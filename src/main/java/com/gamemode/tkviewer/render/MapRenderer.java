@@ -184,4 +184,9 @@ public class MapRenderer {
 
         return gridNodes;
     }
+
+    public void dispose() {
+        tileRenderer.dispose();
+        sObjRenderer.dispose();
+    }
 }

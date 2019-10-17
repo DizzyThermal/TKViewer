@@ -1,9 +1,8 @@
 package com.gamemode.tkviewer.gui;
 
-import com.gamemode.tkviewer.render.MobRenderer;
-import com.gamemode.tkviewer.render.PartRenderer;
+import com.gamemode.tkviewer.render.*;
 import com.gamemode.tkviewer.render.Renderer;
-import com.gamemode.tkviewer.render.TileRenderer;
+import com.gamemode.tkviewer.resources.EffectImage;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
 
@@ -16,6 +15,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
 public class ViewFrame extends JFrame {
 
@@ -37,6 +41,12 @@ public class ViewFrame extends JFrame {
         this.setSize(800, 600);
         this.setResizable(true);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    public ViewFrame(String title, String singular, String plural, EffectRenderer effectRenderer) {
+        this(title, singular, plural);
+        this.renderer = effectRenderer;
+        this.configure(false);
     }
 
     public ViewFrame(String title, String singular, String plural, MobRenderer mobRenderer) {
@@ -85,32 +95,55 @@ public class ViewFrame extends JFrame {
                     imagePanel.repaint();
 
                     int idx = list.getSelectedIndex();
-                    Image[] images = renderer.getFrames(idx);
-                    for (int i = 0; i < images.length; i++) {
-                        final int frameIndex = renderer.getFrameIndex(idx, i);
-                        JLabel jLabel = new JLabel(new ImageIcon(images[i]));
-                        jLabel.addMouseListener(new MouseAdapter() {
-                            @Override
-                            public void mouseClicked(MouseEvent e) {
-                                super.mouseClicked(e);
-                                if (SwingUtilities.isRightMouseButton(e)) {
-                                    JDialog loadingNotification = new JDialog(ViewFrame.this, new StringBuilder("TKViewer" + " - " + singular + "[" + idx + ":" + frameIndex + "]").toString(), false);
-                                    loadingNotification.setIconImage(clientIcon);
-                                    JTextPane info = new JTextPane();
-                                    info.setContentType("text/html");
-                                    info.setText(renderer.getInfo(frameIndex));
-                                    info.setEditable(false);
-                                    info.setFont(new Font("Consolas", Font.BOLD, 12));
-                                    loadingNotification.add(info);
-                                    loadingNotification.setSize(new Dimension(480, 320));
-                                    loadingNotification.setResizable(false);
-                                    loadingNotification.setLocationRelativeTo(ViewFrame.this);
-                                    loadingNotification.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                    loadingNotification.setVisible(true);
+                    if (renderer instanceof EffectRenderer) {
+                        // Get Effect Images
+                        List<EffectImage> images = ((EffectRenderer) renderer).renderEffect(idx);
+
+                        // Create GIF in Temp Directory
+                        if (!new File(Resources.EFFECT_ANIMATION_DIRECTORY).exists()) {
+                            new File(Resources.EFFECT_ANIMATION_DIRECTORY).mkdirs();
+                        }
+                        String gifPath = (Resources.EFFECT_ANIMATION_DIRECTORY + File.separator + "effect-" + idx + ".gif");
+                        if (!new File(gifPath).exists()) {
+                            FileUtils.exportGifFromImages(images, gifPath);
+                        }
+
+                        // Add GIF to imagePanel
+                        if (new File(gifPath).exists()) {
+                            Icon gifIcon = new ImageIcon(gifPath);
+                            JLabel jLabel = new JLabel(gifIcon);
+                            imagePanel.add(jLabel);
+                        } else {
+                            System.err.println("Couldn't find file: " + gifPath);
+                        }
+                    } else {
+                        Image[] images = renderer.getFrames(idx);
+                        for (int i = 0; i < images.length; i++) {
+                            final int frameIndex = renderer.getFrameIndex(idx, i);
+                            JLabel jLabel = new JLabel(new ImageIcon(images[i]));
+                            jLabel.addMouseListener(new MouseAdapter() {
+                                @Override
+                                public void mouseClicked(MouseEvent e) {
+                                    super.mouseClicked(e);
+                                    if (SwingUtilities.isRightMouseButton(e)) {
+                                        JDialog loadingNotification = new JDialog(ViewFrame.this, new StringBuilder("TKViewer" + " - " + singular + "[" + idx + ":" + frameIndex + "]").toString(), false);
+                                        loadingNotification.setIconImage(clientIcon);
+                                        JTextPane info = new JTextPane();
+                                        info.setContentType("text/html");
+                                        info.setText(renderer.getInfo(frameIndex));
+                                        info.setEditable(false);
+                                        info.setFont(new Font("Consolas", Font.BOLD, 12));
+                                        loadingNotification.add(info);
+                                        loadingNotification.setSize(new Dimension(480, 320));
+                                        loadingNotification.setResizable(false);
+                                        loadingNotification.setLocationRelativeTo(ViewFrame.this);
+                                        loadingNotification.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                        loadingNotification.setVisible(true);
+                                    }
                                 }
-                            }
-                        });
-                        imagePanel.add(jLabel);
+                            });
+                            imagePanel.add(jLabel);
+                        }
                     }
 
                     revalidate();

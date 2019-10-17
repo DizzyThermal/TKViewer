@@ -8,6 +8,7 @@ import com.gamemode.tkviewer.resources.EffectImage;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.third_party.GifSequenceWriter;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
@@ -36,6 +37,18 @@ public class FileUtils {
         }
 
         return epfFileHandlers;
+    }
+
+    // Recursively deletes a directory
+    public static boolean deleteDirectory(String directoryPath) {
+        try {
+            org.apache.commons.io.FileUtils.deleteDirectory(new File(directoryPath));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     public static void exportGifFromImages(List<EffectImage> images, String outputFilePath) {

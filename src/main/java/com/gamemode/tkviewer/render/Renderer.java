@@ -8,4 +8,5 @@ public interface Renderer {
     Image[] getFrames(int index);
     String getInfo(int index);
     int getFrameIndex(int index, int offset);
+    void dispose();
 }

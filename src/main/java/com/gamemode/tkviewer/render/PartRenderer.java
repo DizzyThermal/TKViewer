@@ -160,4 +160,17 @@ public class PartRenderer implements Renderer {
         stringBuilder.append("</html>");
         return stringBuilder.toString();
     }
+
+    @Override
+    public void dispose() {
+        for (EpfFileHandler epf : partEpfs) {
+            epf.close();
+        }
+        if (partPal != null) {
+            partPal.close();
+        }
+        if (partDsc != null) {
+            partDsc.close();
+        }
+    }
 }

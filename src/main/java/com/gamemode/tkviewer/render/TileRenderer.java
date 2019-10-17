@@ -179,4 +179,20 @@ public class TileRenderer implements Renderer {
 
         return stringBuilder.toString();
     }
+
+    @Override
+    public void dispose() {
+        for (EpfFileHandler epf : tileEpfs) {
+            epf.close();
+        }
+        if (tilePal != null) {
+            tilePal.close();
+        }
+        if (tileTbl != null) {
+            tileTbl.close();
+        }
+        if (tileFrm != null) {
+            tileFrm.close();
+        }
+    }
 }

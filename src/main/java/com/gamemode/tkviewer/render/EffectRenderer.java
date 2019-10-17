@@ -190,4 +190,20 @@ public class EffectRenderer implements Renderer {
 
         return stringBuilder.toString();
     }
+
+    @Override
+    public void dispose() {
+        for (EpfFileHandler epf : effectEpfs) {
+            epf.close();
+        }
+        if (effectPal != null) {
+            effectPal.close();
+        }
+        if (effectEfxTbl != null) {
+            effectEfxTbl.close();
+        }
+        if (effectFrm != null) {
+            effectFrm.close();
+        }
+    }
 }

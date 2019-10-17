@@ -246,4 +246,17 @@ public class MobRenderer implements Renderer {
 
         return stringBuilder.toString();
     }
+
+    @Override
+    public void dispose() {
+        for (EpfFileHandler epf : mobEpfs) {
+            epf.close();
+        }
+        if (mobPal != null) {
+            mobPal.close();
+        }
+        if (mobDna != null) {
+            mobDna.close();
+        }
+    }
 }

@@ -65,16 +65,16 @@ public class Resources {
     //   Sword*.epf | Sword.pal | Sword.dsc
     public static final int REQUIRED_SWORD_FILES = 6;
 
-    public static final String PROGRAM_FILES = "C:\\Program Files";
     public static final String PROGRAM_FILES_X86 = "C:\\Program Files (x86)";
-    public static final String PATH_PREFIX = (System.getProperty("os.arch").contains("64"))?PROGRAM_FILES_X86:PROGRAM_FILES;
 
     public static final String NEXUSTK_DATA_DIRECTORY = PROGRAM_FILES_X86 + File.separator + "KRU\\NexusTK\\Data";
-    public static final String DATA_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "TKViewer\\NexusTK-Data";
+    public static final String TKVIEWER_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "TKViewer";
+    public static final String DATA_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "NexusTK-Data";
+    public static final String EFFECT_ANIMATION_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "Effect-Animations";
 
     public static final String CLIENT_ICON = "client_icon.png";
 
     public static enum GUI_LOADING_FUNCTION {
-        BODIES, BOWS, COATS, EFFECTS, FACES, FANS, HAIR, HELMETS, MANTLES, MAPS, MOBS, SPEARS, SHIELDS, SHOES, SWORDS
+        BODIES, BOWS, CLEAR_CACHE, COATS, EFFECTS, FACES, FANS, HAIR, HELMETS, MANTLES, MAPS, MOBS, SPEARS, SHIELDS, SHOES, SWORDS
     }
 }

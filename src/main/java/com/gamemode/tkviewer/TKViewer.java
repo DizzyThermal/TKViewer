@@ -1,5 +1,7 @@
 package com.gamemode.tkviewer;
 
+import com.gamemode.tkviewer.gui.GUI;
+
 import javax.swing.JFrame;
 
 public class TKViewer {

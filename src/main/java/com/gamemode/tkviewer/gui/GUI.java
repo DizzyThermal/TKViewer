@@ -1,8 +1,9 @@
-package com.gamemode.tkviewer;
+package com.gamemode.tkviewer.gui;
 
 import com.gamemode.tkviewer.file_handlers.*;
 import com.gamemode.tkviewer.gui.ViewFrame;
 import com.gamemode.tkviewer.render.*;
+import com.gamemode.tkviewer.render.Renderer;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -18,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUI extends JFrame implements ActionListener {
 
@@ -29,6 +32,9 @@ public class GUI extends JFrame implements ActionListener {
     JMenu openMenu = new JMenu("Open");
     JMenuItem openMapMenuItem = new JMenuItem("Map File (*.cmp | *.map)");
     JMenuItem exitMenuItem = new JMenuItem("Exit");
+
+    JMenu editMenu = new JMenu("Edit");
+    JMenuItem editClearCacheMenuItem = new JMenuItem("Clear Cache");
 
     JMenu viewMenu = new JMenu("View");
     JMenuItem viewBodyMenuItem = new JMenuItem("Bodies");
@@ -51,7 +57,7 @@ public class GUI extends JFrame implements ActionListener {
     PartRenderer bodyRenderer;
     PartRenderer bowRenderer;
     PartRenderer coatRenderer;
-    TileRenderer effectRenderer;
+    EffectRenderer effectRenderer;
     PartRenderer faceRenderer;
     PartRenderer fanRenderer;
     PartRenderer hairRenderer;
@@ -95,6 +101,14 @@ public class GUI extends JFrame implements ActionListener {
         fileMenu.add(openMenu);
         fileMenu.add(exitMenuItem);
         menuBar.add(fileMenu);
+
+        // Edit > Clear Cache
+        editClearCacheMenuItem.addActionListener(this);
+        editClearCacheMenuItem.setToolTipText("Clears TKViewer extracted data and cached animations");
+
+        // Edit
+        editMenu.add(editClearCacheMenuItem);
+        menuBar.add(editMenu);
 
         // View > Bodies
         viewBodyMenuItem.addActionListener(this);
@@ -190,6 +204,9 @@ public class GUI extends JFrame implements ActionListener {
             @Override
             protected Boolean doInBackground() throws Exception {
                 switch(loadingFunction) {
+                    case CLEAR_CACHE:
+                        clearCache();
+                        break;
                     case BODIES:
                         loadBodyResources();
                         break;
@@ -316,9 +333,9 @@ public class GUI extends JFrame implements ActionListener {
                 Dimension currentDimensions = new Dimension(((BufferedImage) map).getWidth(), ((BufferedImage) map).getHeight());
                 Dimension scaledDimensions = getScaledDimensions(currentDimensions, Toolkit.getDefaultToolkit().getScreenSize());
                 if (!currentDimensions.equals(scaledDimensions)) {
-                    scaledMap = map.getScaledInstance((int)scaledDimensions.getWidth(), (int)scaledDimensions.getHeight(), Image.SCALE_SMOOTH);
+                    scaledMap = map.getScaledInstance((int) scaledDimensions.getWidth(), (int) scaledDimensions.getHeight(), Image.SCALE_SMOOTH);
                 }
-                JLabel label = new JLabel(new ImageIcon((scaledMap != null)?scaledMap:map));
+                JLabel label = new JLabel(new ImageIcon((scaledMap != null) ? scaledMap : map));
                 mapFrame.setSize(this.MAX_IMAGE_DIMENSIONS);
                 mapFrame.add(label);
                 mapFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -394,6 +411,18 @@ public class GUI extends JFrame implements ActionListener {
                 imageFileMenu.add(closeMenuItem);
                 imageMenuBar.add(imageFileMenu);
             }
+        } else if (ae.getSource() == this.editClearCacheMenuItem) {
+            Frame[] frames = JFrame.getFrames();
+
+            for (int i = 0; i < frames.length; i++) {
+                Frame frame = frames[i];
+                if (!(frame instanceof GUI) && frame.isDisplayable()) {
+                    JOptionPane.showMessageDialog(this, "Please close all other TKViewer windows to clear TKViewer cache.", "Cannot clear TKViewer cache", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+
+            showLoadingDialog("Clearing TKViewer cache, please wait...", Resources.GUI_LOADING_FUNCTION.CLEAR_CACHE);
         } else if (ae.getSource() == this.viewBodyMenuItem) {
             // Initialize Body Data if needed
             if (this.bodyRenderer == null) {
@@ -421,7 +450,7 @@ public class GUI extends JFrame implements ActionListener {
                 showLoadingDialog("Loading effect resources, please wait...", Resources.GUI_LOADING_FUNCTION.EFFECTS);
             }
 
-            new ViewFrame("Effects", "Effect", "Effects", this.effectRenderer, true);
+            new ViewFrame("Effects", "Effect", "Effects", this.effectRenderer);
         } else if (ae.getSource() == this.viewFaceMenuItem) {
             // Initialize Face Data if needed
             if (this.faceRenderer == null) {
@@ -497,6 +526,68 @@ public class GUI extends JFrame implements ActionListener {
         }
     }
 
+    public void clearCache() {
+        // Garbage Collect Renderers
+        if (mapRenderer != null) {
+            mapRenderer.dispose();
+        }
+        if (bodyRenderer != null) {
+            bodyRenderer.dispose();
+        }
+        if (bowRenderer != null) {
+            bowRenderer.dispose();
+        }
+        if (coatRenderer != null) {
+            coatRenderer.dispose();
+        }
+        if (effectRenderer != null) {
+            effectRenderer.dispose();
+        }
+        if (faceRenderer != null) {
+            faceRenderer.dispose();
+        }
+        if (fanRenderer != null) {
+            fanRenderer.dispose();
+        }
+        if (hairRenderer != null) {
+            hairRenderer.dispose();
+        }
+        if (helmetRenderer != null) {
+            helmetRenderer.dispose();
+        }
+        if (mantleRenderer != null) {
+            mantleRenderer.dispose();
+        }
+        if (mobRenderer != null) {
+            mobRenderer.dispose();
+        }
+        if (spearRenderer != null) {
+            spearRenderer.dispose();
+        }
+        if (shoesRenderer != null) {
+            shoesRenderer.dispose();
+        }
+        if (shieldRenderer != null) {
+            shieldRenderer.dispose();
+        }
+        if (swordRenderer != null) {
+            swordRenderer.dispose();
+        }
+
+        File cacheDirectory = new File(Resources.TKVIEWER_DIRECTORY);
+        if (cacheDirectory.exists()) {
+            boolean result = FileUtils.deleteDirectory(Resources.TKVIEWER_DIRECTORY);
+
+            if (!result) {
+                JOptionPane.showMessageDialog(this, "Unable to clear TKViewer cache, please close any applications\n holding resources open, restart TKViewer, and try again", "Unable to clear TKViewer cache", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "TKViewer cache cleared successfully!", "Cleared TKViewer Cache Successfully", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "The TKViewer cache is already cleared.", "Empty TKViewer Cache", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
     public void loadMapResources() {
         // Extract Required Map Files
         FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
@@ -545,8 +636,9 @@ public class GUI extends JFrame implements ActionListener {
         FileUtils.extractEffectFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
         // Part Renderer from Effect Resources
         effectRenderer =
-                new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getEffectEpfs(Resources.DATA_DIRECTORY)),
+                new EffectRenderer(FileUtils.createEpfsFromFiles(FileUtils.getEffectEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.PAL")),
+                        new EfxTblFileHandler(new File(Resources.DATA_DIRECTORY, "effect.tbl")),
                         new FrmFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.FRM")));
     }
 

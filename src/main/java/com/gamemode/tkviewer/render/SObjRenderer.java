@@ -43,4 +43,9 @@ public class SObjRenderer {
 
         return image;
     }
+
+    public void dispose() {
+        tileRenderer.dispose();
+        tileSobjTbl.close();
+    }
 }
