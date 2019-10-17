@@ -5,6 +5,8 @@ import com.gamemode.tkviewer.resources.MobBlock;
 import com.gamemode.tkviewer.resources.MobChunk;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,15 +37,18 @@ public class DnaFileHandler extends FileHandler {
                 int blockCount = this.readShort(true, true);
                 List<MobBlock> mobBlocks = new ArrayList<MobBlock>();
                 for (int k = 0; k < blockCount; k++) {
+                    int frameOffset = this.readShort(true, false);
+                    int duration = this.readShort(true, false);
                     int unknownId1 = this.readShort(true, true);
-                    int unknownId2 = this.readShort(true, true);
-                    int unknownId3 = this.readShort(true, true);
-                    int unknownId4 = this.readShort(true, true);
-                    int unknownId5 = this.readUnsignedByte();
+                    int transparency = this.readUnsignedByte();
+                    int unknownId2 = this.readUnsignedByte();
+                    int unknownId3 = this.readUnsignedByte();
 
-                    mobBlocks.add(new MobBlock(unknownId1, unknownId2, unknownId3, unknownId4, unknownId5));
+                    MobBlock block = new MobBlock(frameOffset, duration, unknownId1, transparency, unknownId2, unknownId3);
+                    mobBlocks.add(block);
                 }
-                mobChunks.add(new MobChunk(blockCount, mobBlocks));
+                MobChunk chunk = new MobChunk(blockCount, mobBlocks);
+                mobChunks.add(chunk);
             }
 
             this.mobs.add(new Mob(frameIndex, chunkCount, (byte)unknown1, paletteIndex, mobChunks));

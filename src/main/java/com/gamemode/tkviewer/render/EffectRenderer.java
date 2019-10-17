@@ -44,7 +44,6 @@ public class EffectRenderer implements Renderer {
         l = t = r = b = 0;
         for (int i = 0; i < effectFrameCount; i++) {
             EffectFrame effectFrame = effectFrames.get(i);
-            System.out.println(effectFrame.getFrameIndex());
             Frame frame = FileUtils.getFrameFromEpfs(effectFrame.getFrameIndex(), this.effectEpfs);
             if (frame == null) {
                 continue;

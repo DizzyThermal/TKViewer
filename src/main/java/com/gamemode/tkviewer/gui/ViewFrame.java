@@ -62,6 +62,7 @@ public class ViewFrame extends JFrame {
     }
 
     public void configure(boolean useEpfCount) {
+        this.setLayout(new BorderLayout());
         JPanel imagePanel = new JPanel();
         imagePanel.setBackground(Color.GRAY);
         imagePanel.setPreferredSize(new Dimension(600, 520));
@@ -120,8 +121,8 @@ public class ViewFrame extends JFrame {
         JScrollPane scroller = new JScrollPane(list);
         scroller.setPreferredSize(new Dimension(150, 520));
 
-        this.add(scroller);
-        this.add(imagePanel);
+        this.add(scroller, BorderLayout.WEST);
+        this.add(imagePanel, BorderLayout.CENTER);
 
         this.setVisible(true);
 

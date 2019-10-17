@@ -3,14 +3,13 @@ package com.gamemode.tkviewer.render;
 import com.gamemode.tkviewer.file_handlers.DnaFileHandler;
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
+import com.gamemode.tkviewer.resources.*;
 import com.gamemode.tkviewer.resources.Frame;
-import com.gamemode.tkviewer.resources.MobChunk;
-import com.gamemode.tkviewer.resources.Palette;
-import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,26 @@ import java.util.Map;
 public class MobRenderer implements Renderer {
 
     public static int ALPHA = 0x0;
+
+    public static enum ANIMATIONS {
+        DEATH,
+        FACE_UP,
+        FACE_RIGHT,
+        FACE_DOWN,
+        FACE_LEFT,
+        WALK_UP,
+        WALK_RIGHT,
+        WALK_DOWN,
+        WALK_LEFT,
+        HIT_UP,
+        HIT_RIGHT,
+        HIT_DOWN,
+        HIT_LEFT,
+        ATTACK_UP,
+        ATTACK_RIGHT,
+        ATTACK_DOWN,
+        ATTACK_LEFT
+    }
 
     Map<Integer, BufferedImage> mobs;
 
@@ -42,17 +61,12 @@ public class MobRenderer implements Renderer {
         this.manualPaletteIndex = manualPaletteIndex;
     }
 
-    public BufferedImage renderMob(int mobIndex) {
-        // Return Mob if cached.
-        if (mobs.containsKey(mobIndex)) {
-            return mobs.get(mobIndex);
-        }
-
+    public BufferedImage renderMob(int tileIndex, int paletteIndex) {
         int epfIndex = 0;
 
         int frameCount = 0;
         for (int i = 0; i < mobEpfs.size(); i++) {
-            if ((mobIndex) < (frameCount + this.mobEpfs.get(i).frameCount)) {
+            if (tileIndex < (frameCount + this.mobEpfs.get(i).frameCount)) {
                 epfIndex = i;
                 break;
             }
@@ -60,7 +74,7 @@ public class MobRenderer implements Renderer {
             frameCount += this.mobEpfs.get(i).frameCount;
         }
 
-        Frame frame = this.mobEpfs.get(epfIndex).getFrame(mobIndex - frameCount);
+        Frame frame = this.mobEpfs.get(epfIndex).getFrame(tileIndex - frameCount);
         int width = frame.getWidth();
         int height = frame.getHeight();
 
@@ -77,9 +91,8 @@ public class MobRenderer implements Renderer {
             return image;
         }
         // Else
-        int paletteIndex = this.manualPaletteIndex;
-        if (this.mobDna != null) {
-            paletteIndex = (int)this.mobDna.mobs.get(mobIndex).getPaletteId();
+        if (paletteIndex < 0 || paletteIndex > (this.mobPal.paletteCount - 1)) {
+            paletteIndex = 0;
         }
         Palette palette = this.mobPal.palettes.get(paletteIndex);
         IndexColorModel icm = new IndexColorModel(
@@ -102,8 +115,72 @@ public class MobRenderer implements Renderer {
             }
         }
 
-        this.mobs.put(mobIndex, image);
         return image;
+    }
+
+    public List<EffectImage> renderAnimation(int mobIndex, ANIMATIONS animation) {
+        return renderAnimation(mobIndex, animation.ordinal());
+    }
+
+    public List<EffectImage> renderAnimation(int mobIndex, int chunkIndex) {
+        Mob mob = this.mobDna.mobs.get(mobIndex);
+        MobChunk chunk = mob.getChunks().get(chunkIndex);
+
+        int frameCount = chunk.getBlockCount();
+
+        // Determine Canvas Size
+        int l, t, r, b;
+        l = t = r = b = 0;
+        for (int i = 0; i < frameCount; i++) {
+            MobBlock block = chunk.getBlocks().get(i);
+            int frameIndex = (int)(mob.getFrameIndex() + block.getFrameOffset());
+
+            Frame frame = FileUtils.getFrameFromEpfs(frameIndex, this.mobEpfs);
+            if (frame == null) {
+                continue;
+            }
+//            if (frame)
+            if (frame.getLeft() < l) {
+                l = frame.getLeft();
+            }
+            if (frame.getTop() < t) {
+                t = frame.getTop();
+            }
+            if (frame.getRight() > r) {
+                r = frame.getRight();
+            }
+            if (frame.getBottom() > b) {
+                b = frame.getBottom();
+            }
+        }
+
+        int effectWidth = r-l;
+        int effectHeight = b-t;
+
+        List<EffectImage> images = new ArrayList<EffectImage>();
+        for (int i = 0; i < frameCount; i++) {
+            BufferedImage frameImage = new BufferedImage(effectWidth, effectHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphicsObject = frameImage.createGraphics();
+            MobBlock block = chunk.getBlocks().get(i);
+            int frameIndex = (int)(mob.getFrameIndex() + block.getFrameOffset());
+
+            BufferedImage tile = this.renderMob(frameIndex, mob.getPaletteId());
+            Frame frame = FileUtils.getFrameFromEpfs(frameIndex, mobEpfs);
+            if (frame == null) {
+                continue;
+            }
+
+            graphicsObject.drawImage(
+                    tile,
+                    null,
+                    (frame.getLeft() - l),
+                    (frame.getTop() - t));
+            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)block.getTransparency()/(float)255));
+
+            images.add(new EffectImage(frameImage, block.getDuration()));
+        }
+
+        return images;
     }
 
     @Override
@@ -128,14 +205,21 @@ public class MobRenderer implements Renderer {
 
     @Override
     public Image[] getFrames(int index) {
-        int imageCount = this.mobDna.mobs.get(index).getChunkCount();
-        for (int i = 0; i < this.mobDna.mobs.get(index).getChunkCount(); i++) {
-            MobChunk chunk = this.mobDna.mobs.get(index).getChunks().get(i);
-            imageCount += chunk.getBlockCount();
+        Mob mob = this.mobDna.mobs.get(index);
+        int frameIndex = (int)mob.getFrameIndex();
+        int maxFrameOffset = 0;
+        for (MobChunk chunk : mob.getChunks()) {
+            for (MobBlock block : chunk.getBlocks()) {
+                int frameOffset = block.getFrameOffset();
+                if (frameOffset > maxFrameOffset) {
+                    maxFrameOffset = frameOffset;
+                }
+            }
         }
+        int imageCount = maxFrameOffset + 1;
         Image[] frames = new Image[imageCount];
         for (int i = 0; i < imageCount; i++) {
-            frames[i] = this.renderMob(index + i);
+            frames[i] = this.renderMob(frameIndex + i, mob.getPaletteId());
         }
 
         return frames;
@@ -143,7 +227,7 @@ public class MobRenderer implements Renderer {
 
     @Override
     public int getFrameIndex(int index, int offset) {
-        return index;
+        return (int)this.mobDna.mobs.get(index).getFrameIndex() + offset;
     }
 
     @Override
