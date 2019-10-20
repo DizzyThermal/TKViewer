@@ -1,9 +1,7 @@
 package com.gamemode.tkviewer.gui;
 
 import com.gamemode.tkviewer.file_handlers.*;
-import com.gamemode.tkviewer.gui.ViewFrame;
 import com.gamemode.tkviewer.render.*;
-import com.gamemode.tkviewer.render.Renderer;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -19,8 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GUI extends JFrame implements ActionListener {
 
@@ -609,9 +605,9 @@ public class GUI extends JFrame implements ActionListener {
         // Tile Renderer (for AB (Ground) Tiles)
         TileRenderer tileRenderer =
                 new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
+                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TileTblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
         // Static Object Renderer (for C (Static Object -- SObj) Tiles)
-        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl")));
+        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TileTblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl")));
         // Map Renderer from TileRenderer and SObjRenderer
         mapRenderer = new MapRenderer(tileRenderer, sObjRenderer);
     }

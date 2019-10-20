@@ -19,11 +19,11 @@ public class TblFileHandler extends FileHandler {
     public List<Integer> paletteIndices;
 
     ByteBuffer rawBytes;
+    boolean decoded = false;
 
     public TblFileHandler(String filepath) {
         this(new File(filepath));
     }
-
     public TblFileHandler(String filepath, boolean decode) {
         this(new File(filepath), decode);
     }
@@ -31,23 +31,19 @@ public class TblFileHandler extends FileHandler {
     public TblFileHandler(File file) {
         this(file, false);
     }
-
     public TblFileHandler(File file, boolean decode) {
         super(file);
-
-        if (decode) {
-            this.readInEncoded(file);
-        } else {
-            this.readInPlain(file);
-        }
+        init(decode);
     }
 
-    public TblFileHandler(ByteBuffer tblBytes) {
-        this(tblBytes, false);
-    }
-
+    public TblFileHandler(ByteBuffer tblBytes) { this(tblBytes, false); }
     public TblFileHandler(ByteBuffer tblBytes, boolean decode) {
         super(tblBytes, decode);
+        init(decode);
+    }
+
+    public void init(boolean decode) {
+        this.decoded = decode;
 
         if (decode) {
             this.readInEncoded(file);
@@ -145,8 +141,15 @@ public class TblFileHandler extends FileHandler {
 
     @Override
     public ByteBuffer toByteBuffer() {
-        // Not implemented - COULD BE ENCODED
-        return null;
+        ByteBuffer byteBuffer = null;
+
+        if (this.decoded) {
+            // Not Implemented
+        } else {
+            // Not Implemented
+        }
+
+        return byteBuffer;
     }
 
     public boolean compareTo(TblFileHandler tbl2) {

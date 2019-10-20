@@ -3,7 +3,7 @@ package com.gamemode.tkviewer.render;
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
 import com.gamemode.tkviewer.file_handlers.FrmFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
-import com.gamemode.tkviewer.file_handlers.TblFileHandler;
+import com.gamemode.tkviewer.file_handlers.TileTblFileHandler;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.Palette;
 import com.gamemode.tkviewer.resources.Resources;
@@ -23,11 +23,11 @@ public class TileRenderer implements Renderer {
 
     List<EpfFileHandler> tileEpfs;
     PalFileHandler tilePal;
-    TblFileHandler tileTbl;
+    TileTblFileHandler tileTbl;
     FrmFileHandler tileFrm;
     public int manualPaletteIndex = 0;
 
-    public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, TblFileHandler tileTbl) {
+    public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, TileTblFileHandler tileTbl) {
         tiles = new HashMap<Integer, BufferedImage>();
 
         this.tileEpfs = tileEpfs;
@@ -90,7 +90,7 @@ public class TileRenderer implements Renderer {
         if (this.isFrmHandled()) {
             paletteIndex = this.tileFrm.paletteIndices.get(tileIndex);
         } else if (this.tileTbl != null) {
-            paletteIndex = this.tileTbl.paletteIndices.get(tileIndex);
+            paletteIndex = this.tileTbl.paletteIndices.get(tileIndex).getPaletteIndex();
         }
         if (paletteIndex > this.tilePal.paletteCount) {
             paletteIndex = 0;

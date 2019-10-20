@@ -79,4 +79,5 @@ public class Resources {
     }
 
     public static final int MAX_BYTE_SIZE = 256;
+    public static final int MAX_SHORT_SIZE = 65535;
 }

@@ -114,6 +114,7 @@ public abstract class FileHandler {
     }
 
     public ByteBuffer readBytes(boolean littleEndian) {
+        this.filePosition = bytes.capacity();
         return bytes;
     }
 
@@ -177,6 +178,7 @@ public abstract class FileHandler {
 
     public Integer readUnsignedByteBytes() {
         int unsignedByte = bytes.get();
+        this.filePosition++;
         if (unsignedByte < 0) {
             // ByteBuffer returns signed integers, correct for Byte size (256)
             unsignedByte = Resources.MAX_BYTE_SIZE + unsignedByte;
@@ -213,6 +215,7 @@ public abstract class FileHandler {
     public byte readSignedByteBytes() {
         // either this one or unsigned byte is gonna be right
         byte signedByte = bytes.get();
+        this.filePosition++;
 
         return signedByte;
     }
@@ -250,6 +253,7 @@ public abstract class FileHandler {
     public ByteBuffer readBytesBytes(long length, boolean littleEndian) {
         byte[] rtnBytes = new byte[(int)length];
         bytes.get(rtnBytes);
+        this.filePosition += length;
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(rtnBytes);
 
@@ -301,6 +305,7 @@ public abstract class FileHandler {
             this.bytes.order(ByteOrder.BIG_ENDIAN);
         }
         Long returnInt = (long)this.bytes.getInt();
+        this.filePosition += 4;
         return returnInt;
     }
 
@@ -344,7 +349,9 @@ public abstract class FileHandler {
         } else if (!littleEndian && this.bytes.order() != ByteOrder.BIG_ENDIAN) {
             this.bytes.order(ByteOrder.BIG_ENDIAN);
         }
-        return (int)this.bytes.getShort();
+        Integer returnShort = (int)this.bytes.getShort();
+        this.filePosition += 4;
+        return returnShort;
     }
 
     public String readString(int length, boolean littleEndian) {
@@ -368,5 +375,23 @@ public abstract class FileHandler {
             // Reset ByteBuffer position on file close
             this.bytes.position(0);
         }
+    }
+
+    public long getPosition() {
+        if (this.file != null) {
+            return this.filePosition;
+        } else if (this.bytes != null) {
+            return this.bytes.position();
+        } else {
+            return -1;
+        }
+    }
+
+    public void writeToFile(String outputFilePath) {
+        FileWriter fileOutputStream;
+        fileOutputStream = new FileWriter(new File(outputFilePath));
+        ByteBuffer byteBuffer = this.toByteBuffer();
+        fileOutputStream.write(byteBuffer.array());
+        fileOutputStream.close();
     }
 }
