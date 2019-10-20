@@ -149,94 +149,93 @@ typedef struct {
 #### FRM
 
 ```cpp
-int effect_count                       (4 bytes)
-int[effect_count] palette_index        (effect_count * 4 bytes)
+int effect_count                       (4 bytes)                         # number of effects in FRM
+int[effect_count] palette_index        (effect_count * 4 bytes)          # list of palette indicies for effects
 ```
 
 #### MAP
 
 ```cpp
-short width                            (2 bytes)
-short height                           (2 bytes)
-tile[width*height] tiles               (width * height * 4 bytes)
+short width                            (2 bytes)                         # width of the map (in tiles)
+short height                           (2 bytes)                         # height of the map (in tiles)
+tile[width*height] tiles               (width * height * 4 bytes)        # list of tile structures
 
 typedef struct {
-  short ab_tile_id                     (2 bytes)
-  short sobj_tile_id                   (2 bytes)
+  short ab_tile_id                     (2 bytes)                         # ground tile frame index (Tile/Tbl)
+  short sobj_tile_id                   (2 bytes)                         # static object index (TileC/SObjTbl)
 } tile                                 (4 bytes)
 ```
-
 #### PAL (Single)
 
 ```cpp
-byte[9] header                        (9 bytes) # DLPalette
-byte[15] unknown                      (15 bytes)
-byte animation_color_count            (1 byte)
-byte[7] unknown2                      (7 bytes)
-short[animation_color_count]          (animation_color_count * 2 bytes)
-color[256] palette                    (1024 bytes)
+byte[9] header                        (9 bytes) # DLPalette              # DLPalette (literal)
+byte[15] unknown                      (15 bytes)                         # unknown bytes (1)
+byte animation_color_count            (1 byte)                           # number of animation colors
+byte[7] unknown2                      (7 bytes)                          # unknown bytes (2)
+short[animation_color_count]          (animation_color_count * 2 bytes)  # list of animation colors (short)
+color[256] palette                    (1024 bytes)                       # list of color structures
 
 typedef struct {
-  byte blue                           (1 byte)
-  byte green                          (1 byte)
-  byte red                            (1 byte)
-  byte alpha                          (1 byte)
+  byte red                            (1 byte)                           # red value for color
+  byte green                          (1 byte)                           # green value for color
+  byte red                            (1 byte)                           # red value for color
+  byte alpha                          (1 byte)                           # alpha value for color
 } color                               (4 bytes)
 ```
 
 #### PAL (Packed)
 
 ```cpp
-int palette_count
-PAL[palette_count] palettes
+int palette_count                                                        # number of palettes in file
+PAL[palette_count] palettes                                              # list of PAL structures
 
 typedef struct {
-  byte[9] header                     (9 bytes) # DLPalette
-  byte[15] unknown                   (15 bytes)
-  byte animation_color_count         (1 byte)
-  byte[7] unknown2                   (7 bytes)
-  short[animation_color_count]       (animation_color_count * 2 bytes)
-  color[256] palette                 (1024 bytes)
+  byte[9] header                     (9 bytes)                           # DLPalette (literal)
+  byte[15] unknown                   (15 bytes)                          # unknown bytes (1)
+  byte animation_color_count         (1 byte)                            # number of animation colors
+  byte[7] unknown2                   (7 bytes)                           # unknown bytes (2)
+  short[animation_color_count]       (animation_color_count * 2 bytes)   # list of animation colors (short)
+  color[256] palette                 (1024 bytes)                        # list of color structures
 
   typedef struct {
-    byte blue                        (1 byte)
-    byte green                       (1 byte)
-    byte red                         (1 byte)
-    byte alpha                       (1 byte)
+    byte blue                        (1 byte)                            # blue value for color
+    byte green                       (1 byte)                            # green value for color
+    byte red                         (1 byte)                            # red value for color
+    byte alpha                       (1 byte)                            # alpha value for color
   } color                            (4 bytes)
 } PAL
 ```
 
 #### TBL (Effects)
 ```cpp
-int effect count                     (4 bytes)
+int effect count                     (4 bytes)                           # number of effects in TBL
 
-effect [effect_count] effects
+effect [effect_count] effects                                            # list of effect structures
 typedef struct {
-  int effect index                  (4 bytes)
-  int frame count                    (4 bytes) # number of frames in the effect
-  byte[20] unknown
-  frame [frame_count] frames
+  int effect_index                   (4 bytes)                           # effect index
+  int frame count                    (4 bytes)                           # number of sequential frames after effect_index
+  byte[20] unknown                                                       # unknown bytes (1)
+  frame [frame_count] frames                                             # list of frame structures
   typedef struct {
-	int frame index                 (4 bytes)
-	int frame delay                 (4 bytes) # ms
-	int pallete number              (4 bytes)
-	byte[4] unknown
+	int frame index                 (4 bytes)                            # start frame index for effect
+	int frame delay                 (4 bytes)                            # delay until next frame (milliseconds)
+	int pallete number              (4 bytes)                            # palette index to use when renderer
+	byte[4] unknown                 (4 bytes)                            # unknown bytes (1)
   }
 } effect
 ```
 
 #### TBL (Static Objects)
 ```cpp
-int obj_count                        (4 bytes)
-short unknown                        (2 bytes)
-obj[obj_count]                       (obj_count * ((tile_count * 2) + 2) bytes)
+int object_count                    (4 bytes)                            # number of objects in SObj TBL
+short unknown                       (2 bytes)                            # unknown short
+object[object_count]                (obj_count * obj_size bytes)         # list of object structures
 
 typedef struct {
-  byte movement_directions           (1 byte)
-  byte tile_count                    (1 byte)
-  short[tile_count]                  (tile_count * 2 bytes)
-} obj
+  byte movement_directions          (1 byte)                             # movement directions for static object (see list below)
+  byte tile_count                   (1 byte)                             # number of tiles in static object
+  short[tile_count]                 (tile_count * 2 bytes)               # list of tile indicies for static object
+} object
 ```
 
 **Note**: Movement Directions appear to have 6 states:
@@ -249,12 +248,11 @@ typedef struct {
 
 #### TBL (Tiles)
 ```cpp
-int tile_count                       (4 bytes)
-tile[tile_count] tiles               (tile_count * 2 bytes)
+int tile_count                       (4 bytes)                           # number of tiles in TBL
+tile[tile_count] tiles               (tile_count * 2 bytes)              # list of tile structures
 
 typedef struct {
-  byte palette_index                 (1 byte)
-  byte unknown                       (1 byte)
+  short palette_index                (1 byte)                            # palette index for tile (masked) 
 } tile                               (2 bytes)
 ```
 
@@ -264,4 +262,5 @@ Huge thank you to everyone who helps figure out NTK file structures:
 
   * DDeokk
   * herbert3000
+  * rbcastner
   * wattostudios

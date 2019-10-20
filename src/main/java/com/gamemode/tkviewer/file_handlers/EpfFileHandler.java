@@ -1,6 +1,5 @@
 package com.gamemode.tkviewer.file_handlers;
 
-//import java.awt.*;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.Stencil;
 
@@ -9,7 +8,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
-import java.util.List;
 
 public class EpfFileHandler extends FileHandler {
 
@@ -29,17 +27,30 @@ public class EpfFileHandler extends FileHandler {
     public EpfFileHandler(String filepath) {
         this(new File(filepath), false);
     }
-
-    public EpfFileHandler(File file) {
-        this(file, false);
-    }
-
     public EpfFileHandler(String filepath, boolean loadAllFrames) {
         this(new File(filepath), loadAllFrames);
     }
 
+    public EpfFileHandler(ByteBuffer bytes) {
+        super(bytes, false);
+    }
+
+    public EpfFileHandler(ByteBuffer bytes, boolean loadAllFrames) {
+        super(bytes);
+
+        init(loadAllFrames);
+    }
+
+    public EpfFileHandler(File file) {
+        this(file, false);
+    }
     public EpfFileHandler(File file, boolean loadAllFrames) {
         super(file);
+
+        init(loadAllFrames);
+    }
+
+    public void init(boolean loadAllFrames) {
 
         frames_map = new HashMap<Integer, Frame>();
 
@@ -116,9 +127,7 @@ public class EpfFileHandler extends FileHandler {
         for (int i = 0; i < this.frames_map.size(); i++) {
             Frame frame = this.frames_map.get(i);
             epfBytes.put(frame.getRawPixelData());
-            //System.out.println(epfBytes.position());
             epfBytes.put(frame.getRawStencilData());
-            //System.out.println(epfBytes.position());
         }
 
         // Frames (TOC)

@@ -28,28 +28,42 @@ public class DscFileHandler extends FileHandler {
 
         this.parts = new ArrayList<Part>();
         for (int i = 0; i < this.partCount; i++) {
+            System.out.println(String.format("FilePosition = %d",this.filePosition));
             long id = this.readInt(true, true);
             long paletteIndex = this.readInt(true,true);
 
             long frameIndex = this.readInt(true,true);
             long frameCount = this.readInt(true,true);
 
-            this.parts.add(new Part(id, paletteIndex, frameIndex, frameCount));
-
             // Unknown Flags
-            this.seek(14, false);
+            int partUnknown1 = this.readShort(true, false);
+            int partUnknown2 = this.readShort(true, false);
+            int partUnknown3 = this.readShort(true, false);
+            int partUnknown4 = this.readShort(true, false);
+            int partUnknown5 = this.readShort(true, false);
+            int partUnknown6 = this.readShort(true, false);
+            int partUnknown7 = this.readShort(true, false);
+
+            this.parts.add(new Part(id, paletteIndex, frameIndex, frameCount));
 
             // Number of Chunks
             long chunkCount = this.readInt(true, true);
             for (int j = 0; j < chunkCount; j++) {
                 // Two Unknown Ints
-                this.seek(8, false);
-
+                long chunkNumber = this.readInt(true, false);
+                long chunkUnknown2 = this.readInt(true, false);
                 // Number of Blocks
                 long blockCount = this.readInt(true, true);
                 for (int k = 0; k < blockCount; k++) {
-                    // Block Data
-                    this.seek(9, false);
+                    System.out.println(this.filePosition);
+                    int frameOffset = this.readShort(true, false);
+                    int unknownId1 = this.readUnsignedByte();
+                    int duration = this.readShort(true, false);
+                    int unknownId2 = this.readUnsignedByte();
+                    int unknownId3 = this.readUnsignedByte();
+                    int unknownId4 = this.readUnsignedByte();
+                    int unknownId5 = this.readUnsignedByte();
+                    System.out.println("");
                 }
             }
         }

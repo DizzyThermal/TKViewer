@@ -117,6 +117,16 @@ public class DatFileHandler extends FileHandler {
         }
     }
 
+    public ByteBuffer getFile(String key) {
+        for (Map.Entry<String, ByteBuffer> entry : this.files.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
+            }
+        }
+
+        return null;
+    }
+
     private int lengthUntilZero() {
         long currentPosition = this.filePosition;
         int length = 0;
