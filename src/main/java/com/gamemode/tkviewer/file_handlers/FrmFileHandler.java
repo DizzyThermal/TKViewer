@@ -34,4 +34,10 @@ public class FrmFileHandler extends FileHandler {
 
         this.close();
     }
+
+    @Override
+    public ByteBuffer toByteBuffer() {
+        // Not implemented
+        return null;
+    }
 }

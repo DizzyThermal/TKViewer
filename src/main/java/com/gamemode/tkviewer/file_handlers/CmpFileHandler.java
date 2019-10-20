@@ -42,4 +42,10 @@ public class CmpFileHandler extends FileHandler {
 
         this.close();
     }
+
+    @Override
+    public ByteBuffer toByteBuffer() {
+        // Not implemented
+        return null;
+    }
 }

@@ -66,6 +66,7 @@ public class PalFileHandler extends FileHandler {
         this.close();
     }
 
+    @Override
     public ByteBuffer toByteBuffer() {
         int byteBufferSize = HEADER_SIZE;
         for (Palette pal : palettes) {

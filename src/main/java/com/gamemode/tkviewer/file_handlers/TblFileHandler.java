@@ -143,8 +143,10 @@ public class TblFileHandler extends FileHandler {
         return decodedBytes;
     }
 
+    @Override
     public ByteBuffer toByteBuffer() {
-        return this.rawBytes;
+        // Not implemented - COULD BE ENCODED
+        return null;
     }
 
     public boolean compareTo(TblFileHandler tbl2) {

@@ -142,4 +142,10 @@ public class DatFileHandler extends FileHandler {
         this.seek(currentPosition, true);
         return length;
     }
+
+    @Override
+    public ByteBuffer toByteBuffer() {
+        // Not implemented
+        return null;
+    }
 }

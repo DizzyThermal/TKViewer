@@ -3,6 +3,7 @@ package com.gamemode.tkviewer.file_handlers;
 import com.gamemode.tkviewer.resources.SObject;
 
 import java.io.File;
+import java.nio.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,5 +41,11 @@ public class SObjTblFileHandler extends FileHandler {
         }
 
         this.close();
+    }
+
+    @Override
+    public ByteBuffer toByteBuffer() {
+        // Not implemented
+        return null;
     }
 }

@@ -26,24 +26,32 @@ public class EfxTblFileHandler extends FileHandler {
     ByteBuffer rawBytes;
 
     public EfxTblFileHandler(String filepath) {
-        this(new File(filepath), false);
+        this(new File(filepath), true);
     }
     public EfxTblFileHandler(String filepath, boolean decode) {
         this(new File(filepath), decode);
     }
 
-    public EfxTblFileHandler(File file) { this(file, false); }
+    public EfxTblFileHandler(ByteBuffer bytes) { this(bytes, true); }
+    public EfxTblFileHandler(ByteBuffer bytes, boolean decode) {
+        super(bytes);
+        init(decode);
+    }
 
+    public EfxTblFileHandler(File file) { this(file, true); }
     public EfxTblFileHandler(File file, boolean decode) {
         super(file);
+        init(decode);
+    }
 
+    public void init(boolean decode) {
         byte[] bytes;
         if (decode) {
             int offset = 0;
-            bytes = new byte[(int) file.length() / 2];
+            bytes = new byte[this.getLength() / 2];
             ByteBuffer encodedBytes;
 
-            for (int i = 0; i < (file.length() / 8); i++) {
+            for (int i = 0; i < (this.getLength() / 8); i++) {
                 encodedBytes = this.readBytes(8, true);
                 ByteBuffer decodedByteByffer = this.decodeBytes(offset, encodedBytes);
                 for (int j = 0; j < 4; j++) {
@@ -52,7 +60,7 @@ public class EfxTblFileHandler extends FileHandler {
                 offset += 4;
             }
         } else {
-            bytes = this.readBytes((int)file.length(), true).array();
+            bytes = this.readBytes((int)this.getLength(), true).array();
         }
 
         this.close();
@@ -143,7 +151,9 @@ public class EfxTblFileHandler extends FileHandler {
         return true;
     }
 
+    @Override
     public ByteBuffer toByteBuffer() {
-        return this.rawBytes;
+        // Not implemented - NEED TO BE ENCODED
+        return null;
     }
 }

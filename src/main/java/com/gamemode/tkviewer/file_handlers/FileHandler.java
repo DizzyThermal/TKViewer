@@ -8,13 +8,24 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.zip.InflaterInputStream;
 
-public class FileHandler {
+public abstract class FileHandler {
 
     public long filePosition = 0;
     public File file;
     public ByteBuffer bytes;
     public Boolean decode;
     public RandomAccessFile fileInputStream;
+
+    public abstract ByteBuffer toByteBuffer();
+    public int getLength() {
+        if (this.file != null) {
+            return (int)this.file.length();
+        } else if (this.bytes != null) {
+            return this.bytes.capacity();
+        } else {
+            return -1;
+        }
+    }
 
     public FileHandler(String filePath) {
         this(new File(filePath));
