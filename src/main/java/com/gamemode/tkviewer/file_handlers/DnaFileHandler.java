@@ -39,7 +39,7 @@ public class DnaFileHandler extends FileHandler {
                 for (int k = 0; k < blockCount; k++) {
                     int frameOffset = this.readShort(true, false);
                     int duration = this.readShort(true, false);
-                    int unknownId1 = this.readShort(true, true);
+                    int unknownId1 = this.readShort(true, false);
                     int transparency = this.readUnsignedByte();
                     int unknownId2 = this.readUnsignedByte();
                     int unknownId3 = this.readUnsignedByte();

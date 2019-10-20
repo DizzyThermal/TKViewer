@@ -80,11 +80,13 @@ typedef struct {
 } chunk                                (2 + (block_count * block_size) bytes)
 
 typedef struct {
-  short unknownId1                     (2 bytes)                         # unknown id/flag (1)
-  short unknownId2                     (2 bytes)                         # unknown id/flag (2)
-  short unknownId3                     (2 bytes)                         # unknown id/flag (3)
-  short unknownId4                     (2 bytes)                         # unknown id/flag (4)
-  byte unknownId5                      (1 byte)                          # unknown id/flag (5)
+  short frame_offset                   (2 bytes)                         # offset from frame_index in chunk
+  short duration                       (2 bytes)                         # amount of time to play the frame
+  short unknownId1                     (2 bytes)                         # normally -1, only has real values
+                                                                           in death animations for 2 mobs
+  byte transparency                    (1 bytes)                         # transparency
+  byte unknownId2                      (1 byte)                          # unknown id/flag (5)
+  byte unknownId3                      (1 byte)                          # unknown id/flag (5)
 } block                                (9 bytes)
 ```
 

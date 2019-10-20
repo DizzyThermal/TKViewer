@@ -3,21 +3,107 @@ package com.gamemode.tkviewer.render;
 import com.gamemode.tkviewer.file_handlers.DscFileHandler;
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
+import com.gamemode.tkviewer.resources.*;
 import com.gamemode.tkviewer.resources.Frame;
-import com.gamemode.tkviewer.resources.Palette;
-import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
+import com.gamemode.tkviewer.utilities.RenderUtils;
 
 import java.awt.*;
 import java.awt.image.*;
-import java.util.HashMap;
+import java.io.File;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+
 
 public class PartRenderer implements Renderer {
 
     public static int ALPHA = 0x0;
 
+    public static enum PART_RENDERER_TYPE {
+        BODIES,
+        BOWS,
+        COATS,
+        FACES,
+        FANS,
+        HAIR,
+        HELMETS,
+        MANTLES,
+        SPEARS,
+        SHOES,
+        SHIELDS,
+        SWORDS
+    }
+
+    public static enum BODY_ANIMATIONS {
+        WALK_UP,                    //  0
+        WALK_RIGHT,                 //  1
+        WALK_DOWN,                  //  2
+        WALK_LEFT,                  //  3
+        WALK_UP_WITH_WEAPON,        //  4
+        WALK_RIGHT_WITH_WEAPON,     //  5
+        WALK_DOWN_WITH_WEAPON,      //  6
+        WALK_LEFT_WITH_WEAPON,      //  7
+        RIDE_MOUNT_UP,              //  8
+        RIDE_MOUNT_RIGHT,           //  9
+        RIDE_MOUNT_DOWN,            // 10
+        RIDE_MOUNT_LEFT,            // 11
+        SWING_UP_1H,                // 12
+        SWING_RIGHT_1H,             // 13
+        SWING_DOWN_1H,              // 14
+        SWING_LEFT_1H,              // 15
+        SWING_UP_2H,                // 16
+        SWING_RIGHT_2H,             // 17
+        SWING_DOWN_2H,              // 18
+        SWING_LEFT_2H,              // 19
+        SHOOT_UP,                   // 20
+        SHOOT_RIGHT,                // 21
+        SHOOT_DOWN,                 // 22
+        SHOOT_LEFT,                 // 23
+        KNEEL_UP,                   // 24
+        KNEEL_RIGHT,                // 25
+        KNEEL_DOWN,                 // 26
+        KNEEL_LEFT,                 // 27
+        SUMMON_UP,                  // 28
+        SUMMON_RIGHT,               // 29
+        SUMMON_DOWN,                // 30
+        SUMMON_LEFT,                // 31
+        SCRATCH_CHIN,               // 32
+        LEAN_UP,                    // 33
+        LEAN_RIGHT,                 // 34
+        LEAN_DOWN,                  // 35
+        LEAN_LEFT,                  // 36
+        TRIUMPH,                    // 37
+        UNKNOWN_EMOTE_1,            // 38
+        UNKNOWN_EMOTE_2,            // 39
+        UNKNOWN_EMOTE_3,            // 40
+        UNKNOWN_EMOTE_4,            // 41
+        UNKNOWN_EMOTE_5,            // 42
+        UNKNOWN_EMOTE_6,            // 43
+        UNKNOWN_EMOTE_7,            // 44
+        UNKNOWN_EMOTE_8,            // 45
+        UNKNOWN_EMOTE_9,            // 46
+        SHRUG,                      // 47
+        UNKNOWN_EMOTE_10,           // 48
+        DANCE,                      // 49
+        UNKNOWN_EMOTE_11,           // 50
+        LEAN_UP_2,                  // 51
+        LEAN_RIGHT_2,               // 52
+        LEAN_DOWN_2,                // 53
+        LEAN_LEFT_2,                // 54
+        FACE_UP_2,                  // 55
+        FACE_RIGHT_2,               // 56
+        FACE_DOWN_2,                // 57
+        FACE_LEFT_2,                // 58
+        HOLD_KITE_UP,               // 59
+        HOLD_KITE_RIGHT,            // 60
+        HOLD_KITE_DOWN,             // 61
+        HOLD_KITE_LEFT,             // 62
+        SWING_UP_1H_2,              // 63
+        SWING_RIGHT_1H_2,           // 64
+        SWING_DOWN_1H_2,            // 65
+        SWING_LEFT_1H_2             // 66
+    }
+    
     Map<Integer, BufferedImage> parts;
 
     public List<EpfFileHandler> partEpfs;
@@ -33,6 +119,93 @@ public class PartRenderer implements Renderer {
         this.partDsc = partDsc;
     }
 
+    public PartRenderer(String tkDataDirectory, PART_RENDERER_TYPE rendererType) {
+        parts = new HashMap<Integer, BufferedImage>();
+
+        String epfPrefix = null;
+        String palName = null;
+        String dscName = null;
+
+        switch(rendererType) {
+
+            case BODIES:
+                epfPrefix = "Body";
+                palName = "Body.pal";
+                dscName ="Body.dsc";
+                break;
+
+            case BOWS:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case COATS:
+                epfPrefix = "Coat";
+                palName = "Coat.pal";
+                dscName ="Coat.dsc";
+                break;
+
+            case FACES:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Face.dsc";
+                break;
+
+            case FANS:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case HAIR:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case HELMETS:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case MANTLES:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case SPEARS:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case SHOES:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case SHIELDS:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+
+            case SWORDS:
+                epfPrefix = "Bow";
+                palName = "Bow.pal";
+                dscName ="Bow.dsc";
+                break;
+        }
+        this.partEpfs = FileUtils.createEpfsFromFiles(FileUtils.getEpfs(tkDataDirectory, Objects.requireNonNull(epfPrefix)));
+        this.partPal = new PalFileHandler(tkDataDirectory + File.separator + Objects.requireNonNull(palName));
+        this.partDsc = new DscFileHandler(tkDataDirectory + File.separator + Objects.requireNonNull(dscName));
+
+    }
+
     public PartRenderer(List<EpfFileHandler> partEpfs, PalFileHandler partPal, int manualPaletteIndex) {
         parts = new HashMap<Integer, BufferedImage>();
 
@@ -41,7 +214,8 @@ public class PartRenderer implements Renderer {
         this.manualPaletteIndex = manualPaletteIndex;
     }
 
-    public BufferedImage renderPart(int partIndex, int frameIndex, int frameOffset) {
+
+    public BufferedImage renderPart(int partIndex, int frameIndex, int frameOffset, int paletteIndex) {
         // Return Part if cached.
         if (parts.containsKey(frameIndex + frameOffset)) {
             return parts.get(frameIndex + frameOffset);
@@ -75,11 +249,7 @@ public class PartRenderer implements Renderer {
             image.setRGB(0, 0, Resources.TILE_DIM, Resources.TILE_DIM, pixels, 0, Resources.TILE_DIM);
             return image;
         }
-        // Else
-        int paletteIndex = this.manualPaletteIndex;
-        if (this.partDsc != null) {
-            paletteIndex = (int)this.partDsc.parts.get(partIndex).getPaletteId();
-        }
+
         Palette palette = this.partPal.palettes.get(paletteIndex);
         IndexColorModel icm = new IndexColorModel(
                 8,
@@ -105,6 +275,49 @@ public class PartRenderer implements Renderer {
         return image;
     }
 
+    public List<EffectImage> renderAnimation(int partIndex, BODY_ANIMATIONS animation) {
+        return renderAnimation(partIndex, animation.ordinal());
+    }
+
+    public List<EffectImage> renderAnimation(int partIndex, int chunkIndex) {
+        Part part = this.partDsc.parts.get(partIndex);
+        PartChunk chunk = part.getChunks().get(chunkIndex);
+
+        int frameCount = chunk.getBlocks().size();
+
+        List<Frame> frames = new ArrayList<>();
+        for (int i = 0; i < frameCount; i++) {
+            PartBlock block = chunk.getBlocks().get(i);
+            int frameIndex = (int) (part.getFrameIndex() + block.getFrameOffset());
+            frames.add(FileUtils.getFrameFromEpfs(frameIndex, this.partEpfs));
+        }
+
+        PivotData pivotData = RenderUtils.getPivotData(frames);
+        List<EffectImage> images = new ArrayList<EffectImage>();
+        for (int i = 0; i < frameCount; i++) {
+            BufferedImage canvasImage = new BufferedImage(pivotData.getCanvasWidth(), pivotData.getCanvasHeight(), BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphicsObject = canvasImage.createGraphics();
+            PartBlock block = chunk.getBlocks().get(i);
+            int frameIndex = (int)part.getFrameIndex();
+            int frameOffset = block.getFrameOffset();
+
+            BufferedImage partImage = this.renderPart(partIndex, frameIndex, frameOffset, (int)part.getPaletteId());
+            Frame frame = FileUtils.getFrameFromEpfs(frameIndex + frameOffset, partEpfs);
+            if (frame == null) {
+                continue;
+            }
+
+            int frameLeft = pivotData.getPivotX() + frame.getLeft();
+            int frameTop = pivotData.getPivotY() + frame.getTop();
+            graphicsObject.drawImage(partImage,null, frameLeft, frameTop);
+//            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)block.getTransparency()/(float)255));
+
+            int defaultDuration = 100; // (ms)
+            images.add(new EffectImage(canvasImage, defaultDuration));
+        }
+
+        return images;
+    }
     @Override
     public int getCount(boolean useEpfCount) {
         int output = 0;
@@ -132,7 +345,10 @@ public class PartRenderer implements Renderer {
         System.out.print(" - ");
         for (int i = 0; i < this.partDsc.parts.get(index).getFrameCount(); i++) {
             System.out.print(((int)this.partDsc.parts.get(index).getFrameIndex() + i) + " ");
-            frames[i] = this.renderPart(index, (int)this.partDsc.parts.get(index).getFrameIndex(), i);
+            frames[i] = this.renderPart(index,
+                    (int)this.partDsc.parts.get(index).getFrameIndex(),
+                    i,
+                    (int)this.partDsc.parts.get(index).getPaletteId());
         }
         System.out.println();
 
