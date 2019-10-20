@@ -86,10 +86,10 @@ public class PartRenderer implements Renderer {
         UNKNOWN_EMOTE_10,           // 48
         DANCE,                      // 49
         UNKNOWN_EMOTE_11,           // 50
-        LEAN_UP,                    // 51
-        LEAN_RIGHT,                 // 52
-        LEAN_DOWN,                  // 53
-        LEAN_LEFT,                  // 54
+        LEAN_UP_2,                  // 51
+        LEAN_RIGHT_2,               // 52
+        LEAN_DOWN_2,                // 53
+        LEAN_LEFT_2,                // 54
         FACE_UP_2,                  // 55
         FACE_RIGHT_2,               // 56
         FACE_DOWN_2,                // 57
