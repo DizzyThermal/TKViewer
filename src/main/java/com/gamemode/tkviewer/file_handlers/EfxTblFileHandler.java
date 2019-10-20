@@ -23,37 +23,46 @@ public class EfxTblFileHandler extends FileHandler {
     ByteBuffer rawBytes;
 
     public EfxTblFileHandler(String filepath) {
-        this(new File(filepath));
+        this(new File(filepath), true);
+    }
+    public EfxTblFileHandler(String filepath, boolean decode) {
+        this(new File(filepath), decode);
     }
 
-    public EfxTblFileHandler(File file) {
+    public EfxTblFileHandler(ByteBuffer bytes) { this(bytes, true); }
+    public EfxTblFileHandler(ByteBuffer bytes, boolean decode) {
+        super(bytes);
+        init(decode);
+    }
+
+    public EfxTblFileHandler(File file) { this(file, true); }
+    public EfxTblFileHandler(File file, boolean decode) {
         super(file);
+        init(decode);
+    }
 
-        int offset = 0;
-        byte[] decodedBytes = new byte[(int)file.length() / 2];
-        ByteBuffer encodedBytes;
+    public void init(boolean decode) {
+        byte[] bytes;
+        if (decode) {
+            int offset = 0;
+            bytes = new byte[this.getLength() / 2];
+            ByteBuffer encodedBytes;
 
-        for (int i = 0; i < (file.length() / 8); i++) {
-            encodedBytes = this.readBytes(8, true);
-            ByteBuffer decodedByteByffer = this.decodeBytes(offset, encodedBytes);
-            for (int j = 0; j < 4; j++) {
-                decodedBytes[(i*4) + j] = decodedByteByffer.array()[3-j];
+            for (int i = 0; i < (this.getLength() / 8); i++) {
+                encodedBytes = this.readBytes(8, true);
+                ByteBuffer decodedByteByffer = this.decodeBytes(offset, encodedBytes);
+                for (int j = 0; j < 4; j++) {
+                    bytes[(i * 4) + j] = decodedByteByffer.array()[3 - j];
+                }
+                offset += 4;
             }
-            offset += 4;
+        } else {
+            bytes = this.readBytes((int)this.getLength(), true).array();
         }
 
         this.close();
 
-        rawBytes = ByteBuffer.wrap(decodedBytes).order(ByteOrder.LITTLE_ENDIAN);
-//        try {
-//            RandomAccessFile stream = new RandomAccessFile(new File("C:\\Users\\Stephen\\Desktop\\effect.dec.tbl"), "rw");
-//            FileChannel fc = stream.getChannel();
-//            fc.write(rawBytes);
-//            stream.close();
-//            fc.close();
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
+        rawBytes = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
 
         this.effectCount = rawBytes.getInt();
 
@@ -133,7 +142,15 @@ public class EfxTblFileHandler extends FileHandler {
         return decodedBytes;
     }
 
+    public boolean writeToFile(String outputPath, boolean encode) {
+        // Implement
+
+        return true;
+    }
+
+    @Override
     public ByteBuffer toByteBuffer() {
-        return this.rawBytes;
+        // Not implemented - NEED TO BE ENCODED
+        return null;
     }
 }

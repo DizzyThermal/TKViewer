@@ -2,7 +2,7 @@ package com.gamemode.tkviewer.resources
 
 import java.util.ArrayList
 
-class Palette(var animationColorCount: Int, animationColorOffsets: List<Int>, colors: List<Color>) {
+class Palette(var animationColorCount: Int, animationColorOffsets: List<Int>, colors: List<Color>, val paletteMetadata: PaletteMetadata) {
     var animationColorOffsets: MutableList<Int>
     var colors: MutableList<Color>
 

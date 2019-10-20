@@ -35,6 +35,7 @@ public class GUI extends JFrame implements ActionListener {
 
     JMenu editMenu = new JMenu("Edit");
     JMenuItem editClearCacheMenuItem = new JMenuItem("Clear Cache");
+    JMenuItem editBrowseCacheMenuItem = new JMenuItem("Browse Cache");
 
     JMenu viewMenu = new JMenu("View");
     JMenuItem viewBodyMenuItem = new JMenuItem("Bodies");
@@ -106,8 +107,12 @@ public class GUI extends JFrame implements ActionListener {
         editClearCacheMenuItem.addActionListener(this);
         editClearCacheMenuItem.setToolTipText("Clears TKViewer extracted data and cached animations");
 
+        // Edit > Browse Cache
+        editBrowseCacheMenuItem.addActionListener(this);
+
         // Edit
         editMenu.add(editClearCacheMenuItem);
+        editMenu.add(editBrowseCacheMenuItem);
         menuBar.add(editMenu);
 
         // View > Bodies
@@ -423,6 +428,16 @@ public class GUI extends JFrame implements ActionListener {
             }
 
             showLoadingDialog("Clearing TKViewer cache, please wait...", Resources.GUI_LOADING_FUNCTION.CLEAR_CACHE);
+        } else if (ae.getSource() == this.editBrowseCacheMenuItem) {
+            if (!new File(Resources.TKVIEWER_DIRECTORY).exists()) {
+                new File(Resources.TKVIEWER_DIRECTORY).mkdirs();
+            }
+
+            try {
+                Desktop.getDesktop().open(new File(Resources.TKVIEWER_DIRECTORY));
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
         } else if (ae.getSource() == this.viewBodyMenuItem) {
             // Initialize Body Data if needed
             if (this.bodyRenderer == null) {
@@ -638,7 +653,7 @@ public class GUI extends JFrame implements ActionListener {
         effectRenderer =
                 new EffectRenderer(FileUtils.createEpfsFromFiles(FileUtils.getEffectEpfs(Resources.DATA_DIRECTORY)),
                         new PalFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.PAL")),
-                        new EfxTblFileHandler(new File(Resources.DATA_DIRECTORY, "effect.tbl")),
+                        new EfxTblFileHandler(new File(Resources.DATA_DIRECTORY, "effect.tbl"), true),
                         new FrmFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.FRM")));
     }
 

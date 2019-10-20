@@ -7,6 +7,7 @@ import com.gamemode.tkviewer.utilities.FileUtils;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,6 @@ public class EffectRenderer implements Renderer {
     PalFileHandler effectPal;
     EfxTblFileHandler effectEfxTbl;
     FrmFileHandler effectFrm;
-    public int manualPaletteIndex = 0;
 
     public EffectRenderer(List<EpfFileHandler> effectEpfs, PalFileHandler effectPal, EfxTblFileHandler effectEfxTbl, FrmFileHandler effectFrm) {
         this.effectEpfs = effectEpfs;

@@ -5,6 +5,7 @@ import com.gamemode.tkviewer.resources.PartBlock;
 import com.gamemode.tkviewer.resources.PartChunk;
 
 import java.io.File;
+import java.nio.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,17 +25,18 @@ public class DscFileHandler extends FileHandler {
         super(file);
 
         // Seek past header
-        this.seek(this.HEADER, true);
+        this.seek(DscFileHandler.HEADER, true);
 
         this.partCount = this.readInt(true, true);
 
         this.parts = new ArrayList<Part>();
         for (int i = 0; i < this.partCount; i++) {
+            System.out.println(String.format("FilePosition = %d",this.filePosition));
             long id = this.readInt(true, true);
             long paletteIndex = this.readInt(true, true);
 
-            long frameIndex = this.readInt(true, true);
-            long frameCount = this.readInt(true, true);
+            long frameIndex = this.readInt(true,true);
+            long frameCount = this.readInt(true,true);
 
             // Unknown Flags
             int partUnknown1 = this.readShort(true, false);
@@ -44,8 +46,6 @@ public class DscFileHandler extends FileHandler {
             int partUnknown5 = this.readShort(true, false);
             int partUnknown6 = this.readShort(true, false);
             int partUnknown7 = this.readShort(true, false);
-
-
 
             // Number of Chunks
             long chunkCount = this.readInt(true, true);
@@ -79,5 +79,11 @@ public class DscFileHandler extends FileHandler {
         }
 
         this.close();
+    }
+
+    @Override
+    public ByteBuffer toByteBuffer() {
+        // Not implemented
+        return null;
     }
 }

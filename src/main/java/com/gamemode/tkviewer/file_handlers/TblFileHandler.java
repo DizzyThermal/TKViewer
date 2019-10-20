@@ -42,6 +42,20 @@ public class TblFileHandler extends FileHandler {
         }
     }
 
+    public TblFileHandler(ByteBuffer tblBytes) {
+        this(tblBytes, false);
+    }
+
+    public TblFileHandler(ByteBuffer tblBytes, boolean decode) {
+        super(tblBytes, decode);
+
+        if (decode) {
+            this.readInEncoded(file);
+        } else {
+            this.readInPlain(file);
+        }
+    }
+
     public void readInPlain(File file) {
         this.tileCount = this.readInt(true, true);
         this.rawBytes = ByteBuffer.allocate(HEADER_SIZE + (FRAME_SIZE * (int)this.tileCount));
@@ -93,9 +107,7 @@ public class TblFileHandler extends FileHandler {
             this.rawBytes.put((byte)msb);
 
             this.paletteIndices.add(((msb & this.TBL_MASK) << 8) | lsb);
-            System.out.println("i: " + i);
         }
-        System.out.println("decoded size: " + decoded.array().length);
     }
 
     public ByteBuffer decodeBytes(int offset, ByteBuffer encodedBytes) {
@@ -131,8 +143,10 @@ public class TblFileHandler extends FileHandler {
         return decodedBytes;
     }
 
+    @Override
     public ByteBuffer toByteBuffer() {
-        return this.rawBytes;
+        // Not implemented - COULD BE ENCODED
+        return null;
     }
 
     public boolean compareTo(TblFileHandler tbl2) {
