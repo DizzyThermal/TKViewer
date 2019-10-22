@@ -790,7 +790,7 @@ public class FileUtils {
             }
 
             // Collisions
-            FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+            FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
             SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
 
             writer.append(" <objectgroup id=\"3\" name=\"Collisions\">\n");
@@ -848,7 +848,7 @@ public class FileUtils {
             FileWriter writer = new FileWriter(outputFile);
             writer.write("");   // Clear File
 
-            FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+            FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
             SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
 
             writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -898,7 +898,7 @@ public class FileUtils {
             FileWriter writer = new FileWriter(outputFile);
             writer.write("");   // Clear File
 
-            FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+            FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
             SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl"));
 
             writer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");

@@ -160,14 +160,7 @@ public class TileTblFileHandler extends FileHandler {
         long first = encodedBytes.getInt() & this.UINT32_MASK;
         long second = encodedBytes.getInt() & this.UINT32_MASK;
 
-        long t1 = (first ^ (first ^ second));
-        if (second != t1) {
-            System.out.println();
-        }
-        long third = (int)second & this.ENC_MASK2;
-        if (second != third) {
-            System.out.println("Second: " + second + " | " + third + " : Third");
-        }
+        long third = (first ^ (first ^ second)) & this.ENC_MASK2;
         decodedBytes.putInt((int)third);
 
         return decodedBytes;

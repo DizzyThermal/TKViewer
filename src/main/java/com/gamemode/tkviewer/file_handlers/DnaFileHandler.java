@@ -16,13 +16,21 @@ public class DnaFileHandler extends FileHandler {
 
     public List<Mob> mobs;
 
-    public DnaFileHandler(String filepath) {
-        this(new File(filepath));
+    public int fileSize;
+
+    public DnaFileHandler(String filepath) { this(new File(filepath)); }
+
+    public DnaFileHandler(ByteBuffer bytes) {
+        super(bytes);
+        init();
     }
 
     public DnaFileHandler(File file) {
         super(file);
+        init();
+    }
 
+    public void init() {
         this.mobCount = this.readInt(true, true);
 
         this.mobs = new ArrayList<Mob>();
@@ -54,12 +62,39 @@ public class DnaFileHandler extends FileHandler {
             this.mobs.add(new Mob(frameIndex, chunkCount, (byte)unknown1, paletteIndex, mobChunks));
         }
 
+        this.fileSize = (int)this.getPosition();
         this.close();
     }
 
     @Override
     public ByteBuffer toByteBuffer() {
-        // Not implemented
-        return null;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(fileSize);
+
+        byteBuffer.putInt((int)this.mobCount);
+
+        for (int i = 0; i < this.mobCount; i++) {
+            Mob mob = this.mobs.get(i);
+            byteBuffer.putInt((int)mob.getFrameIndex());
+            byteBuffer.put((byte)mob.getChunkCount());
+            byteBuffer.put((byte)mob.getUnknown1());
+            byteBuffer.putShort((short)mob.getPaletteId());
+
+            for (int j = 0; j < mob.getChunkCount(); j++) {
+                MobChunk chunk = mob.getChunks().get(j);
+                byteBuffer.putShort((short)chunk.getBlockCount());
+
+                for (int k = 0; k < chunk.getBlockCount(); k++) {
+                    MobBlock block = chunk.getBlocks().get(k);
+                    byteBuffer.putShort((short)block.getFrameOffset());
+                    byteBuffer.putShort((short)block.getDuration());
+                    byteBuffer.putShort((short)block.getUnknownId1());
+                    byteBuffer.put((byte)block.getTransparency());
+                    byteBuffer.put((byte)block.getUnknownId2());
+                    byteBuffer.put((byte)block.getUnknownId3());
+                }
+            }
+        }
+
+        return byteBuffer;
     }
 }

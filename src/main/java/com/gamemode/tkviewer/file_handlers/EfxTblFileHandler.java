@@ -142,15 +142,9 @@ public class EfxTblFileHandler extends FileHandler {
         return decodedBytes;
     }
 
-    public boolean writeToFile(String outputPath, boolean encode) {
-        // Implement
-
-        return true;
-    }
-
     @Override
     public ByteBuffer toByteBuffer() {
-        // Not implemented - NEED TO BE ENCODED
+        // Not implemented - NEED TO BE ENCODED.
         return null;
     }
 }

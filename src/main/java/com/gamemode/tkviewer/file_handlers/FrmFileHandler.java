@@ -8,7 +8,8 @@ import java.util.List;
 
 public class FrmFileHandler extends FileHandler {
 
-    private final byte TBL_MASK = 0x7F;
+    private final byte HEADER = 0x4;
+    private final byte PALETTE_SIZE = 0x4;
 
     public long effectCount;
 
@@ -18,13 +19,17 @@ public class FrmFileHandler extends FileHandler {
         this(new File(filepath));
     }
 
-    public FrmFileHandler(File file) {
-        this(file, false);
+    public FrmFileHandler(ByteBuffer bytes) {
+        super(bytes);
+        init();
     }
 
-    public FrmFileHandler(File file, boolean decode) {
+    public FrmFileHandler(File file) {
         super(file);
+        init();
+    }
 
+    public void init() {
         this.effectCount = this.readInt(true, true);
 
         this.paletteIndices = new ArrayList<Integer>();
@@ -35,9 +40,17 @@ public class FrmFileHandler extends FileHandler {
         this.close();
     }
 
+
     @Override
     public ByteBuffer toByteBuffer() {
-        // Not implemented
-        return null;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(HEADER + ((int)this.effectCount * PALETTE_SIZE));
+
+        byteBuffer.putInt((int)this.effectCount);
+
+        for (int i = 0; i < this.effectCount; i++) {
+            byteBuffer.putInt(this.paletteIndices.get(i));
+        }
+
+        return byteBuffer;
     }
 }

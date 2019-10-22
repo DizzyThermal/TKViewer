@@ -67,7 +67,7 @@ public class Resources {
 
     public static final String PROGRAM_FILES_X86 = "C:\\Program Files (x86)";
 
-    public static final String NEXUSTK_DATA_DIRECTORY = PROGRAM_FILES_X86 + File.separator + "KRU\\NexusTK\\Data";
+    public static final String NTK_DATA_DIRECTORY = PROGRAM_FILES_X86 + File.separator + "KRU\\NexusTK\\Data";
     public static final String TKVIEWER_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "TKViewer";
     public static final String DATA_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "NexusTK-Data";
     public static final String EFFECT_ANIMATION_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "Effect-Animations";

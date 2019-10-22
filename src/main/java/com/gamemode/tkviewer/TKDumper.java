@@ -1,6 +1,5 @@
 package com.gamemode.tkviewer;
 import com.gamemode.tkviewer.file_handlers.*;
-import com.gamemode.tkviewer.render.MapRenderer;
 import com.gamemode.tkviewer.render.PartRenderer;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
@@ -117,7 +116,7 @@ public class TKDumper {
 
     public void loadBodyResources() {
         // Extract Required Body Files
-        FileUtils.extractBodyFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractBodyFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Body Resources
         bodyRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getBodyEpfs(Resources.DATA_DIRECTORY)),
@@ -127,7 +126,7 @@ public class TKDumper {
 
     public void loadBowResources() {
         // Extract Required Bow Files
-        FileUtils.extractBowFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractBowFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Bow Resources
         bowRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getBowEpfs(Resources.DATA_DIRECTORY)),
@@ -137,7 +136,7 @@ public class TKDumper {
 
     public void loadCoatResources() {
         // Extract Required Coat Files
-        FileUtils.extractCoatFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractCoatFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Coat Resources
         coatRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getCoatEpfs(Resources.DATA_DIRECTORY)),
@@ -147,7 +146,7 @@ public class TKDumper {
 
     public void loadFaceResources() {
         // Extract Required Face Files
-        FileUtils.extractFaceFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractFaceFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Face Resources
         faceRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getFaceEpfs(Resources.DATA_DIRECTORY)),
@@ -157,7 +156,7 @@ public class TKDumper {
 
     public void loadFanResources() {
         // Extract Required Fan Files
-        FileUtils.extractFanFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractFanFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Fan Resources
         fanRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getFanEpfs(Resources.DATA_DIRECTORY)),
@@ -167,7 +166,7 @@ public class TKDumper {
 
     public void loadHairResources() {
         // Extract Required Hair Files
-        FileUtils.extractHairFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractHairFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Hair Resources
         hairRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getHairEpfs(Resources.DATA_DIRECTORY)),
@@ -177,7 +176,7 @@ public class TKDumper {
 
     public void loadMantleResources() {
         // Extract Required Mantle Files
-        FileUtils.extractMantleFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractMantleFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Mantle Resources
         mantleRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getMantleEpfs(Resources.DATA_DIRECTORY)),
@@ -187,7 +186,7 @@ public class TKDumper {
 
     public void loadSpearResources() {
         // Extract Required Spear Files
-        FileUtils.extractSpearFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractSpearFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Spear Resources
         spearRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getSpearEpfs(Resources.DATA_DIRECTORY)),
@@ -197,7 +196,7 @@ public class TKDumper {
 
     public void loadShieldResources() {
         // Extract Required Shield Files
-        FileUtils.extractShieldFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractShieldFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Shield Resources
         shieldRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getShieldEpfs(Resources.DATA_DIRECTORY)),
@@ -207,7 +206,7 @@ public class TKDumper {
 
     public void loadShoesResources() {
         // Extract Required Shoes Files
-        FileUtils.extractShoesFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractShoesFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Shoes Resources
         shoesRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getShoesEpfs(Resources.DATA_DIRECTORY)),
@@ -217,7 +216,7 @@ public class TKDumper {
 
     public void loadSwordResources() {
         // Extract Required Sword Files
-        FileUtils.extractSwordFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NEXUSTK_DATA_DIRECTORY);
+        FileUtils.extractSwordFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
         // Part Renderer from Sword Resources
         swordRenderer =
                 new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getSwordEpfs(Resources.DATA_DIRECTORY)),
