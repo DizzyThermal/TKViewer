@@ -14,6 +14,13 @@ mvn package
 
 * Output is stored in `target/`
 
+Run TKViewer with:
+
+```bash
+java -jar target/TKViewer-*.jar
+```
+
+
 ## FileReader Classes
 
 - **File Structures**
