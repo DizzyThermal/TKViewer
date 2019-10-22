@@ -4,6 +4,7 @@ import com.gamemode.tkviewer.file_handlers.*;
 import com.gamemode.tkviewer.render.*;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
+import com.gamemode.tkviewer.utilities.RenderUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -62,7 +63,7 @@ public class GUI extends JFrame implements ActionListener {
     PartRenderer mantleRenderer;
     MobRenderer mobRenderer;
     PartRenderer spearRenderer;
-    PartRenderer shoesRenderer;
+    PartRenderer shoeRenderer;
     PartRenderer shieldRenderer;
     PartRenderer swordRenderer;
 
@@ -209,49 +210,79 @@ public class GUI extends JFrame implements ActionListener {
                         clearCache();
                         break;
                     case BODIES:
-                        loadBodyResources();
+                        if (bodyRenderer == null) {
+                            bodyRenderer = RenderUtils.createBodyRenderer();
+                        }
                         break;
                     case BOWS:
-                        loadBowResources();
+                        if (bowRenderer == null) {
+                            bowRenderer = RenderUtils.createBowRenderer();
+                        }
                         break;
                     case COATS:
-                        loadCoatResources();
+                        if (coatRenderer == null) {
+                            coatRenderer = RenderUtils.createCoatRenderer();
+                        }
                         break;
                     case EFFECTS:
-                        loadEffectResources();
+                        if (effectRenderer == null) {
+                            effectRenderer = RenderUtils.createEffectRenderer();
+                        }
                         break;
                     case FACES:
-                        loadFaceResources();
+                        if (faceRenderer == null) {
+                            faceRenderer = RenderUtils.createFaceRenderer();
+                        }
                         break;
                     case FANS:
-                        loadFanResources();
+                        if (fanRenderer == null) {
+                            fanRenderer = RenderUtils.createFanRenderer();
+                        }
                         break;
                     case HAIR:
-                        loadHairResources();
+                        if (hairRenderer == null) {
+                            hairRenderer = RenderUtils.createHairRenderer();
+                        }
                         break;
                     case HELMETS:
-                        loadHelmetResources();
+                        if (helmetRenderer == null) {
+                            helmetRenderer = RenderUtils.createHelmetRenderer();
+                        }
                         break;
                     case MANTLES:
-                        loadMantleResources();
+                        if (mantleRenderer == null) {
+                            mantleRenderer = RenderUtils.createMantleRenderer();
+                        }
                         break;
                     case MAPS:
-                        loadMapResources();
+                        if (mapRenderer == null) {
+                            mapRenderer = RenderUtils.createMapRenderer();
+                        }
                         break;
                     case MOBS:
-                        loadMobResources();
+                        if (mobRenderer == null) {
+                            mobRenderer = RenderUtils.createMobRenderer();
+                        }
                         break;
                     case SPEARS:
-                        loadSpearResources();
+                        if (spearRenderer == null) {
+                            spearRenderer = RenderUtils.createSpearRenderer();
+                        }
                         break;
                     case SHIELDS:
-                        loadShieldResources();
+                        if (shieldRenderer == null) {
+                            shieldRenderer = RenderUtils.createShieldRenderer();
+                        }
                         break;
                     case SHOES:
-                        loadShoesResources();
+                        if (shoeRenderer == null) {
+                            shoeRenderer = RenderUtils.createShoeRenderer();
+                        }
                         break;
                     case SWORDS:
-                        loadSwordResources();
+                        if (swordRenderer == null) {
+                            swordRenderer = RenderUtils.createSwordRenderer();
+                        }
                         break;
                 }
 
@@ -520,11 +551,11 @@ public class GUI extends JFrame implements ActionListener {
             new ViewFrame("Shields", "Shield", "Shields", this.shieldRenderer);
         } else if (ae.getSource() == this.viewShoesMenuItem) {
             // Initialize Shoes Data if needed
-            if (this.shoesRenderer == null) {
+            if (this.shoeRenderer == null) {
                 showLoadingDialog("Loading shoes resources, please wait...", Resources.GUI_LOADING_FUNCTION.SHOES);
             }
 
-            new ViewFrame("Shoes", "Shoe", "Shoes", this.shoesRenderer);
+            new ViewFrame("Shoes", "Shoe", "Shoes", this.shoeRenderer);
         } else if (ae.getSource() == this.viewSwordMenuItem) {
             // Initialize Sword Data if needed
             if (this.swordRenderer == null) {
@@ -575,8 +606,8 @@ public class GUI extends JFrame implements ActionListener {
         if (spearRenderer != null) {
             spearRenderer.dispose();
         }
-        if (shoesRenderer != null) {
-            shoesRenderer.dispose();
+        if (shoeRenderer != null) {
+            shoeRenderer.dispose();
         }
         if (shieldRenderer != null) {
             shieldRenderer.dispose();
@@ -597,159 +628,5 @@ public class GUI extends JFrame implements ActionListener {
         } else {
             JOptionPane.showMessageDialog(this, "The TKViewer cache is already cleared.", "Empty TKViewer Cache", JOptionPane.INFORMATION_MESSAGE);
         }
-    }
-
-    public void loadMapResources() {
-        // Extract Required Map Files
-        FileUtils.extractMapFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Tile Renderer (for AB (Ground) Tiles)
-        TileRenderer tileRenderer =
-                new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "tile.pal")), new TileTblFileHandler(new File(Resources.DATA_DIRECTORY, "tile.tbl")));
-        // Static Object Renderer (for C (Static Object -- SObj) Tiles)
-        SObjRenderer sObjRenderer = new SObjRenderer(new TileRenderer(FileUtils.createEpfsFromFiles(FileUtils.getTileCEpfs(Resources.DATA_DIRECTORY)), new PalFileHandler(new File(Resources.DATA_DIRECTORY, "TileC.pal")), new TileTblFileHandler(new File(Resources.DATA_DIRECTORY, "TILEC.TBL"))), new SObjTblFileHandler(new File(Resources.DATA_DIRECTORY, "SObj.tbl")));
-        // Map Renderer from TileRenderer and SObjRenderer
-        mapRenderer = new MapRenderer(tileRenderer, sObjRenderer);
-    }
-
-    public void loadBodyResources() {
-        // Extract Required Body Files
-        FileUtils.extractBodyFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Body Resources
-        bodyRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getBodyEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Body.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Body.dsc")));
-    }
-
-    public void loadBowResources() {
-        // Extract Required Bow Files
-        FileUtils.extractBowFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Bow Resources
-        bowRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getBowEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Bow.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Bow.dsc")));
-    }
-
-    public void loadCoatResources() {
-        // Extract Required Coat Files
-        FileUtils.extractCoatFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Coat Resources
-        coatRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getCoatEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Coat.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Coat.dsc")));
-    }
-
-    public void loadEffectResources() {
-        // Extract Required Effect Files
-        FileUtils.extractEffectFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Effect Resources
-        effectRenderer =
-                new EffectRenderer(FileUtils.createEpfsFromFiles(FileUtils.getEffectEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.PAL")),
-                        new EfxTblFileHandler(new File(Resources.DATA_DIRECTORY, "effect.tbl"), true),
-                        new FrmFileHandler(new File(Resources.DATA_DIRECTORY, "EFFECT.FRM")));
-    }
-
-    public void loadFaceResources() {
-        // Extract Required Face Files
-        FileUtils.extractFaceFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Face Resources
-        faceRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getFaceEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Face.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Face.dsc")));
-    }
-
-    public void loadFanResources() {
-        // Extract Required Fan Files
-        FileUtils.extractFanFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Fan Resources
-        fanRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getFanEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Fan.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Fan.dsc")));
-    }
-
-    public void loadHairResources() {
-        // Extract Required Hair Files
-        FileUtils.extractHairFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Hair Resources
-        hairRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getHairEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Hair.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Hair.dsc")));
-    }
-
-    public void loadHelmetResources() {
-        // Extract Required Helmet Files
-        FileUtils.extractHelmetFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Helmet Resources
-        helmetRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getHelmetEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Helmet.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Helmet.dsc")));
-    }
-
-    public void loadMantleResources() {
-        // Extract Required Mantle Files
-        FileUtils.extractMantleFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Mantle Resources
-        mantleRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getMantleEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Mantle.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Mantle.dsc")));
-    }
-
-    public void loadMobResources() {
-        // Extract Required Mob Files
-        FileUtils.extractMobFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Mob Resources
-        mobRenderer =
-                new MobRenderer(FileUtils.createEpfsFromFiles(FileUtils.getMobEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "monster.pal")),
-                        new DnaFileHandler(new File(Resources.DATA_DIRECTORY, "monster.dna")));
-    }
-
-    public void loadSpearResources() {
-        // Extract Required Spear Files
-        FileUtils.extractSpearFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Spear Resources
-        spearRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getSpearEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Spear.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Spear.dsc")));
-    }
-
-    public void loadShieldResources() {
-        // Extract Required Shield Files
-        FileUtils.extractShieldFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Shield Resources
-        shieldRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getShieldEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Shield.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Shield.dsc")));
-    }
-
-    public void loadShoesResources() {
-        // Extract Required Shoes Files
-        FileUtils.extractShoesFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Shoes Resources
-        shoesRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getShoesEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Shoes.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Shoes.dsc")));
-    }
-
-    public void loadSwordResources() {
-        // Extract Required Sword Files
-        FileUtils.extractSwordFilesIfMissing(Resources.DATA_DIRECTORY, Resources.NTK_DATA_DIRECTORY);
-        // Part Renderer from Sword Resources
-        swordRenderer =
-                new PartRenderer(FileUtils.createEpfsFromFiles(FileUtils.getSwordEpfs(Resources.DATA_DIRECTORY)),
-                        new PalFileHandler(new File(Resources.DATA_DIRECTORY, "Sword.pal")),
-                        new DscFileHandler(new File(Resources.DATA_DIRECTORY, "Sword.dsc")));
     }
 }

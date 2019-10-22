@@ -1,5 +1,6 @@
 package com.gamemode.tkviewer.render;
 
+import com.gamemode.tkviewer.file_handlers.DatFileHandler;
 import com.gamemode.tkviewer.file_handlers.SObjTblFileHandler;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.Resources;
@@ -8,19 +9,28 @@ import com.gamemode.tkviewer.utilities.FileUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class SObjRenderer {
 
-    SObjTblFileHandler tileSobjTbl;
+    SObjTblFileHandler tileSObjTbl;
     TileRenderer tileRenderer;
 
-    public SObjRenderer(TileRenderer tileRenderer, SObjTblFileHandler tileSobjTbl) {
+    public SObjRenderer() {
+        DatFileHandler tileDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat");
+
+        this.tileRenderer = new TileRenderer("tilec", "TileC.pal", "TILEC.TBL");
+        this.tileSObjTbl = new SObjTblFileHandler(tileDat.getFile("SObj.tbl"));
+        System.out.println();
+    }
+
+    public SObjRenderer(TileRenderer tileRenderer, SObjTblFileHandler tileSObjTbl) {
         this.tileRenderer = tileRenderer;
-        this.tileSobjTbl = tileSobjTbl;
+        this.tileSObjTbl = tileSObjTbl;
     }
 
     public BufferedImage renderSObject(int sObjIndex) {
-        SObject sObj = this.tileSobjTbl.objects.get(sObjIndex);
+        SObject sObj = this.tileSObjTbl.objects.get(sObjIndex);
         int sObjHeight = sObj.getHeight();
 
         BufferedImage image = new BufferedImage(Resources.TILE_DIM, sObjHeight * Resources.TILE_DIM, BufferedImage.TYPE_INT_ARGB);
@@ -46,6 +56,6 @@ public class SObjRenderer {
 
     public void dispose() {
         tileRenderer.dispose();
-        tileSobjTbl.close();
+        tileSObjTbl.close();
     }
 }

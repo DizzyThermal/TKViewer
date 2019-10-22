@@ -131,7 +131,7 @@ public class DatFileHandler extends FileHandler {
         long currentPosition = this.filePosition;
         int length = 0;
         while(true) {
-            byte b = this.readSignedByte();
+            byte b = (byte)this.readSignedByte();
             if (b != 0) {
                 length++;
             } else {

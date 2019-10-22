@@ -17,20 +17,28 @@ public class SObjTblFileHandler extends FileHandler {
         this(new File(filepath));
     }
 
+    public SObjTblFileHandler(ByteBuffer bytes) {
+        super(bytes);
+        init();
+    }
+
     public SObjTblFileHandler(File file) {
         super(file);
+        init();
+    }
 
+    public void init() {
         this.objectCount = this.readInt(true, true);
 
-        this.seek(2, false);
+        this.readBytes(2, true);
 
         this.objects = new ArrayList<SObject>();
         for (int i = 0; i < this.objectCount; i++) {
             // Unknown
-            this.seek(5, false);
+            this.readBytes(5, true);
 
-            byte movementDirection = this.readSignedByte();
-            byte height = this.readSignedByte();
+            byte movementDirection = (byte)this.readSignedByte();
+            byte height = (byte)this.readSignedByte();
 
             List<Integer> tileIndices = new ArrayList<>();
             for (int j = 0; j < (int) height; j++) {

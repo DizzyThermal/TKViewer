@@ -1,5 +1,6 @@
 package com.gamemode.tkviewer.render;
 
+import com.gamemode.tkviewer.file_handlers.DatFileHandler;
 import com.gamemode.tkviewer.file_handlers.DnaFileHandler;
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
@@ -9,6 +10,7 @@ import com.gamemode.tkviewer.utilities.FileUtils;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +46,16 @@ public class MobRenderer implements Renderer {
     public PalFileHandler mobPal;
     public DnaFileHandler mobDna;
     public int manualPaletteIndex = 0;
+
+    public MobRenderer() {
+        DatFileHandler monDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "monster.dat");
+
+        mobs = new HashMap<Integer, BufferedImage>();
+
+        this.mobEpfs = FileUtils.createEpfsFromDats("Mantle");
+        this.mobPal = new PalFileHandler(monDat.getFile("monster.pal"));
+        this.mobDna = new DnaFileHandler(monDat.getFile("monster.dna"));
+    }
 
     public MobRenderer(List<EpfFileHandler> mobEpfs, PalFileHandler mobPal, DnaFileHandler mobDna) {
         mobs = new HashMap<Integer, BufferedImage>();

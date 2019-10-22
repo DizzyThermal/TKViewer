@@ -187,8 +187,8 @@ public abstract class FileHandler {
         return unsignedByte;
     }
 
-    public byte readSignedByte() {
-        byte signedByte = 0x00;
+    public int readSignedByte() {
+        int signedByte = 0x00;
 
         if (this.file != null) {
             signedByte = this.readSignedByteFile();
@@ -199,7 +199,7 @@ public abstract class FileHandler {
         return signedByte;
     }
 
-    public byte readSignedByteFile() {
+    public int readSignedByteFile() {
         byte b = 0x00;
 
         try {
@@ -212,9 +212,9 @@ public abstract class FileHandler {
         return b;
     }
 
-    public byte readSignedByteBytes() {
+    public int readSignedByteBytes() {
         // either this one or unsigned byte is gonna be right
-        byte signedByte = bytes.get();
+        int signedByte = bytes.get();
         this.filePosition++;
 
         return signedByte;

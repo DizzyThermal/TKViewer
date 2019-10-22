@@ -1,5 +1,6 @@
 package com.gamemode.tkviewer.render;
 
+import com.gamemode.tkviewer.file_handlers.DatFileHandler;
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
 import com.gamemode.tkviewer.file_handlers.FrmFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
@@ -11,6 +12,7 @@ import com.gamemode.tkviewer.utilities.FileUtils;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,19 @@ public class TileRenderer implements Renderer {
     TileTblFileHandler tileTbl;
     FrmFileHandler tileFrm;
     public int manualPaletteIndex = 0;
+
+    public TileRenderer() { this("tile", "tile", "tile"); }
+    public TileRenderer(String epfPrefix) { this(epfPrefix, epfPrefix + ".pal", epfPrefix + ".tbl"); }
+
+    public TileRenderer(String epfPrefix, String palName, String tblName) {
+        DatFileHandler tileDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat");
+
+        tiles = new HashMap<Integer, BufferedImage>();
+
+        this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix);
+        this.tilePal = new PalFileHandler(tileDat.getFile(palName));
+        this.tileTbl = new TileTblFileHandler(tileDat.getFile(tblName));
+    }
 
     public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, TileTblFileHandler tileTbl) {
         tiles = new HashMap<Integer, BufferedImage>();

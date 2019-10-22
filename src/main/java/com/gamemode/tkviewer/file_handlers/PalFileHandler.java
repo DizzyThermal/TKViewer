@@ -46,7 +46,7 @@ public class PalFileHandler extends FileHandler {
         for (int i = 0; i < this.paletteCount; i++) {
             String palHeader = this.readString(9, true);
             ByteBuffer unknownBytes1 = this.readBytes(15, true);
-            byte animationColorCount = this.readSignedByte();
+            int animationColorCount = this.readSignedByte();
 
             ByteBuffer unknownBytes2 = this.readBytes(7, true);
             List<Integer> animationOffsets = new ArrayList<Integer>();

@@ -13,6 +13,11 @@ public class MapRenderer {
     TileRenderer tileRenderer;
     SObjRenderer sObjRenderer;
 
+    public MapRenderer() {
+        this.tileRenderer = new TileRenderer("tile");
+        this.sObjRenderer = new SObjRenderer();
+    }
+
     public MapRenderer(TileRenderer tileRenderer, SObjRenderer sObjRenderer) {
         this.tileRenderer = tileRenderer;
         this.sObjRenderer = sObjRenderer;
@@ -46,7 +51,7 @@ public class MapRenderer {
             // Render Static Object (C Tile)
             int sObjIndex = cmpFileHandler.mapTiles.get(i).getSObjTile();
             if (sObjIndex > 0) {
-                int sObjHeight = this.sObjRenderer.tileSobjTbl.objects.get(sObjIndex).getHeight();
+                int sObjHeight = this.sObjRenderer.tileSObjTbl.objects.get(sObjIndex).getHeight();
                 if (sObjHeight > 0) {
                     graphicsObject.drawImage(
                             this.sObjRenderer.renderSObject(sObjIndex),
@@ -95,7 +100,7 @@ public class MapRenderer {
             // Render Static Object (C Tile)
             int sObjIndex = mapFileHandler.mapTiles.get(i).getSObjTile();
             if (sObjIndex > 0) {
-                int sObjHeight = this.sObjRenderer.tileSobjTbl.objects.get(sObjIndex).getHeight();
+                int sObjHeight = this.sObjRenderer.tileSObjTbl.objects.get(sObjIndex).getHeight();
                 if (sObjHeight > 0) {
                     graphicsObject.drawImage(
                             this.sObjRenderer.renderSObject(sObjIndex),
@@ -160,7 +165,7 @@ public class MapRenderer {
                     gridNodes[i][j] = true;
                 }
                 if (sObjIndex > 0) {
-                    byte movementDirection = this.sObjRenderer.tileSobjTbl.objects.get(sObjIndex).getMovementDirection();
+                    byte movementDirection = this.sObjRenderer.tileSObjTbl.objects.get(sObjIndex).getMovementDirection();
                     if (movementDirection == 0xF) {         // Full
                         // Block out adjacent nodes
                         // Left, Right, Top, Bottom

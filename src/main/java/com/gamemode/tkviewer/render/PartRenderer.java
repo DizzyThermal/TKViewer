@@ -1,5 +1,6 @@
 package com.gamemode.tkviewer.render;
 
+import com.gamemode.tkviewer.file_handlers.DatFileHandler;
 import com.gamemode.tkviewer.file_handlers.DscFileHandler;
 import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
 import com.gamemode.tkviewer.file_handlers.PalFileHandler;
@@ -110,6 +111,18 @@ public class PartRenderer implements Renderer {
     public PalFileHandler partPal;
     public DscFileHandler partDsc;
     public int manualPaletteIndex = 0;
+
+    public PartRenderer(String partName) {
+        this(partName, new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat"));
+    }
+
+    public PartRenderer(String partName, DatFileHandler charDat) {
+        parts = new HashMap<Integer, BufferedImage>();
+
+        this.partEpfs = FileUtils.createEpfsFromDats(partName);
+        this.partPal = new PalFileHandler(charDat.getFile(partName + ".pal"));
+        this.partDsc = new DscFileHandler(charDat.getFile(partName + ".dsc"));
+    }
 
     public PartRenderer(List<EpfFileHandler> partEpfs, PalFileHandler partPal, DscFileHandler partDsc) {
         parts = new HashMap<Integer, BufferedImage>();

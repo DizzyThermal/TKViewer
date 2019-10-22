@@ -21,9 +21,17 @@ public class DscFileHandler extends FileHandler {
         this(new File(filepath));
     }
 
+    public DscFileHandler(ByteBuffer bytes) {
+        super(bytes);
+        init();
+    }
+
     public DscFileHandler(File file) {
         super(file);
+        init();
+    }
 
+    public void init() {
         // Seek past header
         this.seek(DscFileHandler.HEADER, true);
 

@@ -31,13 +31,9 @@ public class EpfFileHandler extends FileHandler {
         this(new File(filepath), loadAllFrames);
     }
 
-    public EpfFileHandler(ByteBuffer bytes) {
-        super(bytes, false);
-    }
-
+    public EpfFileHandler(ByteBuffer bytes) { this(bytes, false); }
     public EpfFileHandler(ByteBuffer bytes, boolean loadAllFrames) {
         super(bytes);
-
         init(loadAllFrames);
     }
 
@@ -46,7 +42,6 @@ public class EpfFileHandler extends FileHandler {
     }
     public EpfFileHandler(File file, boolean loadAllFrames) {
         super(file);
-
         init(loadAllFrames);
     }
 
