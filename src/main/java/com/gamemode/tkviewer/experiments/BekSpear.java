@@ -39,59 +39,38 @@ public class BekSpear {
 
         List<List<EffectImage>> effImages = new ArrayList<>();
 
-        List<EffectImage> bodyImages = bodyRenderer.renderAnimation(48, 6);
-        List<EffectImage> spearImages = spearRenderer.renderAnimation(24, 2);
-        List<EffectImage> faceImages = faceRenderer.renderAnimation(7, 2);
-        List<EffectImage> hairImages = hairRenderer.renderAnimation(14, 2);
-        List<EffectImage> faceDecImages = faceDecRenderer.renderAnimation(1, 2);
+        effImages.add(bodyRenderer.renderAnimation(48, 6));
+        effImages.add(spearRenderer.renderAnimation(24, 2));
+        effImages.add(faceRenderer.renderAnimation(7, 2));
+        effImages.add(hairRenderer.renderAnimation(14, 2));
+        effImages.add(faceDecRenderer.renderAnimation(1, 2));
 
+        aggregateAnimations(effImages, "C:\\Users\\Reid\\Desktop\\test.gif");
+    }
 
+    public static void aggregateAnimations (List < List < EffectImage >> effImages, String outputFilePath){
         List<Frame> allFrames = new ArrayList<>();
-
-        allFrames.addAll(bodyImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
-        allFrames.addAll(spearImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
-        allFrames.addAll(faceImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
-        allFrames.addAll(hairImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
-        allFrames.addAll(faceDecImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
-
+        for (List<EffectImage> subListImages : effImages) {
+            allFrames.addAll(subListImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
+        }
         PivotData pivotData = RenderUtils.getPivotData(allFrames);
-
         int maxWidth = pivotData.getCanvasWidth();
         int maxHeight = pivotData.getCanvasHeight();
 
         // Correct Images according to maxWidth and maxHeight
-        for (int i = 0; i < bodyImages.size(); i++) {
-            // Correct Body Images
-            EffectImage bodyImage = bodyImages.get(i);
-            bodyImage.setImage(resizeImage(bodyImage.getImage(), maxWidth, maxHeight, pivotData,
-                    bodyImage.getFrame(), bodyImage.getPivotData()));
-
-            // Correct Face Images
-            EffectImage faceImage = faceImages.get(i);
-            faceImage.setImage(resizeImage(faceImage.getImage(), maxWidth, maxHeight, pivotData,
-                    faceImage.getFrame(), faceImage.getPivotData()));
-
-            // Correct Spear Images
-            EffectImage spearImage = spearImages.get(i);
-            spearImage.setImage(resizeImage(spearImage.getImage(), maxWidth, maxHeight, pivotData,
-                    spearImage.getFrame(), spearImage.getPivotData()));
-
-            // Correct Hair Images
-            EffectImage hairImage = hairImages.get(i);
-            hairImage.setImage(resizeImage(hairImage.getImage(), maxWidth, maxHeight, pivotData,
-                    hairImage.getFrame(), hairImage.getPivotData()));
-
-            // Correct Hair Images
-            EffectImage faceDecImage = faceDecImages.get(i);
-            faceDecImage.setImage(resizeImage(faceDecImage.getImage(), maxWidth, maxHeight, pivotData,
-                    faceDecImage.getFrame(), faceDecImage.getPivotData()));
+        for (int i = 0; i < effImages.get(0).size(); i++) {
+            for (int j = 0; j < effImages.size(); j++) {
+                EffectImage effImage = effImages.get(j).get(i);
+                effImage.setImage(resizeImage(effImage.getImage(), maxWidth, maxHeight, pivotData,
+                        effImage.getFrame(), effImage.getPivotData()));
+            }
         }
 
-        List<EffectImage> faceHairImages = mergeEffectImages(faceImages, hairImages);
-        List<EffectImage> bodyFaceImages = mergeEffectImages(bodyImages, faceHairImages);
-        List<EffectImage> bodyFaceDecImages = mergeEffectImages(bodyFaceImages, faceDecImages);
-        List<EffectImage> mergedEffects = mergeEffectImages(bodyFaceDecImages, spearImages);
-        FileUtils.exportGifFromImages(mergedEffects, "C:\\Users\\Reid\\Desktop\\test.gif");
+        List<EffectImage> mergedImages = effImages.get(0);
+        for (int i = 1; i < effImages.size(); i++) {
+            mergedImages = mergeEffectImages(mergedImages, effImages.get(i));
+        }
+        FileUtils.exportGifFromImages(mergedImages, outputFilePath);
     }
 
     /**
