@@ -308,6 +308,10 @@ public class PartRenderer implements Renderer {
         PivotData pivotData = RenderUtils.getPivotData(frames);
         List<EffectImage> images = new ArrayList<EffectImage>();
         for (int i = 0; i < frameCount; i++) {
+            if (pivotData.getCanvasWidth() <= 0 || pivotData.getCanvasHeight() <= 0) {
+                continue;
+            }
+
             BufferedImage canvasImage = new BufferedImage(pivotData.getCanvasWidth(), pivotData.getCanvasHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D graphicsObject = canvasImage.createGraphics();
             PartBlock block = chunk.getBlocks().get(i);

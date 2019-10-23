@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 
 public class TKViewer {
 
-    public static final String TKVIEWER_VERSION = "3.1";
+    public static final String TKVIEWER_VERSION = "3.2";
 
     public static void main(String[] args) {
         GUI gui = new GUI("TKViewer - " + TKVIEWER_VERSION);
