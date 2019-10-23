@@ -1,4 +1,4 @@
-package com.gamemode.tkviewer.ignore;
+package com.gamemode.tkviewer;
 
 import com.gamemode.tkviewer.render.PartRenderer;
 import com.gamemode.tkviewer.resources.EffectImage;
@@ -28,18 +28,23 @@ import java.util.stream.Collectors;
  * Spear[10] = Bek Spear
  *  *   Chunk[5] = Stab Right
  */
-public class TKViewer_BekSpear {
+public class BekSpear {
     public static void main(String[] args) {
         // Create PartRenderers
         PartRenderer bodyRenderer = new PartRenderer("Body");
         PartRenderer spearRenderer = new PartRenderer("Spear");
         PartRenderer faceRenderer = new PartRenderer("Face");
         PartRenderer hairRenderer = new PartRenderer("Hair");
+        PartRenderer faceDecRenderer = new PartRenderer("FaceDec");
 
-        List<EffectImage> bodyImages = bodyRenderer.renderAnimation(445, 17);
-        List<EffectImage> spearImages = spearRenderer.renderAnimation(11, 5);
-        List<EffectImage> faceImages = faceRenderer.renderAnimation(0, 17);
-        List<EffectImage> hairImages = hairRenderer.renderAnimation(0, 17);
+        List<List<EffectImage>> effImages = new ArrayList<>();
+
+        List<EffectImage> bodyImages = bodyRenderer.renderAnimation(48, 6);
+        List<EffectImage> spearImages = spearRenderer.renderAnimation(24, 2);
+        List<EffectImage> faceImages = faceRenderer.renderAnimation(7, 2);
+        List<EffectImage> hairImages = hairRenderer.renderAnimation(14, 2);
+        List<EffectImage> faceDecImages = faceDecRenderer.renderAnimation(1, 2);
+
 
         List<Frame> allFrames = new ArrayList<>();
 
@@ -47,6 +52,7 @@ public class TKViewer_BekSpear {
         allFrames.addAll(spearImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
         allFrames.addAll(faceImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
         allFrames.addAll(hairImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
+        allFrames.addAll(faceDecImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
 
         PivotData pivotData = RenderUtils.getPivotData(allFrames);
 
@@ -58,28 +64,34 @@ public class TKViewer_BekSpear {
             // Correct Body Images
             EffectImage bodyImage = bodyImages.get(i);
             bodyImage.setImage(resizeImage(bodyImage.getImage(), maxWidth, maxHeight, pivotData,
-                    bodyImage.getFrame()));
+                    bodyImage.getFrame(), bodyImage.getPivotData()));
 
             // Correct Face Images
             EffectImage faceImage = faceImages.get(i);
             faceImage.setImage(resizeImage(faceImage.getImage(), maxWidth, maxHeight, pivotData,
-                    faceImage.getFrame()));
+                    faceImage.getFrame(), faceImage.getPivotData()));
 
             // Correct Spear Images
             EffectImage spearImage = spearImages.get(i);
             spearImage.setImage(resizeImage(spearImage.getImage(), maxWidth, maxHeight, pivotData,
-                    spearImage.getFrame()));
+                    spearImage.getFrame(), spearImage.getPivotData()));
 
             // Correct Hair Images
             EffectImage hairImage = hairImages.get(i);
             hairImage.setImage(resizeImage(hairImage.getImage(), maxWidth, maxHeight, pivotData,
-                    hairImage.getFrame()));
+                    hairImage.getFrame(), hairImage.getPivotData()));
+
+            // Correct Hair Images
+            EffectImage faceDecImage = faceDecImages.get(i);
+            faceDecImage.setImage(resizeImage(faceDecImage.getImage(), maxWidth, maxHeight, pivotData,
+                    faceDecImage.getFrame(), faceDecImage.getPivotData()));
         }
 
         List<EffectImage> faceHairImages = mergeEffectImages(faceImages, hairImages);
         List<EffectImage> bodyFaceImages = mergeEffectImages(bodyImages, faceHairImages);
-        List<EffectImage> mergedEffects = mergeEffectImages(bodyFaceImages, spearImages);
-        FileUtils.exportGifFromImages(mergedEffects, "C:\\Users\\Stephen\\Desktop\\test.gif");
+        List<EffectImage> bodyFaceDecImages = mergeEffectImages(bodyFaceImages, faceDecImages);
+        List<EffectImage> mergedEffects = mergeEffectImages(bodyFaceDecImages, spearImages);
+        FileUtils.exportGifFromImages(mergedEffects, "C:\\Users\\Reid\\Desktop\\test.gif");
     }
 
     /**
@@ -105,12 +117,12 @@ public class TKViewer_BekSpear {
     }
 
     public static BufferedImage resizeImage(BufferedImage image, int newWidth, int newHeight, PivotData pivotData,
-                                            Frame frame) {
+                                            Frame frame, PivotData framePivotData) {
         BufferedImage newImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D graphicsObject = newImage.createGraphics();
-        int frameLeft = pivotData.getPivotX() + frame.getLeft();
-        int frameTop = pivotData.getPivotY() + frame.getTop();
+        int frameLeft = (pivotData.getPivotX() - framePivotData.getPivotX());
+        int frameTop = (pivotData.getPivotY() - framePivotData.getPivotY());
         graphicsObject.drawImage(image, null, frameLeft, frameTop);
 
         return newImage;
