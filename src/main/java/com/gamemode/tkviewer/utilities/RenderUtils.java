@@ -71,6 +71,10 @@ public class RenderUtils {
     public static PartRenderer createFaceRenderer () {
         return new PartRenderer("Face");
     }
+    public static PartRenderer createFaceDecRenderer () {
+        System.out.println();
+        return new PartRenderer("FaceDec");
+    }
     public static PartRenderer createFanRenderer () {
         return new PartRenderer("Fan");
     }

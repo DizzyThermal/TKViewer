@@ -76,7 +76,7 @@ public class Resources {
     public static final String CLIENT_ICON = "client_icon.png";
 
     public static enum GUI_LOADING_FUNCTION {
-        BODIES, BOWS, CLEAR_CACHE, COATS, EFFECTS, FACES, FANS, HAIR, HELMETS, MANTLES, MAPS, MOBS, SPEARS, SHIELDS, SHOES, SWORDS
+        BODIES, BOWS, CLEAR_CACHE, COATS, EFFECTS, FACES, FACE_DEC, FANS, HAIR, HELMETS, MANTLES, MAPS, MOBS, SPEARS, SHIELDS, SHOES, SWORDS
     }
 
     public static final int MAX_BYTE_SIZE = 256;

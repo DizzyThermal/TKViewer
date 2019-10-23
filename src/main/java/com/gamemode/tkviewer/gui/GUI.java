@@ -40,6 +40,7 @@ public class GUI extends JFrame implements ActionListener {
     JMenuItem viewCoatMenuItem = new JMenuItem("Coats");
     JMenuItem viewEffectMenuItem = new JMenuItem("Effects");
     JMenuItem viewFaceMenuItem = new JMenuItem("Faces");
+    JMenuItem viewFaceDecMenuItem = new JMenuItem("Face Decorations");
     JMenuItem viewFanMenuItem = new JMenuItem("Fans");
     JMenuItem viewHairMenuItem = new JMenuItem("Hair");
     JMenuItem viewHelmetMenuItem = new JMenuItem("Helmets");
@@ -57,6 +58,7 @@ public class GUI extends JFrame implements ActionListener {
     PartRenderer coatRenderer;
     EffectRenderer effectRenderer;
     PartRenderer faceRenderer;
+    PartRenderer faceDecRenderer;
     PartRenderer fanRenderer;
     PartRenderer hairRenderer;
     PartRenderer helmetRenderer;
@@ -131,6 +133,10 @@ public class GUI extends JFrame implements ActionListener {
         // View > Faces
         viewFaceMenuItem.addActionListener(this);
         viewMenu.add(viewFaceMenuItem);
+
+        // View > Faces
+        viewFaceDecMenuItem.addActionListener(this);
+        viewMenu.add(viewFaceDecMenuItem);
 
         // View > Fans
         viewFanMenuItem.addActionListener(this);
@@ -232,6 +238,11 @@ public class GUI extends JFrame implements ActionListener {
                     case FACES:
                         if (faceRenderer == null) {
                             faceRenderer = RenderUtils.createFaceRenderer();
+                        }
+                        break;
+                    case FACE_DEC:
+                        if (faceDecRenderer == null) {
+                            faceDecRenderer = RenderUtils.createFaceDecRenderer();
                         }
                         break;
                     case FANS:
@@ -500,6 +511,13 @@ public class GUI extends JFrame implements ActionListener {
             }
 
             new ViewFrame("Faces", "Face", "Faces", this.faceRenderer);
+        } else if (ae.getSource() == this.viewFaceDecMenuItem) {
+            // Initialize Face Dec Data if needed
+            if (this.faceDecRenderer == null) {
+                showLoadingDialog("Loading face decoration resources, please wait...", Resources.GUI_LOADING_FUNCTION.FACE_DEC);
+            }
+
+            new ViewFrame("Face Decorations", "Face Decoration", "Face Decorations", this.faceDecRenderer);
         } else if (ae.getSource() == this.viewFanMenuItem) {
             // Initialize Fan Data if needed
             if (this.fanRenderer == null) {
@@ -587,6 +605,9 @@ public class GUI extends JFrame implements ActionListener {
         }
         if (faceRenderer != null) {
             faceRenderer.dispose();
+        }
+        if (faceDecRenderer != null) {
+            faceDecRenderer.dispose();
         }
         if (fanRenderer != null) {
             fanRenderer.dispose();
