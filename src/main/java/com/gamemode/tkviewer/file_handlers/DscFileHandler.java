@@ -3,6 +3,7 @@ package com.gamemode.tkviewer.file_handlers;
 import com.gamemode.tkviewer.resources.Part;
 import com.gamemode.tkviewer.resources.PartBlock;
 import com.gamemode.tkviewer.resources.PartChunk;
+import com.gamemode.tkviewer.resources.PartMetadata;
 
 import java.io.File;
 import java.nio.*;
@@ -82,7 +83,10 @@ public class DscFileHandler extends FileHandler {
                 PartChunk chunk = new PartChunk((int)chunkNumber, (int)chunkUnknown2, partBlocks);
                 partChunks.add(chunk);
             }
-            Part part = new Part(id, paletteIndex, frameIndex, frameCount, partChunks);
+
+            PartMetadata partMetadata = new PartMetadata(partUnknown1, partUnknown2, partUnknown3, partUnknown4,
+                    partUnknown5, partUnknown6, partUnknown7);
+            Part part = new Part(id, paletteIndex, frameIndex, frameCount, partChunks, partMetadata);
             this.parts.add(part);
         }
 

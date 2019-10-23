@@ -74,19 +74,14 @@ public class RenderUtils {
     public static PartRenderer createFanRenderer () {
         return new PartRenderer("Fan");
     }
-    public static PartRenderer createHairRenderer () {
-        return new PartRenderer("Hair");
-    }
+    public static PartRenderer createHairRenderer () { return new PartRenderer("Hair");}
     public static PartRenderer createHelmetRenderer () {
         return new PartRenderer("Helmet");
     }
     public static PartRenderer createMantleRenderer () {
         return new PartRenderer("Mantle");
     }
-    public static MapRenderer createMapRenderer () {
-        MapRenderer mapRenderer = new MapRenderer();
-        return mapRenderer;
-    }
+    public static MapRenderer createMapRenderer () { return new MapRenderer(); }
     public static MobRenderer createMobRenderer () {
         return new MobRenderer();
     }

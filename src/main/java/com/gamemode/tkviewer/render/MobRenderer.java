@@ -189,7 +189,7 @@ public class MobRenderer implements Renderer {
                     (frame.getTop() - t));
             graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)block.getTransparency()/(float)255));
 
-            images.add(new EffectImage(frameImage, block.getDuration()));
+            images.add(new EffectImage(frameImage, block.getDuration(), null, null));
         }
 
         return images;

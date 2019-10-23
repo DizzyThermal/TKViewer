@@ -93,7 +93,7 @@ public class EffectRenderer implements Renderer {
                     (frame.getLeft() - l),
                     (frame.getTop() - t));
 
-            images.add(new EffectImage(frameImage, effectFrame.getFrameDelay()));
+            images.add(new EffectImage(frameImage, effectFrame.getFrameDelay(), null, null));
         }
 
         return images;

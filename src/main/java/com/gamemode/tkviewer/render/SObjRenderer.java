@@ -10,8 +10,12 @@ import com.gamemode.tkviewer.utilities.FileUtils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SObjRenderer {
+
+    Map<Integer, BufferedImage> sObjs;
 
     SObjTblFileHandler tileSObjTbl;
     TileRenderer tileRenderer;
@@ -19,17 +23,26 @@ public class SObjRenderer {
     public SObjRenderer() {
         DatFileHandler tileDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat");
 
+        sObjs = new HashMap<Integer, BufferedImage>();
+
         this.tileRenderer = new TileRenderer("tilec", "TileC.pal", "TILEC.TBL");
         this.tileSObjTbl = new SObjTblFileHandler(tileDat.getFile("SObj.tbl"));
         System.out.println();
     }
 
     public SObjRenderer(TileRenderer tileRenderer, SObjTblFileHandler tileSObjTbl) {
+        sObjs = new HashMap<Integer, BufferedImage>();
+
         this.tileRenderer = tileRenderer;
         this.tileSObjTbl = tileSObjTbl;
     }
 
     public BufferedImage renderSObject(int sObjIndex) {
+        // Return Tile if cached.
+        if (sObjs.containsKey(sObjIndex)) {
+            return sObjs.get(sObjIndex);
+        }
+
         SObject sObj = this.tileSObjTbl.objects.get(sObjIndex);
         int sObjHeight = sObj.getHeight();
 
@@ -51,6 +64,7 @@ public class SObjRenderer {
             }
         }
 
+        this.sObjs.put(sObjIndex, image);
         return image;
     }
 

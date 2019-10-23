@@ -349,7 +349,14 @@ public abstract class FileHandler {
         } else if (!littleEndian && this.bytes.order() != ByteOrder.BIG_ENDIAN) {
             this.bytes.order(ByteOrder.BIG_ENDIAN);
         }
+
         Integer returnShort = (int)this.bytes.getShort();
+
+
+        if (unsigned) {
+            return (((int) returnShort & 0xFFFF));
+        }
+
         this.filePosition += 4;
         return returnShort;
     }

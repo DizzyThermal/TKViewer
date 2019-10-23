@@ -200,6 +200,14 @@ public class FileUtils {
         return returnFrame;
     }
 
+    public static void writeBufferedImageToFile(BufferedImage image, String outputPath) {
+        try {
+            ImageIO.write(image, "png", new File(outputPath));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
     public static void cmpFileToTmxFile(final File cmpFile, final File tmxFile) {
         CmpFileHandler cmp = new CmpFileHandler(cmpFile);
 

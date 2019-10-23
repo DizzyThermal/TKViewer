@@ -325,8 +325,8 @@ public class PartRenderer implements Renderer {
             graphicsObject.drawImage(partImage,null, frameLeft, frameTop);
 //            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)block.getTransparency()/(float)255));
 
-            int defaultDuration = 100; // (ms)
-            images.add(new EffectImage(canvasImage, defaultDuration));
+            int defaultDuration = 64 * 16; // (ms)
+            images.add(new EffectImage(canvasImage, defaultDuration, pivotData, frame));
         }
 
         return images;

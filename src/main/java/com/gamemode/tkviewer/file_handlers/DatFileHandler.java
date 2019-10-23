@@ -118,10 +118,20 @@ public class DatFileHandler extends FileHandler {
     }
 
     public ByteBuffer getFile(String key) {
+        return this.getFile(key, true);
+    }
+
+    public ByteBuffer getFile(String key, boolean caseInsensitive) {
         for (Map.Entry<String, ByteBuffer> entry : this.files.entrySet()) {
-            if (entry.getKey().equals(key)) {
+            if (caseInsensitive && entry.getKey().toLowerCase().equals(key.toLowerCase())) {
+                return entry.getValue();
+            } else if (!caseInsensitive && entry.getKey().equals(key)) {
                 return entry.getValue();
             }
+        }
+
+        if (caseInsensitive) {
+
         }
 
         return null;

@@ -71,6 +71,7 @@ public class Resources {
     public static final String TKVIEWER_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "TKViewer";
     public static final String DATA_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "NexusTK-Data";
     public static final String EFFECT_ANIMATION_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "Effect-Animations";
+    public static final String PART_ANIMATION_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "Part-Animations";
 
     public static final String CLIENT_ICON = "client_icon.png";
 
