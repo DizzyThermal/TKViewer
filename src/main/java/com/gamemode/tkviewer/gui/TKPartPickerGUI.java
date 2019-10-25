@@ -72,19 +72,19 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         this.setIconImage(this.clientIcon);
 
         characterPartInfo = new LinkedHashMap<String, PartInfo>();
-        characterPartInfo.put("Bodies", new PartInfo(0, 2, null,true, RenderUtils.createBodyRenderer()));
-        characterPartInfo.put("Bows", new PartInfo(0, 0,null,false, RenderUtils.createBowRenderer()));
-        characterPartInfo.put("Coats", new PartInfo(0, 0,null,false, RenderUtils.createCoatRenderer()));
-        characterPartInfo.put("Faces", new PartInfo(0, 18,null,true, RenderUtils.createFaceRenderer()));
-        characterPartInfo.put("Face Decorations", new PartInfo(0, 0,null,false, RenderUtils.createFaceDecRenderer()));
-        characterPartInfo.put("Fans", new PartInfo(0, 0,null,false, RenderUtils.createFanRenderer()));
-        characterPartInfo.put("Hair", new PartInfo(0, 18,null,true, RenderUtils.createHairRenderer()));
-        characterPartInfo.put("Helmets", new PartInfo(0, 0,null,false, RenderUtils.createHelmetRenderer()));
-        characterPartInfo.put("Mantles", new PartInfo(0, 0,null,false, RenderUtils.createMantleRenderer()));
-        characterPartInfo.put("Spears", new PartInfo(0, 0,null,false, RenderUtils.createSpearRenderer()));
-        characterPartInfo.put("Shoes", new PartInfo(0, 0,null,false, RenderUtils.createShoeRenderer()));
-        characterPartInfo.put("Shields", new PartInfo(0, 0,null,false, RenderUtils.createShieldRenderer()));
-        characterPartInfo.put("Swords", new PartInfo(0, 0,null,false, RenderUtils.createSwordRenderer()));
+        characterPartInfo.put("Bodies", new PartInfo(0, 2, true, RenderUtils.createBodyRenderer()));
+        characterPartInfo.put("Bows", new PartInfo(0, 0,false, RenderUtils.createBowRenderer()));
+        characterPartInfo.put("Coats", new PartInfo(0, 0,false, RenderUtils.createCoatRenderer()));
+        characterPartInfo.put("Faces", new PartInfo(0, 18,true, RenderUtils.createFaceRenderer()));
+        characterPartInfo.put("Face Decorations", new PartInfo(0, 0,false, RenderUtils.createFaceDecRenderer()));
+        characterPartInfo.put("Fans", new PartInfo(0, 0,false, RenderUtils.createFanRenderer()));
+        characterPartInfo.put("Hair", new PartInfo(0, 18,true, RenderUtils.createHairRenderer()));
+        characterPartInfo.put("Helmets", new PartInfo(0, 0,false, RenderUtils.createHelmetRenderer()));
+        characterPartInfo.put("Mantles", new PartInfo(0, 0,false, RenderUtils.createMantleRenderer()));
+        characterPartInfo.put("Spears", new PartInfo(0, 0,false, RenderUtils.createSpearRenderer()));
+        characterPartInfo.put("Shoes", new PartInfo(0, 0,false, RenderUtils.createShoeRenderer()));
+        characterPartInfo.put("Shields", new PartInfo(0, 0,false, RenderUtils.createShieldRenderer()));
+        characterPartInfo.put("Swords", new PartInfo(0, 0,false, RenderUtils.createSwordRenderer()));
 
         initMenu();
         initPanel();
@@ -182,7 +182,6 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
                 int animationIndex = partInfo.getAnimationIndex();
 
                 List<EffectImage> effectImages = partInfo.getPartRenderer().renderAnimation(partIndex, animationIndex);
-                partInfo.setEffectImages(effectImages);
 
                 graphicsObject.drawImage(effectImages.get(tickValue).getImage(), null, 50, 50);
                 System.out.println(tickValue);
