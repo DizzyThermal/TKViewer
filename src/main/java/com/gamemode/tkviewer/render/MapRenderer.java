@@ -10,8 +10,8 @@ import java.awt.image.BufferedImage;
 
 public class MapRenderer {
 
-    TileRenderer tileRenderer;
-    SObjRenderer sObjRenderer;
+    public TileRenderer tileRenderer;
+    public SObjRenderer sObjRenderer;
 
     public MapRenderer() {
         this.tileRenderer = new TileRenderer("tile");

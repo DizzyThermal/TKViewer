@@ -29,7 +29,7 @@ public class TileRenderer implements Renderer {
     FrmFileHandler tileFrm;
     public int manualPaletteIndex = 0;
 
-    public TileRenderer() { this("tile", "tile", "tile"); }
+    public TileRenderer() { this("tile", "tile.pal", "tile.tbl"); }
     public TileRenderer(String epfPrefix) { this(epfPrefix, epfPrefix + ".pal", epfPrefix + ".tbl"); }
 
     public TileRenderer(String epfPrefix, String palName, String tblName) {

@@ -293,6 +293,10 @@ public class PartRenderer implements Renderer {
     }
 
     public List<EffectImage> renderAnimation(int partIndex, int chunkIndex) {
+        return renderAnimation(partIndex, chunkIndex, -1);
+    }
+
+    public List<EffectImage> renderAnimation(int partIndex, int chunkIndex, int manualPaletteIndex) {
         Part part = this.partDsc.parts.get(partIndex);
         PartChunk chunk = part.getChunks().get(chunkIndex);
 
@@ -318,7 +322,11 @@ public class PartRenderer implements Renderer {
             int frameIndex = (int)part.getFrameIndex();
             int frameOffset = block.getFrameOffset();
 
-            BufferedImage partImage = this.renderPart(partIndex, frameIndex, frameOffset, (int)part.getPaletteId());
+            int paletteIndex = manualPaletteIndex;
+            if (paletteIndex < 0) {
+                paletteIndex = (int)part.getPaletteId();
+            }
+            BufferedImage partImage = this.renderPart(partIndex, frameIndex, frameOffset, paletteIndex);
             Frame frame = FileUtils.getFrameFromEpfs(frameIndex + frameOffset, partEpfs);
             if (frame == null) {
                 continue;

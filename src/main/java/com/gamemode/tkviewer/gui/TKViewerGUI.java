@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class GUI extends JFrame implements ActionListener {
+public class TKViewerGUI extends JFrame implements ActionListener {
 
     Image clientIcon;
 
@@ -76,7 +76,7 @@ public class GUI extends JFrame implements ActionListener {
 
     Dimension MAX_IMAGE_DIMENSIONS = new Dimension(800, 600);
 
-    public GUI(String title) {
+    public TKViewerGUI(String title) {
         super(title);
         this.setPreferredSize(new Dimension(640, 480));
         this.clientIcon = Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("client_icon.png"));
@@ -459,7 +459,7 @@ public class GUI extends JFrame implements ActionListener {
 
             for (int i = 0; i < frames.length; i++) {
                 Frame frame = frames[i];
-                if (!(frame instanceof GUI) && frame.isDisplayable()) {
+                if (!(frame instanceof TKViewerGUI) && frame.isDisplayable()) {
                     JOptionPane.showMessageDialog(this, "Please close all other TKViewer windows to clear TKViewer cache.", "Cannot clear TKViewer cache", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
