@@ -39,6 +39,7 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
     JComboBox partPicker;
     ImageIcon viewerIcon;
 
+    JScrollPane partScroller;
     JPanel partPanel;
 
     Integer tickValue = 0;
@@ -135,11 +136,15 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
 
         // Add Part Panel
         partPanel = new JPanel(new FlowLayout());
+        partPanel.setBorder(BorderFactory.createLineBorder(Color.gray));
+        partPanel.setPreferredSize(new Dimension(800, 600));
+
+        partScroller = new JScrollPane(partPanel);
         updatePartPanel("Bodies", 0);
 
         // Add content to the panel
         contentPanel.add(viewerPanel);
-        contentPanel.add(partPanel);
+        contentPanel.add(partScroller);
 
         // Add the content panel to the parent JFrame (this)
         this.add(contentPanel);
@@ -190,6 +195,7 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
     }
 
     public void syncParts(String partKey) {
+        PartInfo partInfo = this.characterPartInfo.get(partKey);
         if (partKey.equals("Helmets")) {
             this.characterPartInfo.get("Hair").setShouldRender(false);
         } else if (partKey.equals("Hair")) {
@@ -204,7 +210,7 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
             this.characterPartInfo.get("Spears").setShouldRender(false);
             this.characterPartInfo.get("Swords").setShouldRender(false);
         } else if (partKey.equals("Fans")) {
-            if (this.characterPartInfo.get("Bodies").getShouldRender()) {
+            if (partInfo.getShouldRender()) {
                 this.characterPartInfo.get("Bodies").setAnimationIndex(6);
                 this.characterPartInfo.get("Coats").setAnimationIndex(6);
             } else {
@@ -218,7 +224,7 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
             this.characterPartInfo.get("Bows").setShouldRender(false);
             this.characterPartInfo.get("Spears").setShouldRender(false);
         } else if (partKey.equals("Spears")) {
-            if (this.characterPartInfo.get("Bodies").getShouldRender()) {
+            if (partInfo.getShouldRender()) {
                 this.characterPartInfo.get("Bodies").setAnimationIndex(6);
                 this.characterPartInfo.get("Coats").setAnimationIndex(6);
             } else {
@@ -231,7 +237,7 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
             this.characterPartInfo.get("Spears").setShouldRender(false);
             this.characterPartInfo.get("Swords").setShouldRender(false);
         } else if (partKey.equals("Swords")) {
-            if (this.characterPartInfo.get("Bodies").getShouldRender()) {
+            if (partInfo.getShouldRender()) {
                 this.characterPartInfo.get("Bodies").setAnimationIndex(6);
                 this.characterPartInfo.get("Coats").setAnimationIndex(6);
             } else {
