@@ -13,12 +13,18 @@ import com.gamemode.tkviewer.render.MobRenderer;
 import com.gamemode.tkviewer.render.PartRenderer;
 import com.gamemode.tkviewer.render.SObjRenderer;
 import com.gamemode.tkviewer.render.TileRenderer;
+import com.gamemode.tkviewer.resources.EffectImage;
 import com.gamemode.tkviewer.resources.Frame;
 import com.gamemode.tkviewer.resources.PivotData;
 import com.gamemode.tkviewer.resources.Resources;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RenderUtils {
     public static DatFileHandler CHAR_DAT = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
@@ -27,6 +33,16 @@ public class RenderUtils {
      * Private constructor to prevent instantiation of static utility class
      */
     private RenderUtils() {}
+
+    public static PivotData getPivotData(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        int left = width / 2;
+        int top = height / 2;
+
+        return new PivotData(left, top, width, height);
+    }
 
     public static PivotData getPivotData(List<Frame> frames) {
         // Determine Canvas Size
@@ -56,6 +72,66 @@ public class RenderUtils {
         int height = bottom-top;
 
         return new PivotData(Math.abs(left), Math.abs(top), width, height);
+    }
+
+    public static List<EffectImage> aggregateAnimations (List < List <EffectImage>> effImages){
+        List<Frame> allFrames = new ArrayList<>();
+        for (List<EffectImage> subListImages : effImages) {
+            allFrames.addAll(subListImages.stream().map(EffectImage::getFrame).collect(Collectors.toList()));
+        }
+        PivotData pivotData = RenderUtils.getPivotData(allFrames);
+        int maxWidth = pivotData.getCanvasWidth();
+        int maxHeight = pivotData.getCanvasHeight();
+
+        // Correct Images according to maxWidth and maxHeight
+        for (int i = 0; i < effImages.size(); i++) {
+            for (int j = 0; j < effImages.get(i).size(); j++) {
+                EffectImage effImage = effImages.get(i).get(j);
+                effImage.setImage(resizeImage(effImage.getImage(), maxWidth, maxHeight, pivotData,
+                        effImage.getFrame(), effImage.getPivotData()));
+            }
+        }
+
+        List<EffectImage> mergedImages = effImages.get(0);
+        for (int i = 1; i < effImages.size(); i++) {
+            mergedImages = mergeEffectImages(mergedImages, effImages.get(i));
+        }
+
+        return mergedImages;
+    }
+
+    /**
+     * Draws images2 on top of images1 - images all must be equal size!
+     */
+    public static List<EffectImage> mergeEffectImages(List<EffectImage> images1, List<EffectImage> images2) {
+        List<EffectImage> returnEffectImages = new ArrayList<EffectImage>();
+
+        int count = Math.max(images1.size(), images2.size());
+        int width = Math.max(images1.get(0).getImage().getWidth(), images2.get(0).getImage().getWidth());
+        int height = Math.max(images1.get(0).getImage().getHeight(), images2.get(0).getImage().getHeight());
+        for (int i = 0; i < count; i++) {
+            BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D graphicsObject = newImage.createGraphics();
+            graphicsObject.drawImage(images1.get(i % images1.size()).getImage(),null,0,0);
+            graphicsObject.drawImage(images2.get(i % images2.size()).getImage(),null,0,0);
+
+            returnEffectImages.add(new EffectImage(newImage, images1.get(i % images1.size()).getDelay(), null, null));
+        }
+
+        return returnEffectImages;
+    }
+
+    public static BufferedImage resizeImage(BufferedImage image, int newWidth, int newHeight, PivotData pivotData,
+                                            Frame frame, PivotData framePivotData) {
+        BufferedImage newImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D graphicsObject = newImage.createGraphics();
+        int frameLeft = (pivotData.getPivotX() - framePivotData.getPivotX());
+        int frameTop = (pivotData.getPivotY() - framePivotData.getPivotY());
+        graphicsObject.drawImage(image, null, frameLeft, frameTop);
+
+        return newImage;
     }
 
     public static PartRenderer createBodyRenderer () { return new PartRenderer("Body"); }

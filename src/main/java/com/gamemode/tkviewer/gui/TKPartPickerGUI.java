@@ -12,6 +12,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,8 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
     };
     LinkedHashMap<String, PartInfo> characterPartInfo;
 
+    int partValue = 0;
+
     public TKPartPickerGUI(String title) {
         super(title);
         this.setPreferredSize(new Dimension(640, 480));
@@ -72,19 +76,20 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         this.setIconImage(this.clientIcon);
 
         characterPartInfo = new LinkedHashMap<String, PartInfo>();
-        characterPartInfo.put("Bodies", new PartInfo(0, 2, true, RenderUtils.createBodyRenderer()));
-        characterPartInfo.put("Bows", new PartInfo(0, 0,false, RenderUtils.createBowRenderer()));
+        characterPartInfo.put("Bodies", new PartInfo(46, 2, true, RenderUtils.createBodyRenderer()));
         characterPartInfo.put("Coats", new PartInfo(0, 0,false, RenderUtils.createCoatRenderer()));
-        characterPartInfo.put("Faces", new PartInfo(0, 18,true, RenderUtils.createFaceRenderer()));
-        characterPartInfo.put("Face Decorations", new PartInfo(0, 0,false, RenderUtils.createFaceDecRenderer()));
-        characterPartInfo.put("Fans", new PartInfo(0, 0,false, RenderUtils.createFanRenderer()));
-        characterPartInfo.put("Hair", new PartInfo(0, 18,true, RenderUtils.createHairRenderer()));
-        characterPartInfo.put("Helmets", new PartInfo(0, 0,false, RenderUtils.createHelmetRenderer()));
-        characterPartInfo.put("Mantles", new PartInfo(0, 0,false, RenderUtils.createMantleRenderer()));
-        characterPartInfo.put("Spears", new PartInfo(0, 0,false, RenderUtils.createSpearRenderer()));
         characterPartInfo.put("Shoes", new PartInfo(0, 0,false, RenderUtils.createShoeRenderer()));
+        characterPartInfo.put("Mantles", new PartInfo(0, 0,false, RenderUtils.createMantleRenderer()));
+        characterPartInfo.put("Helmets", new PartInfo(0, 0,false, RenderUtils.createHelmetRenderer()));
+
+        characterPartInfo.put("Faces", new PartInfo(0, 2,true, RenderUtils.createFaceRenderer()));
+        characterPartInfo.put("Face Decorations", new PartInfo(3, 0,false, RenderUtils.createFaceDecRenderer()));
+        characterPartInfo.put("Hair", new PartInfo(0, 2,true, RenderUtils.createHairRenderer()));
+
+        characterPartInfo.put("Spears", new PartInfo(0, 0,false, RenderUtils.createSpearRenderer()));
         characterPartInfo.put("Shields", new PartInfo(0, 0,false, RenderUtils.createShieldRenderer()));
         characterPartInfo.put("Swords", new PartInfo(0, 0,false, RenderUtils.createSwordRenderer()));
+        characterPartInfo.put("Fans", new PartInfo(0, 0,false, RenderUtils.createFanRenderer()));
 
         initMenu();
         initPanel();
@@ -92,8 +97,9 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         SwingWorker loadingWorker = new SwingWorker<Boolean, Integer>() {
             @Override
             protected Boolean doInBackground() throws Exception {
-                while (!this.isCancelled()) {
+                while (true) {
                     Thread.sleep(250);
+                    tickValue++;
 
                     viewerPanel.removeAll();
 
@@ -102,8 +108,6 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
                     viewerPanel.revalidate();
                     viewerPanel.repaint();
                 }
-
-                return true;
             }
 
             @Override
@@ -172,27 +176,34 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         BufferedImage characterImage = createGrassBackground();
         Graphics2D graphicsObject = characterImage.createGraphics();
 
-        int number = 0;
+        List<List<EffectImage>> effImages = new ArrayList<List<EffectImage>>();
         for (Map.Entry<String, PartInfo> characterPartInfo : this.characterPartInfo.entrySet()) {
             String partKey = characterPartInfo.getKey();
             PartInfo partInfo = characterPartInfo.getValue();
 
             if (partInfo.getShouldRender()) {
+
                 int partIndex = partInfo.getPartIndex();
                 int animationIndex = partInfo.getAnimationIndex();
 
                 List<EffectImage> effectImages = partInfo.getPartRenderer().renderAnimation(partIndex, animationIndex);
 
-                graphicsObject.drawImage(effectImages.get(tickValue).getImage(), null, 50, 50);
-                System.out.println(tickValue);
-                if (tickValue >= 1) {
-                    tickValue = 0;
-                } else {
-                    tickValue++;
-                }
+                effImages.add(effectImages);
             }
         }
-        tickValue++;
+
+        List<EffectImage> effectImages = RenderUtils.aggregateAnimations(effImages);
+
+        BufferedImage drawing = effectImages.get(tickValue % effectImages.size()).getImage();
+        int backgroundWidth = characterImage.getWidth();
+        int backgroundHeight = characterImage.getHeight();
+        int width = drawing.getWidth();
+        int height = drawing.getHeight();
+        graphicsObject.drawImage(drawing, null, (backgroundWidth / 2) - (width / 2), (backgroundHeight / 2) - (height / 2));
+
+        characterPartInfo.get("Bodies").setPartIndex(partValue++);
+        characterPartInfo.get("Hair").setPartIndex(partValue++);
+        //characterPartInfo.get("Face").setPartIndex(partValue++);
 
         return characterImage;
     }
