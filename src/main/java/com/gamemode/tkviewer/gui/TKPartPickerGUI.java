@@ -4,16 +4,22 @@ import com.gamemode.tkpartpicker.resources.PartInfo;
 import com.gamemode.tkviewer.render.PartRenderer;
 import com.gamemode.tkviewer.render.TileRenderer;
 import com.gamemode.tkviewer.resources.EffectImage;
+import com.gamemode.tkviewer.resources.Part;
 import com.gamemode.tkviewer.resources.Resources;
+import com.gamemode.tkviewer.utilities.FileUtils;
 import com.gamemode.tkviewer.utilities.RenderUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,44 +33,16 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
     JMenu fileMenu = new JMenu("File");
     JMenuItem exitMenuItem = new JMenuItem("Exit");
 
-    JComboBox partPicker;
     JPanel contentPanel;
 
     JPanel viewerPanel;
+    JComboBox partPicker;
     ImageIcon viewerIcon;
+
+    JPanel partPanel;
 
     Integer tickValue = 0;
 
-    // Renderers
-    PartRenderer bodyRenderer;
-    PartRenderer bowRenderer;
-    PartRenderer coatRenderer;
-    PartRenderer faceRenderer;
-    PartRenderer faceDecRenderer;
-    PartRenderer fanRenderer;
-    PartRenderer hairRenderer;
-    PartRenderer helmetRenderer;
-    PartRenderer mantleRenderer;
-    PartRenderer spearRenderer;
-    PartRenderer shoeRenderer;
-    PartRenderer shieldRenderer;
-    PartRenderer swordRenderer;
-
-    private static final String[] partPickerItems = {
-            "Bodies",
-            "Bows",
-            "Coats",
-            "Faces",
-            "Face Decorations",
-            "Fans",
-            "Hair",
-            "Helmets",
-            "Mantles",
-            "Spears",
-            "Shoes",
-            "Shields",
-            "Swords"
-    };
     LinkedHashMap<String, PartInfo> characterPartInfo;
 
     int partValue = 0;
@@ -76,20 +54,21 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         this.setIconImage(this.clientIcon);
 
         characterPartInfo = new LinkedHashMap<String, PartInfo>();
-        characterPartInfo.put("Bodies", new PartInfo(46, 2, true, RenderUtils.createBodyRenderer()));
-        characterPartInfo.put("Coats", new PartInfo(0, 0,false, RenderUtils.createCoatRenderer()));
-        characterPartInfo.put("Shoes", new PartInfo(0, 0,false, RenderUtils.createShoeRenderer()));
-        characterPartInfo.put("Mantles", new PartInfo(0, 0,false, RenderUtils.createMantleRenderer()));
-        characterPartInfo.put("Helmets", new PartInfo(0, 0,false, RenderUtils.createHelmetRenderer()));
+        characterPartInfo.put("Bodies", new PartInfo(3, 2, 6, true, RenderUtils.createBodyRenderer()));
+        characterPartInfo.put("Coats", new PartInfo(0, 0, 6,false, RenderUtils.createCoatRenderer()));
+        characterPartInfo.put("Shoes", new PartInfo(0, 0, 6,false, RenderUtils.createShoeRenderer()));
+        characterPartInfo.put("Mantles", new PartInfo(0, 0,6,false, RenderUtils.createMantleRenderer()));
 
-        characterPartInfo.put("Faces", new PartInfo(0, 2,true, RenderUtils.createFaceRenderer()));
-        characterPartInfo.put("Face Decorations", new PartInfo(3, 0,false, RenderUtils.createFaceDecRenderer()));
-        characterPartInfo.put("Hair", new PartInfo(0, 2,true, RenderUtils.createHairRenderer()));
+        characterPartInfo.put("Faces", new PartInfo(0, 2,6,true, RenderUtils.createFaceRenderer()));
+        characterPartInfo.put("Face Decorations", new PartInfo(3,6, 0,false, RenderUtils.createFaceDecRenderer()));
+        characterPartInfo.put("Hair", new PartInfo(0, 2,6,true, RenderUtils.createHairRenderer()));
+        characterPartInfo.put("Helmets", new PartInfo(0, 2,6,false, RenderUtils.createHelmetRenderer()));
 
-        characterPartInfo.put("Spears", new PartInfo(0, 0,false, RenderUtils.createSpearRenderer()));
-        characterPartInfo.put("Shields", new PartInfo(0, 0,false, RenderUtils.createShieldRenderer()));
-        characterPartInfo.put("Swords", new PartInfo(0, 0,false, RenderUtils.createSwordRenderer()));
-        characterPartInfo.put("Fans", new PartInfo(0, 0,false, RenderUtils.createFanRenderer()));
+        characterPartInfo.put("Spears", new PartInfo(0, 1,6,false, RenderUtils.createSpearRenderer()));
+        characterPartInfo.put("Shields", new PartInfo(0, 2,6,false, RenderUtils.createShieldRenderer()));
+        characterPartInfo.put("Swords", new PartInfo(0, 2,6,false, RenderUtils.createSwordRenderer()));
+        characterPartInfo.put("Bows", new PartInfo(0, 2,3,false, RenderUtils.createBowRenderer()));
+        characterPartInfo.put("Fans", new PartInfo(0, 2,3,false, RenderUtils.createFanRenderer()));
 
         initMenu();
         initPanel();
@@ -101,9 +80,8 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
                     Thread.sleep(250);
                     tickValue++;
 
-                    viewerPanel.removeAll();
-
-                    viewerPanel.add(new JLabel(new ImageIcon(renderCharacter())));
+                    viewerPanel.remove(0);
+                    viewerPanel.add(new JLabel(new ImageIcon(renderCharacter())), 0);
 
                     viewerPanel.revalidate();
                     viewerPanel.repaint();
@@ -133,24 +111,137 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
 
     public void initPanel() {
         // Create content panel
-        contentPanel = new JPanel(new FlowLayout());
+        contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
         // Add Viewer Panel
         viewerPanel = new JPanel(new FlowLayout());
 
-        viewerIcon = new ImageIcon(renderCharacter());
-        viewerPanel.add(new JLabel(viewerIcon));
-
-        // Add Part List to ComboBox
-        partPicker = new JComboBox(partPickerItems);
+        //   Add Part List to ComboBox
+        String[] partPickerItems = new String[characterPartInfo.size()];
+        int partPickerIndex = 0;
+        for (Map.Entry<String, PartInfo> characterPartInfo : this.characterPartInfo.entrySet()) {
+            partPickerItems[partPickerIndex++] = characterPartInfo.getKey();
+        }
+        List<String> partPickerItemsList = new ArrayList<String>(Arrays.asList(partPickerItems));
+        Collections.sort(partPickerItemsList);
+        partPicker = new JComboBox(partPickerItemsList.toArray());
         partPicker.addActionListener(this);
+        //   Add Character
+        viewerIcon = new ImageIcon(renderCharacter());
+
+        viewerPanel.add(new JLabel(viewerIcon));
+        viewerPanel.add(partPicker);
+
+        // Add Part Panel
+        partPanel = new JPanel(new FlowLayout());
+        updatePartPanel("Bodies", 0);
 
         // Add content to the panel
         contentPanel.add(viewerPanel);
-        contentPanel.add(partPicker);
+        contentPanel.add(partPanel);
 
         // Add the content panel to the parent JFrame (this)
         this.add(contentPanel);
+    }
+
+    public void updatePartPanel(String partKey, Integer partNumber) {
+        partPanel.removeAll();
+
+        PartInfo partInfo = characterPartInfo.get(partKey);
+        PartRenderer partRenderer = this.characterPartInfo.get(partKey).getPartRenderer();
+        for (int i = 0; i < partRenderer.partDsc.partCount; i++) {
+            Part part = partRenderer.partDsc.parts.get(i);
+            BufferedImage partImage = partRenderer.renderPart(i, (int)part.getFrameIndex(), partInfo.getIconFrameIndex(), (int) part.getPaletteId());
+
+            JLabel jLabel = new JLabel(new ImageIcon(partImage));
+            final int partIndex = i;
+            jLabel.addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    int currentPartIndex = partInfo.getPartIndex();
+                    boolean shouldRender = partInfo.getShouldRender();
+
+                    if (currentPartIndex == partIndex) {
+                        partInfo.setShouldRender(!shouldRender);
+                    } else {
+                        partInfo.setShouldRender(true);
+                        partInfo.setPartIndex(partIndex);
+                    }
+
+                    syncParts(partKey);
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {}
+                @Override
+                public void mouseReleased(MouseEvent e) {}
+                @Override
+                public void mouseEntered(MouseEvent e) {}
+                @Override
+                public void mouseExited(MouseEvent e) {}
+            });
+
+            partPanel.add(jLabel);
+        }
+
+        partPanel.revalidate();
+        partPanel.repaint();
+    }
+
+    public void syncParts(String partKey) {
+        if (partKey.equals("Helmets")) {
+            this.characterPartInfo.get("Hair").setShouldRender(false);
+        } else if (partKey.equals("Hair")) {
+            this.characterPartInfo.get("Helmets").setShouldRender(false);
+        } else if (partKey.equals("Bodies")) {
+            this.characterPartInfo.get("Coats").setShouldRender(false);
+        } else if (partKey.equals("Coats")) {
+            this.characterPartInfo.get("Bodies").setShouldRender(false);
+        } else if (partKey.equals("Bows")) {
+            this.characterPartInfo.get("Fans").setShouldRender(false);
+            this.characterPartInfo.get("Shields").setShouldRender(false);
+            this.characterPartInfo.get("Spears").setShouldRender(false);
+            this.characterPartInfo.get("Swords").setShouldRender(false);
+        } else if (partKey.equals("Fans")) {
+            if (this.characterPartInfo.get("Bodies").getShouldRender()) {
+                this.characterPartInfo.get("Bodies").setAnimationIndex(6);
+                this.characterPartInfo.get("Coats").setAnimationIndex(6);
+            } else {
+                this.characterPartInfo.get("Bodies").setAnimationIndex(2);
+                this.characterPartInfo.get("Coats").setAnimationIndex(2);
+            }
+            this.characterPartInfo.get("Bows").setShouldRender(false);
+            this.characterPartInfo.get("Spears").setShouldRender(false);
+            this.characterPartInfo.get("Swords").setShouldRender(false);
+        } else if (partKey.equals("Shields")) {
+            this.characterPartInfo.get("Bows").setShouldRender(false);
+            this.characterPartInfo.get("Spears").setShouldRender(false);
+        } else if (partKey.equals("Spears")) {
+            if (this.characterPartInfo.get("Bodies").getShouldRender()) {
+                this.characterPartInfo.get("Bodies").setAnimationIndex(6);
+                this.characterPartInfo.get("Coats").setAnimationIndex(6);
+            } else {
+                this.characterPartInfo.get("Bodies").setAnimationIndex(2);
+                this.characterPartInfo.get("Coats").setAnimationIndex(2);
+            }
+            this.characterPartInfo.get("Bows").setShouldRender(false);
+            this.characterPartInfo.get("Fans").setShouldRender(false);
+            this.characterPartInfo.get("Shields").setShouldRender(false);
+            this.characterPartInfo.get("Spears").setShouldRender(false);
+            this.characterPartInfo.get("Swords").setShouldRender(false);
+        } else if (partKey.equals("Swords")) {
+            if (this.characterPartInfo.get("Bodies").getShouldRender()) {
+                this.characterPartInfo.get("Bodies").setAnimationIndex(6);
+                this.characterPartInfo.get("Coats").setAnimationIndex(6);
+            } else {
+                this.characterPartInfo.get("Bodies").setAnimationIndex(2);
+                this.characterPartInfo.get("Coats").setAnimationIndex(2);
+            }
+            this.characterPartInfo.get("Bows").setShouldRender(false);
+            this.characterPartInfo.get("Fans").setShouldRender(false);
+            this.characterPartInfo.get("Spears").setShouldRender(false);
+        }
     }
 
     public BufferedImage createGrassBackground() {
@@ -201,18 +292,15 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         int height = drawing.getHeight();
         graphicsObject.drawImage(drawing, null, (backgroundWidth / 2) - (width / 2), (backgroundHeight / 2) - (height / 2));
 
-        characterPartInfo.get("Bodies").setPartIndex(partValue++);
-        characterPartInfo.get("Hair").setPartIndex(partValue++);
-        //characterPartInfo.get("Face").setPartIndex(partValue++);
-
         return characterImage;
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == this.partPicker) {
-            tickValue = 0;
-            renderCharacter();
+            String partKey = this.partPicker.getSelectedItem().toString();
+            PartInfo partInfo = this.characterPartInfo.get(partKey);
+            this.updatePartPanel(partKey, partInfo.getIconFrameIndex());
         } else if (ae.getSource() == this.exitMenuItem) {
             this.dispose();
             System.out.println();

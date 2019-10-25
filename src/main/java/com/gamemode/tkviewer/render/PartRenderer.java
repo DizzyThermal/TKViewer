@@ -335,7 +335,6 @@ public class PartRenderer implements Renderer {
             int frameLeft = pivotData.getPivotX() + frame.getLeft();
             int frameTop = pivotData.getPivotY() + frame.getTop();
             graphicsObject.drawImage(partImage,null, frameLeft, frameTop);
-//            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)block.getTransparency()/(float)255));
 
             int defaultDuration = 64 * 16; // (ms)
             images.add(new EffectImage(canvasImage, defaultDuration, pivotData, frame));
@@ -366,8 +365,6 @@ public class PartRenderer implements Renderer {
     @Override
     public Image[] getFrames(int index) {
         Image[] frames = new Image[(int)this.partDsc.parts.get(index).getFrameCount()];
-        System.out.println("Frame #: " + index);
-        System.out.print(" - ");
         for (int i = 0; i < this.partDsc.parts.get(index).getFrameCount(); i++) {
             System.out.print(((int)this.partDsc.parts.get(index).getFrameIndex() + i) + " ");
             frames[i] = this.renderPart(index,

@@ -40,7 +40,6 @@ public class DscFileHandler extends FileHandler {
 
         this.parts = new ArrayList<Part>();
         for (int i = 0; i < this.partCount; i++) {
-            System.out.println(String.format("FilePosition = %d",this.filePosition));
             long id = this.readInt(true, true);
             long paletteIndex = this.readInt(true, true);
 
