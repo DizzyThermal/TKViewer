@@ -3,10 +3,16 @@ package com.gamemode.tkviewer.render;
 import com.gamemode.tkviewer.file_handlers.CmpFileHandler;
 import com.gamemode.tkviewer.file_handlers.MapFileHandler;
 import com.gamemode.tkviewer.resources.Resources;
+import com.gamemode.tkviewer.utilities.FileUtils;
+import com.gamemode.tkviewer.utilities.Utils;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.Buffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class MapRenderer {
 
@@ -21,6 +27,66 @@ public class MapRenderer {
     public MapRenderer(TileRenderer tileRenderer, SObjRenderer sObjRenderer) {
         this.tileRenderer = tileRenderer;
         this.sObjRenderer = sObjRenderer;
+    }
+
+    public BufferedImage renderCropped(int mapId, int x, int y, int width, int height) {
+        CmpFileHandler cmp = new CmpFileHandler(Resources.NTK_MAP_DIRECTORY + File.separator + "TK" + Utils.pad(mapId, 6) + ".cmp");
+
+        return renderCropped(cmp, x, y, width, height);
+    }
+
+    // Overrenders downwards to get all static objects
+    public BufferedImage renderCropped(CmpFileHandler cmpFileHandler, int x, int y, int width, int height) {
+        BufferedImage image = new BufferedImage((width * Resources.TILE_DIM), (height * Resources.TILE_DIM), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphicsObject = image.createGraphics();
+        graphicsObject.setColor(Color.BLACK);
+
+        int originalHeight = height;
+        height += 10;
+        if (y + height > cmpFileHandler.mapHeight) {
+            height = cmpFileHandler.mapHeight - y;
+        }
+        for (int i = x; i < (x + width); i++) {
+            for (int j = y; j < (y + height); j++) {
+                int tileIndex = cmpFileHandler.mapTiles.get(cmpFileHandler.getIndex(i, j)).getAbTile();
+                if (tileIndex >= 0) {
+                    graphicsObject.drawImage(
+                            this.tileRenderer.renderTile(tileIndex + 1),
+                            null,
+                            (i - x) * Resources.TILE_DIM,
+                            (j - y) * Resources.TILE_DIM);
+                } else {
+                    BufferedImage transparent = new BufferedImage((width * Resources.TILE_DIM),
+                            (height * Resources.TILE_DIM), BufferedImage.TYPE_INT_ARGB);
+                    graphicsObject.drawImage(
+                            transparent,
+                            null,
+                            (i - x) * Resources.TILE_DIM,
+                            (j - y) * Resources.TILE_DIM);
+                }
+
+                // Render Static Object (C Tile)
+                int sObjIndex = cmpFileHandler.mapTiles.get(cmpFileHandler.getIndex(i, j)).getSObjTile();
+                if (sObjIndex > 0) {
+                    int sObjHeight = this.sObjRenderer.tileSObjTbl.objects.get(sObjIndex).getHeight();
+                    if (sObjHeight > 0) {
+                        graphicsObject.drawImage(
+                                this.sObjRenderer.renderSObject(sObjIndex),
+                                null,
+                                (i - x) * Resources.TILE_DIM,
+                                (j - y - sObjHeight + 1) * Resources.TILE_DIM);
+                    }
+                }
+            }
+        }
+
+        return image.getSubimage(0, 0, width * Resources.TILE_DIM, originalHeight * Resources.TILE_DIM);
+    }
+
+    public BufferedImage renderMap(int mapId) {
+        CmpFileHandler cmp = new CmpFileHandler(Resources.NTK_MAP_DIRECTORY + File.separator + "TK" + Utils.pad(mapId, 6) + ".cmp");
+
+        return renderMap(cmp);
     }
 
     public BufferedImage renderMap(CmpFileHandler cmpFileHandler) {

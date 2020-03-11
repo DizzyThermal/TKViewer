@@ -1,6 +1,8 @@
 package com.gamemode.tkviewer.gui;
 
 import com.gamemode.tkpartpicker.resources.PartInfo;
+import com.gamemode.tkviewer.file_handlers.CmpFileHandler;
+import com.gamemode.tkviewer.file_handlers.MapFileHandler;
 import com.gamemode.tkviewer.render.PartRenderer;
 import com.gamemode.tkviewer.render.TileRenderer;
 import com.gamemode.tkviewer.resources.EffectImage;
@@ -8,15 +10,21 @@ import com.gamemode.tkviewer.resources.Part;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
 import com.gamemode.tkviewer.utilities.RenderUtils;
+import com.sun.tools.javac.comp.Flow;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.nio.Buffer;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,19 +34,33 @@ import java.util.Map;
 
 public class TKPartPickerGUI extends JFrame implements ActionListener {
 
+    // GUI Icon
     Image clientIcon;
 
+    // Menu Bar
     JMenuBar menuBar;
 
     JMenu fileMenu = new JMenu("File");
     JMenuItem exitMenuItem = new JMenuItem("Exit");
 
+    // Content
     JPanel contentPanel;
 
+    // Character Viewer Panel
     JPanel viewerPanel;
-    JComboBox partPicker;
-    ImageIcon viewerIcon;
 
+    // Options Panel
+    JPanel optionsPanel;
+    JComboBox partPicker;
+    JComboBox palettePicker;
+    ImageIcon viewerIcon;
+    JButton changeMapButton = new JButton("Change Map");
+    int mapId = 18020;
+
+    JSpinner xSpinner = new JSpinner(new SpinnerNumberModel(11, 0, 20, 1));
+    JSpinner ySpinner = new JSpinner(new SpinnerNumberModel(12, 0, 20, 1));
+
+    // Part Picker Scroller
     JScrollPane partScroller;
     JPanel partPanel;
 
@@ -55,21 +77,21 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         this.setIconImage(this.clientIcon);
 
         characterPartInfo = new LinkedHashMap<String, PartInfo>();
-        characterPartInfo.put("Bodies", new PartInfo(3, 2, 6, true, RenderUtils.createBodyRenderer()));
-        characterPartInfo.put("Coats", new PartInfo(0, 0, 6,false, RenderUtils.createCoatRenderer()));
-        characterPartInfo.put("Shoes", new PartInfo(0, 0, 6,false, RenderUtils.createShoeRenderer()));
-        characterPartInfo.put("Mantles", new PartInfo(0, 0,6,false, RenderUtils.createMantleRenderer()));
+        characterPartInfo.put("Bodies", new PartInfo(3, 2, 6, -1, true, RenderUtils.createBodyRenderer()));
+        characterPartInfo.put("Coats", new PartInfo(0, 2, 6,-1,false, RenderUtils.createCoatRenderer()));
+        characterPartInfo.put("Shoes", new PartInfo(0, 0, 6,-1,false, RenderUtils.createShoeRenderer()));
+        characterPartInfo.put("Mantles", new PartInfo(0, 0,6,-1,false, RenderUtils.createMantleRenderer()));
 
-        characterPartInfo.put("Faces", new PartInfo(0, 2,6,true, RenderUtils.createFaceRenderer()));
-        characterPartInfo.put("Face Decorations", new PartInfo(3,6, 0,false, RenderUtils.createFaceDecRenderer()));
-        characterPartInfo.put("Hair", new PartInfo(0, 2,6,true, RenderUtils.createHairRenderer()));
-        characterPartInfo.put("Helmets", new PartInfo(0, 2,6,false, RenderUtils.createHelmetRenderer()));
+        characterPartInfo.put("Faces", new PartInfo(0, 2,6,-1,true, RenderUtils.createFaceRenderer()));
+        characterPartInfo.put("Face Decorations", new PartInfo(0,2, 6,-1,false, RenderUtils.createFaceDecRenderer()));
+        characterPartInfo.put("Hair", new PartInfo(0, 2,6,-1,true, RenderUtils.createHairRenderer()));
+        characterPartInfo.put("Helmets", new PartInfo(0, 2,6,-1,false, RenderUtils.createHelmetRenderer()));
 
-        characterPartInfo.put("Spears", new PartInfo(0, 1,6,false, RenderUtils.createSpearRenderer()));
-        characterPartInfo.put("Shields", new PartInfo(0, 2,6,false, RenderUtils.createShieldRenderer()));
-        characterPartInfo.put("Swords", new PartInfo(0, 2,6,false, RenderUtils.createSwordRenderer()));
-        characterPartInfo.put("Bows", new PartInfo(0, 2,3,false, RenderUtils.createBowRenderer()));
-        characterPartInfo.put("Fans", new PartInfo(0, 2,3,false, RenderUtils.createFanRenderer()));
+        characterPartInfo.put("Spears", new PartInfo(0, 1,6,-1,false, RenderUtils.createSpearRenderer()));
+        characterPartInfo.put("Shields", new PartInfo(0, 2,9,-1,false, RenderUtils.createShieldRenderer()));
+        characterPartInfo.put("Swords", new PartInfo(0, 2,6,-1,false, RenderUtils.createSwordRenderer()));
+        characterPartInfo.put("Bows", new PartInfo(0, 2,3,-1,false, RenderUtils.createBowRenderer()));
+        characterPartInfo.put("Fans", new PartInfo(0, 2,3,-1,false, RenderUtils.createFanRenderer()));
 
         initMenu();
         initPanel();
@@ -126,21 +148,54 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         }
         List<String> partPickerItemsList = new ArrayList<String>(Arrays.asList(partPickerItems));
         Collections.sort(partPickerItemsList);
+        JLabel partPickerLabel = new JLabel("Part Picker:");
+        partPickerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         partPicker = new JComboBox(partPickerItemsList.toArray());
         partPicker.addActionListener(this);
+
+        //   Add Palette List to ComboBox
+        String[] palettePickerItems = new String[257];
+        palettePickerItems[0] = "-- Default";
+        for (int i = 1; i < palettePickerItems.length; i++) {
+            palettePickerItems[i] = (i - 1) + "";
+        }
+        JLabel palettePickerLabel = new JLabel("Palette:");
+        palettePickerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        palettePicker = new JComboBox(palettePickerItems);
+        palettePicker.addActionListener(this);
+
+        //   Add Part/Palette Comboboxes to Options Panel
+        optionsPanel = new JPanel();
+        optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
+        optionsPanel.add(partPickerLabel);
+        optionsPanel.add(partPicker);
+        optionsPanel.add(palettePickerLabel);
+        optionsPanel.add(palettePicker);
+
+        JPanel coordinatePanel = new JPanel(new FlowLayout());
+        JLabel xSpinnerLabel = new JLabel("X:");
+        coordinatePanel.add(xSpinnerLabel);
+        coordinatePanel.add(xSpinner);
+        JLabel ySpinnerLabel = new JLabel("  Y:");
+        coordinatePanel.add(ySpinnerLabel);
+        coordinatePanel.add(ySpinner);
+        optionsPanel.add(coordinatePanel);
+
+        changeMapButton.addActionListener(this);
+        optionsPanel.add(changeMapButton);
+
         //   Add Character
         viewerIcon = new ImageIcon(renderCharacter());
 
         viewerPanel.add(new JLabel(viewerIcon));
-        viewerPanel.add(partPicker);
+        viewerPanel.add(optionsPanel);
 
         // Add Part Panel
-        partPanel = new JPanel(new FlowLayout());
+        partPanel = new JPanel(new GridLayout(0, 6));
         partPanel.setBorder(BorderFactory.createLineBorder(Color.gray));
-        partPanel.setPreferredSize(new Dimension(800, 600));
-
         partScroller = new JScrollPane(partPanel);
-        updatePartPanel("Bodies", 0);
+        updatePartPanel("Bodies", 0, -1);
+
 
         // Add content to the panel
         contentPanel.add(viewerPanel);
@@ -150,14 +205,21 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         this.add(contentPanel);
     }
 
-    public void updatePartPanel(String partKey, Integer partNumber) {
+    public void updatePartPanel(String partKey, Integer partNumber, int paletteIndex) {
         partPanel.removeAll();
 
         PartInfo partInfo = characterPartInfo.get(partKey);
         PartRenderer partRenderer = this.characterPartInfo.get(partKey).getPartRenderer();
+
         for (int i = 0; i < partRenderer.partDsc.partCount; i++) {
             Part part = partRenderer.partDsc.parts.get(i);
-            BufferedImage partImage = partRenderer.renderPart(i, (int)part.getFrameIndex(), partInfo.getIconFrameIndex(), (int) part.getPaletteId());
+            int paletteId;
+            if (paletteIndex < 0) {
+                paletteId = (int)part.getPaletteId();
+            } else {
+                paletteId = paletteIndex;
+            }
+            BufferedImage partImage = partRenderer.renderPart(i, (int)part.getFrameIndex(), partInfo.getIconFrameIndex(), paletteId);
 
             JLabel jLabel = new JLabel(new ImageIcon(partImage));
             final int partIndex = i;
@@ -168,7 +230,9 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
                     boolean shouldRender = partInfo.getShouldRender();
 
                     if (currentPartIndex == partIndex) {
-                        partInfo.setShouldRender(!shouldRender);
+                        if (!partKey.equals("Bodies") && !partKey.equals("Faces")) {
+                            partInfo.setShouldRender(!shouldRender);
+                        }
                     } else {
                         partInfo.setShouldRender(true);
                         partInfo.setPartIndex(partIndex);
@@ -192,85 +256,94 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
 
         partPanel.revalidate();
         partPanel.repaint();
+        partScroller.revalidate();
+        partScroller.repaint();
+    }
+
+    public void clearWeapon(boolean allWeapons) {
+        if (allWeapons) {
+            this.characterPartInfo.get("Fans").setShouldRender(false);
+            this.characterPartInfo.get("Swords").setShouldRender(false);
+            extendHand(false);
+        }
+
+        this.characterPartInfo.get("Bows").setShouldRender(false);
+        this.characterPartInfo.get("Spears").setShouldRender(false);
+    }
+
+    public void clearShield() {
+        this.characterPartInfo.get("Shields").setShouldRender(false);
+    }
+
+    public void extendHand(boolean extendHand) {
+        if (extendHand) {
+            this.characterPartInfo.get("Bodies").setAnimationIndex(6);
+            this.characterPartInfo.get("Coats").setAnimationIndex(6);
+        } else {
+            this.characterPartInfo.get("Bodies").setAnimationIndex(2);
+            this.characterPartInfo.get("Coats").setAnimationIndex(2);
+        }
     }
 
     public void syncParts(String partKey) {
         PartInfo partInfo = this.characterPartInfo.get(partKey);
+
         if (partKey.equals("Helmets")) {
-            this.characterPartInfo.get("Hair").setShouldRender(false);
-        } else if (partKey.equals("Hair")) {
-            this.characterPartInfo.get("Helmets").setShouldRender(false);
+            // Toggle Hair with Helmet
+            this.characterPartInfo.get("Hair").setShouldRender(!partInfo.getShouldRender());
         } else if (partKey.equals("Bodies")) {
             this.characterPartInfo.get("Coats").setShouldRender(false);
         } else if (partKey.equals("Coats")) {
-            this.characterPartInfo.get("Bodies").setShouldRender(false);
+            this.characterPartInfo.get("Bodies").setShouldRender(!partInfo.getShouldRender());
         } else if (partKey.equals("Bows")) {
-            this.characterPartInfo.get("Fans").setShouldRender(false);
-            this.characterPartInfo.get("Shields").setShouldRender(false);
-            this.characterPartInfo.get("Spears").setShouldRender(false);
-            this.characterPartInfo.get("Swords").setShouldRender(false);
+            if (partInfo.getShouldRender()) {
+                clearWeapon(true);
+                extendHand(true);
+                partInfo.setShouldRender(true);
+            }
         } else if (partKey.equals("Fans")) {
             if (partInfo.getShouldRender()) {
-                this.characterPartInfo.get("Bodies").setAnimationIndex(6);
-                this.characterPartInfo.get("Coats").setAnimationIndex(6);
+                clearWeapon(true);
+                extendHand(true);
+                partInfo.setShouldRender(true);
             } else {
-                this.characterPartInfo.get("Bodies").setAnimationIndex(2);
-                this.characterPartInfo.get("Coats").setAnimationIndex(2);
+                extendHand(false);
             }
-            this.characterPartInfo.get("Bows").setShouldRender(false);
-            this.characterPartInfo.get("Spears").setShouldRender(false);
-            this.characterPartInfo.get("Swords").setShouldRender(false);
-        } else if (partKey.equals("Shields")) {
-            this.characterPartInfo.get("Bows").setShouldRender(false);
-            this.characterPartInfo.get("Spears").setShouldRender(false);
         } else if (partKey.equals("Spears")) {
             if (partInfo.getShouldRender()) {
-                this.characterPartInfo.get("Bodies").setAnimationIndex(6);
-                this.characterPartInfo.get("Coats").setAnimationIndex(6);
+                clearWeapon(true);
+                clearShield();
+                extendHand(true);
+                partInfo.setShouldRender(true);
             } else {
-                this.characterPartInfo.get("Bodies").setAnimationIndex(2);
-                this.characterPartInfo.get("Coats").setAnimationIndex(2);
+                extendHand(false);
             }
-            this.characterPartInfo.get("Bows").setShouldRender(false);
-            this.characterPartInfo.get("Fans").setShouldRender(false);
-            this.characterPartInfo.get("Shields").setShouldRender(false);
-            this.characterPartInfo.get("Spears").setShouldRender(false);
-            this.characterPartInfo.get("Swords").setShouldRender(false);
         } else if (partKey.equals("Swords")) {
             if (partInfo.getShouldRender()) {
-                this.characterPartInfo.get("Bodies").setAnimationIndex(6);
-                this.characterPartInfo.get("Coats").setAnimationIndex(6);
+                clearWeapon(true);
+                extendHand(true);
+                partInfo.setShouldRender(true);
             } else {
-                this.characterPartInfo.get("Bodies").setAnimationIndex(2);
-                this.characterPartInfo.get("Coats").setAnimationIndex(2);
+                extendHand(false);
             }
-            this.characterPartInfo.get("Bows").setShouldRender(false);
-            this.characterPartInfo.get("Fans").setShouldRender(false);
-            this.characterPartInfo.get("Spears").setShouldRender(false);
         }
     }
 
-    public BufferedImage createGrassBackground() {
-        int grassWidth = 4;
+    public BufferedImage createBackground() {
+        // Rhino LR
+        return createBackground(18020, 11, 12, 5);
+    }
 
-        BufferedImage grassBackground = new BufferedImage(Resources.TILE_DIM * grassWidth, Resources.TILE_DIM * grassWidth, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphicsObject = grassBackground.createGraphics();
+    public BufferedImage createBackground(int mapId, int x, int y, int width) {
+        BufferedImage background;
 
-        TileRenderer tileRenderer = new TileRenderer();
-        BufferedImage tile = tileRenderer.renderTile(21); // Grass Patch
+        background = RenderUtils.createMapRenderer().renderCropped(mapId, x, y, width, width);
 
-        for (int i = 0; i < grassWidth; i++) {
-            for (int j = 0; j < grassWidth; j++) {
-                graphicsObject.drawImage(tile, null, (i * Resources.TILE_DIM), (j * Resources.TILE_DIM));
-            }
-        }
-
-        return grassBackground;
+        return background;
     }
 
     public BufferedImage renderCharacter() {
-        // 192 x 192
-        BufferedImage characterImage = createGrassBackground();
+        BufferedImage characterImage = createBackground(mapId, (int)xSpinner.getValue(), (int)ySpinner.getValue() , 5);
         Graphics2D graphicsObject = characterImage.createGraphics();
 
         List<List<EffectImage>> effImages = new ArrayList<List<EffectImage>>();
@@ -282,8 +355,14 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
 
                 int partIndex = partInfo.getPartIndex();
                 int animationIndex = partInfo.getAnimationIndex();
+                int paletteIndex = partInfo.getPaletteIndex();
 
-                List<EffectImage> effectImages = partInfo.getPartRenderer().renderAnimation(partIndex, animationIndex);
+                List<EffectImage> effectImages;
+                if (paletteIndex < 0) {
+                    effectImages = partInfo.getPartRenderer().renderAnimation(partIndex, animationIndex);
+                } else {
+                    effectImages = partInfo.getPartRenderer().renderAnimation(partIndex, animationIndex, paletteIndex);
+                }
 
                 effImages.add(effectImages);
             }
@@ -306,10 +385,45 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
         if (ae.getSource() == this.partPicker) {
             String partKey = this.partPicker.getSelectedItem().toString();
             PartInfo partInfo = this.characterPartInfo.get(partKey);
-            this.updatePartPanel(partKey, partInfo.getIconFrameIndex());
+
+            int paletteIndex = (partInfo.getPaletteIndex() + 1);
+            this.palettePicker.setSelectedIndex(paletteIndex);
+
+            String palette = this.palettePicker.getSelectedItem().toString();
+            paletteIndex = (palette.contains("Default"))?-1:(Integer.parseInt(palette)-1);
+
+            this.updatePartPanel(partKey, partInfo.getIconFrameIndex(), paletteIndex);
+        } else if (ae.getSource() == this.palettePicker) {
+            String partKey = this.partPicker.getSelectedItem().toString();
+            PartInfo partInfo = this.characterPartInfo.get(partKey);
+
+            String palette = this.palettePicker.getSelectedItem().toString();
+            int paletteIndex = (palette.contains("Default"))?-1:(Integer.parseInt(palette)-1);
+            partInfo.setPaletteIndex(paletteIndex+1);
+
+            this.updatePartPanel(partKey, partInfo.getIconFrameIndex(), paletteIndex);
         } else if (ae.getSource() == this.exitMenuItem) {
             this.dispose();
-            System.out.println();
+        } else if (ae.getSource() == this.changeMapButton) {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Select a NexusTK map");
+
+            fileChooser.setCurrentDirectory(new File(Resources.NTK_MAP_DIRECTORY));
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter mapFilter = new FileNameExtensionFilter("Maps (*.cmp;*.map)", "cmp", "map");
+            fileChooser.addChoosableFileFilter(mapFilter);
+
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                // Get Map File
+                File selectedFile = fileChooser.getSelectedFile();
+                int newMapId = Integer.parseInt(selectedFile.getName().replaceAll("TK", "").replaceAll(".cmp", ""));
+
+                CmpFileHandler cmpFileHandler = new CmpFileHandler(selectedFile);
+                xSpinner.setModel(new SpinnerNumberModel(0, 0, cmpFileHandler.mapWidth - 5, 1));
+                ySpinner.setModel(new SpinnerNumberModel(0, 0, cmpFileHandler.mapHeight - 5, 1));
+                mapId = newMapId;
+            }
         }
     }
 }

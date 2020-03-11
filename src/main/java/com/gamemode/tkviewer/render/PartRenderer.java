@@ -227,13 +227,7 @@ public class PartRenderer implements Renderer {
         this.manualPaletteIndex = manualPaletteIndex;
     }
 
-
-    public BufferedImage renderPart(int partIndex, int frameIndex, int frameOffset, int paletteIndex) {
-        // Return Part if cached.
-        if (parts.containsKey(frameIndex + frameOffset)) {
-            return parts.get(frameIndex + frameOffset);
-        }
-
+    public Frame getFrame(int frameIndex, int frameOffset) {
         int epfIndex = 0;
 
         int frameCount = 0;
@@ -247,6 +241,17 @@ public class PartRenderer implements Renderer {
         }
 
         Frame frame = this.partEpfs.get(epfIndex).getFrame(frameIndex + frameOffset - frameCount);
+        return frame;
+    }
+
+    public BufferedImage renderPart(int partIndex, int frameIndex, int frameOffset, int paletteIndex) {
+        // Return Part if cached.
+        if (parts.containsKey(frameIndex + frameOffset)) {
+            return parts.get(frameIndex + frameOffset);
+        }
+
+        Frame frame = getFrame(frameIndex, frameOffset);
+
         int width = frame.getWidth();
         int height = frame.getHeight();
 
@@ -342,6 +347,46 @@ public class PartRenderer implements Renderer {
 
         return images;
     }
+
+    public Dimension getMaxDimensions(int frameOffset) {
+        Dimension returnDim = new Dimension(0, 0);
+
+        List<EpfFileHandler> epfs = this.partEpfs;
+        for (int i = 0; i < epfs.size(); i++) {
+            EpfFileHandler epf = epfs.get(i);
+            for (int j = 0; j < epf.frameCount; j++) {
+                Frame frame = epf.getFrame(j);
+
+                if (frame.getWidth() > returnDim.getWidth()) {
+                    returnDim.setSize(frame.getWidth(), returnDim.getHeight());
+                }
+                if (frame.getHeight() > returnDim.getHeight()) {
+                    returnDim.setSize(returnDim.getWidth(), frame.getHeight());
+                }
+            }
+        }
+
+        return returnDim;
+    }
+
+    public Dimension getMaxDimensionsForOffset(int frameOffset) {
+        Dimension returnDim = new Dimension(0, 0);
+
+        for (int i = 0; i < this.partDsc.partCount; i++) {
+            Part part = this.partDsc.parts.get(i);
+            Frame frame = getFrame((int)part.getFrameIndex(), frameOffset);
+
+            if (frame.getWidth() > returnDim.getWidth()) {
+                returnDim.setSize(frame.getWidth(), returnDim.getHeight());
+            }
+            if (frame.getHeight() > returnDim.getHeight()) {
+                returnDim.setSize(returnDim.getWidth(), frame.getHeight());
+            }
+        }
+
+        return returnDim;
+    }
+
     @Override
     public int getCount(boolean useEpfCount) {
         int output = 0;

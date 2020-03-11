@@ -3,6 +3,7 @@ package com.gamemode.tkviewer.gui;
 import com.gamemode.tkviewer.render.*;
 import com.gamemode.tkviewer.render.Renderer;
 import com.gamemode.tkviewer.resources.EffectImage;
+import com.gamemode.tkviewer.resources.Mob;
 import com.gamemode.tkviewer.resources.Part;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
@@ -99,18 +100,12 @@ public class ViewFrame extends JFrame implements ActionListener {
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     int idx = list.getSelectedIndex();
-                    if (renderer instanceof EffectRenderer) {
-                        if (framesButton.isSelected()) {
-                            renderFrames(idx);
-                        } else {
-                            renderEffectAnimations(idx);
-                        }
-                    } else if (renderer instanceof PartRenderer) {
-                        if (framesButton.isSelected()) {
-                            renderFrames(idx);
-                        } else {
-                            renderPartAnimations(idx);
-                        }
+                    if (renderer instanceof MobRenderer && !framesButton.isSelected()) {
+                        renderMobAnimations(idx);
+                    } else if (renderer instanceof EffectRenderer && !framesButton.isSelected()) {
+                        renderEffectAnimations(idx);
+                    } else if (renderer instanceof PartRenderer && !framesButton.isSelected()) {
+                        renderPartAnimations(idx);
                     } else {
                         renderFrames(idx);
                     }
@@ -197,6 +192,42 @@ public class ViewFrame extends JFrame implements ActionListener {
         revalidate();
     }
 
+    public void renderMobAnimations(int index) {
+        clearImagePanel();
+
+        // Create Part Animations in Temp Directory
+        File outputDirectory = new File(Resources.MOB_ANIMATION_DIRECTORY + File.separator + index);
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdirs();
+        }
+
+        MobRenderer mobRenderer = ((MobRenderer) renderer);
+
+        List<String> gifPaths = new ArrayList<String>();
+        Mob mob = mobRenderer.mobDna.mobs.get(index);
+        for (int i = 0; i < mob.getChunks().size(); i++) {
+            List<EffectImage> chunkImages = mobRenderer.renderAnimation(index, i);
+            if (chunkImages.size() != 0) {
+                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-.gif";
+                FileUtils.exportGifFromImages(chunkImages, gifPath);
+                gifPaths.add(gifPath);
+            }
+        }
+
+        for (int i = 0; i < gifPaths.size(); i++) {
+            // Add GIF to imagePanel
+            String gifPath = gifPaths.get(i);
+            if (new File(gifPath).exists()) {
+                Icon gifIcon = new ImageIcon(gifPath);
+                JLabel jLabel = new JLabel(gifIcon);
+                imagePanel.add(jLabel);
+            } else {
+                System.err.println("Couldn't find file: " + gifPath);
+            }
+        }
+
+        revalidate();
+    }
 
     public void renderPartAnimations(int index) {
         clearImagePanel();
@@ -234,7 +265,6 @@ public class ViewFrame extends JFrame implements ActionListener {
 
         revalidate();
     }
-
 
     public void renderFrames(int index) {
         clearImagePanel();

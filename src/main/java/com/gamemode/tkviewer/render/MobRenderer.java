@@ -48,11 +48,11 @@ public class MobRenderer implements Renderer {
     public int manualPaletteIndex = 0;
 
     public MobRenderer() {
-        DatFileHandler monDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "monster.dat");
+        DatFileHandler monDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "mon.dat");
 
         mobs = new HashMap<Integer, BufferedImage>();
 
-        this.mobEpfs = FileUtils.createEpfsFromDats("Mantle");
+        this.mobEpfs = FileUtils.createEpfsFromDats("mon");
         this.mobPal = new PalFileHandler(monDat.getFile("monster.pal"));
         this.mobDna = new DnaFileHandler(monDat.getFile("monster.dna"));
     }

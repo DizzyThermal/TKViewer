@@ -43,6 +43,26 @@ public class CmpFileHandler extends FileHandler {
         this.close();
     }
 
+    public int getIndex(int x, int y) {
+        int depth = 0;
+        int length = 0;
+
+        for (int i = 0; i < mapTiles.size(); i++) {
+            if (length == x && depth == y) {
+                return i;
+            }
+
+            if ((((i + 1) % this.mapWidth) == 0) && (i != 0)) {
+                depth += 1;
+                length = 0;
+            } else {
+                length += 1;
+            }
+        }
+
+        return -1;
+    }
+
     @Override
     public ByteBuffer toByteBuffer() {
         // Not implemented
