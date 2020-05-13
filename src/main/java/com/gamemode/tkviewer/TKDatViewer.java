@@ -42,7 +42,6 @@ public class TKDatViewer {
                 }
             }
         }
-        System.out.println(biggest);
     }
 
     private static String getOutputString(String fileName, Long fileLength) {

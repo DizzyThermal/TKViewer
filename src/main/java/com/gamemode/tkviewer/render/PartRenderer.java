@@ -411,13 +411,11 @@ public class PartRenderer implements Renderer {
     public Image[] getFrames(int index) {
         Image[] frames = new Image[(int)this.partDsc.parts.get(index).getFrameCount()];
         for (int i = 0; i < this.partDsc.parts.get(index).getFrameCount(); i++) {
-            System.out.print(((int)this.partDsc.parts.get(index).getFrameIndex() + i) + " ");
             frames[i] = this.renderPart(index,
                     (int)this.partDsc.parts.get(index).getFrameIndex(),
                     i,
                     (int)this.partDsc.parts.get(index).getPaletteId());
         }
-        System.out.println();
 
         return frames;
     }

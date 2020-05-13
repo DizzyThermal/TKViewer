@@ -27,7 +27,6 @@ public class SObjRenderer {
 
         this.tileRenderer = new TileRenderer("tilec", "TileC.pal", "TILEC.TBL");
         this.tileSObjTbl = new SObjTblFileHandler(tileDat.getFile("SObj.tbl"));
-        System.out.println();
     }
 
     public SObjRenderer(TileRenderer tileRenderer, SObjTblFileHandler tileSObjTbl) {

@@ -2,19 +2,13 @@ package com.gamemode.tkviewer.gui;
 
 import com.gamemode.tkpartpicker.resources.PartInfo;
 import com.gamemode.tkviewer.file_handlers.CmpFileHandler;
-import com.gamemode.tkviewer.file_handlers.MapFileHandler;
 import com.gamemode.tkviewer.render.PartRenderer;
-import com.gamemode.tkviewer.render.TileRenderer;
 import com.gamemode.tkviewer.resources.EffectImage;
 import com.gamemode.tkviewer.resources.Part;
 import com.gamemode.tkviewer.resources.Resources;
-import com.gamemode.tkviewer.utilities.FileUtils;
 import com.gamemode.tkviewer.utilities.RenderUtils;
-import com.sun.tools.javac.comp.Flow;
-import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -23,8 +17,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +47,7 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
     JComboBox palettePicker;
     ImageIcon viewerIcon;
     JButton changeMapButton = new JButton("Change Map");
-    int mapId = 18020;
+    int mapId = 4549;
 
     JSpinner xSpinner = new JSpinner(new SpinnerNumberModel(11, 0, 20, 1));
     JSpinner ySpinner = new JSpinner(new SpinnerNumberModel(12, 0, 20, 1));
@@ -330,8 +322,8 @@ public class TKPartPickerGUI extends JFrame implements ActionListener {
     }
 
     public BufferedImage createBackground() {
-        // Rhino LR
-        return createBackground(18020, 11, 12, 5);
+        // Rhino LR - 18020
+        return createBackground(1, 4, 4, 5);
     }
 
     public BufferedImage createBackground(int mapId, int x, int y, int width) {

@@ -76,10 +76,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <includes>
-                    <include>client_icon.png</include>
-                </includes>
+                <directory>${project.basedir}/src/main/resources</directory>
             </resource>
         </resources>
     </build>

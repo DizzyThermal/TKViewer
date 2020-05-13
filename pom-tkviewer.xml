@@ -6,7 +6,7 @@
 
     <groupId>com.gamemode.tkviewer</groupId>
     <artifactId>TKViewer</artifactId>
-    <version>1.0.0</version>
+    <version>3.3</version>
     <name>TKViewer</name>
     <description>NexusTK Resource Viewer</description>
 
@@ -76,10 +76,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <includes>
-                    <include>client_icon.png</include>
-                </includes>
+                <directory>${project.basedir}/src/main/resources</directory>
             </resource>
         </resources>
     </build>
