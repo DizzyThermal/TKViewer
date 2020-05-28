@@ -241,6 +241,8 @@ short unknown                       (2 bytes)                            # unkno
 object[object_count]                (obj_count * obj_size bytes)         # list of object structures
 
 typedef struct {
+  int unknown                       (4 bytes)                            # unknown byte (typically 0xFFFFFFFF)
+  byte unknown                      (1 byte)                             # unknown byte (typically 0x00)
   byte movement_directions          (1 byte)                             # movement directions for static object (see list below)
   byte tile_count                   (1 byte)                             # number of tiles in static object
   short[tile_count]                 (tile_count * 2 bytes)               # list of tile indicies for static object
