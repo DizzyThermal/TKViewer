@@ -27,7 +27,28 @@ public class TKDatViewer {
     private static int biggest = 0;
     public static void main(String[] args) {
         // printAllDats();
-        writeAllDatInfoToFile("C:\\NTK_DatInfo.txt");
+        //writeAllDatInfoToFile("C:\\NTK_DatInfo.txt");
+        exportAllDats("C:\\Users\\Stephen\\Desktop\\dats");
+    }
+
+    private static void exportAllDats(String outputDirectory) {
+        File outputDataDirectory = new File(outputDirectory);
+        if (!outputDataDirectory.exists()) {
+            outputDataDirectory.mkdirs();
+        }
+
+        File dataDirectory = new File(Resources.NTK_DATA_DIRECTORY);
+        if (dataDirectory.exists() && dataDirectory.isDirectory()) {
+            File[] datFiles = dataDirectory.listFiles((dir, name) -> name.matches(DAT_REGEX));
+
+            if (datFiles != null) {
+                for (File datFile : datFiles) {
+                    DatFileHandler datFileHandler = new DatFileHandler(datFile);
+                    datFileHandler.printDatFiles();
+                    datFileHandler.exportFiles(outputDirectory);
+                }
+            }
+        }
     }
 
     private static void printAllDats() {

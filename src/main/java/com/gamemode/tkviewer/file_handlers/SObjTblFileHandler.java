@@ -11,6 +11,8 @@ public class SObjTblFileHandler extends FileHandler {
 
     public long objectCount;
 
+    public ByteBuffer unknownBytes;
+
     public List<SObject> objects;
 
     public SObjTblFileHandler(String filepath) {
@@ -30,12 +32,12 @@ public class SObjTblFileHandler extends FileHandler {
     public void init() {
         this.objectCount = this.readInt(true, true);
 
-        this.readBytes(2, true);
+        this.unknownBytes = this.readBytes(2, true);
 
         this.objects = new ArrayList<SObject>();
         for (int i = 0; i < this.objectCount; i++) {
             // Unknown
-            this.readBytes(5, true);
+            ByteBuffer unknownBytesObject = this.readBytes(5, true);
 
             byte movementDirection = (byte)this.readSignedByte();
             byte height = (byte)this.readSignedByte();
@@ -45,7 +47,7 @@ public class SObjTblFileHandler extends FileHandler {
                 tileIndices.add(this.readShort(true, true));
             }
 
-            this.objects.add(new SObject(movementDirection, height, tileIndices));
+            this.objects.add(new SObject(movementDirection, height, tileIndices, unknownBytesObject));
         }
 
         this.close();

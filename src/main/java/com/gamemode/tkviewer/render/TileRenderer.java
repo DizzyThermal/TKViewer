@@ -13,6 +13,7 @@ import com.gamemode.tkviewer.utilities.FileUtils;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +24,10 @@ public class TileRenderer implements Renderer {
 
     Map<Integer, BufferedImage> tiles;
 
-    List<EpfFileHandler> tileEpfs;
-    PalFileHandler tilePal;
-    TileTblFileHandler tileTbl;
-    FrmFileHandler tileFrm;
+    public List<EpfFileHandler> tileEpfs;
+    public PalFileHandler tilePal;
+    public TileTblFileHandler tileTbl;
+    public FrmFileHandler tileFrm;
     public int manualPaletteIndex = 0;
 
     public TileRenderer() { this("tile", "tile.pal", "tile.tbl"); }
@@ -40,6 +41,16 @@ public class TileRenderer implements Renderer {
         this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix);
         this.tilePal = new PalFileHandler(tileDat.getFile(palName));
         this.tileTbl = new TileTblFileHandler(tileDat.getFile(tblName));
+    }
+
+    public TileRenderer(String epfPrefix, String palName, int manualPaletteIndex) {
+        DatFileHandler tileDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat");
+
+        tiles = new HashMap<Integer, BufferedImage>();
+
+        this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix);
+        this.tilePal = new PalFileHandler(tileDat.getFile(palName));
+        this.manualPaletteIndex = manualPaletteIndex;
     }
 
     public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, TileTblFileHandler tileTbl) {
@@ -67,8 +78,16 @@ public class TileRenderer implements Renderer {
     }
 
     public BufferedImage renderTile(int tileIndex) {
+        return this.renderTile(tileIndex, 0);
+    }
+
+    public BufferedImage renderTile(int tileIndex, int animationOffset) {
+        return this.renderTile(tileIndex, animationOffset, true);
+    }
+
+    public BufferedImage renderTile(int tileIndex, int animationOffset, boolean useCache) {
         // Return Tile if cached.
-        if (tiles.containsKey(tileIndex)) {
+        if (useCache && tiles.containsKey(tileIndex)) {
             return tiles.get(tileIndex);
         }
 
@@ -119,7 +138,16 @@ public class TileRenderer implements Renderer {
                 palette.getBlueBytes(),
                 Transparency.TRANSLUCENT);
 
-        DataBufferByte buffer = new DataBufferByte(frame.getRawPixelData().array(), frame.getRawPixelData().capacity());
+        byte[] dataBuffer = frame.getRawPixelData().array();
+        if (animationOffset != 0) {
+            for (int i = 0; i < dataBuffer.length; i++) {
+                byte b = dataBuffer[i];
+                b += animationOffset;
+                dataBuffer[i] = b;
+            }
+        }
+
+        DataBufferByte buffer = new DataBufferByte(dataBuffer, dataBuffer.length);
         WritableRaster raster = Raster.createPackedRaster(buffer, width, height, 8, null);
 
         image = new BufferedImage(icm, raster, icm.isAlphaPremultiplied(), null);
@@ -131,7 +159,9 @@ public class TileRenderer implements Renderer {
             }
         }
 
-        this.tiles.put(tileIndex, image);
+        if (useCache) {
+            this.tiles.put(tileIndex, image);
+        }
         return image;
     }
 
@@ -140,6 +170,10 @@ public class TileRenderer implements Renderer {
     }
 
     private boolean isTblHandled() { return (this.tileTbl != null); }
+
+    public TileTblFileHandler getTblFileHandler() {
+        return this.tileTbl;
+    }
 
     @Override
     public int getCount(boolean useEpfCount) {

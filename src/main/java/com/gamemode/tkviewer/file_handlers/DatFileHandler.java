@@ -84,6 +84,13 @@ public class DatFileHandler extends FileHandler {
         fileOutputStream.close();
     }
 
+    public void printDatFiles() {
+        System.out.println(this.file.getName());
+        for (Map.Entry<String, ByteBuffer> entry : this.files.entrySet()) {
+            System.out.println("  " + entry.getKey());
+        }
+    }
+
     public void exportFiles(String outputDirectory) {
         outputDirectory = outputDirectory.replaceAll("\\\\", "/");
         File outputDirectoryFile = new File(outputDirectory);

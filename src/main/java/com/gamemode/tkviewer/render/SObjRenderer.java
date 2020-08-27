@@ -67,6 +67,10 @@ public class SObjRenderer {
         return image;
     }
 
+    public SObjTblFileHandler getTileSObjTbl() {
+        return this.tileSObjTbl;
+    }
+
     public void dispose() {
         tileRenderer.dispose();
         tileSObjTbl.close();
