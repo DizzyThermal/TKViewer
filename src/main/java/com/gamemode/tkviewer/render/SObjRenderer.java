@@ -71,6 +71,10 @@ public class SObjRenderer {
         return this.tileSObjTbl;
     }
 
+    public TileRenderer getTileRenderer() {
+        return this.tileRenderer;
+    }
+
     public void dispose() {
         tileRenderer.dispose();
         tileSObjTbl.close();
