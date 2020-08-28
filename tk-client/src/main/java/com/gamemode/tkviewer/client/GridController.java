@@ -1,5 +1,6 @@
 package com.gamemode.tkviewer.client;
 
+import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.entities.IMobileEntity;
 import de.gurkenlabs.litiengine.input.Input;
 import de.gurkenlabs.litiengine.input.KeyboardEntityController;
@@ -103,7 +104,10 @@ public class GridController<T extends IMobileEntity> extends MovementController<
             } else {
                 Player.instance().setVelocity(250);
             }
-
+        } else if (keyCode.getKeyCode() == KeyEvent.VK_ADD) {
+            Game.graphics().setBaseRenderScale(Game.graphics().getBaseRenderScale() + 0.05f);
+        } else if (keyCode.getKeyCode() == KeyEvent.VK_SUBTRACT) {
+            Game.graphics().setBaseRenderScale(Game.graphics().getBaseRenderScale() - 0.05f);
         }
     }
 }

@@ -1,10 +1,14 @@
 package com.gamemode.tkviewer.gui;
 
-import com.gamemode.tkviewer.common.file_handlers.*;
-import com.gamemode.tkviewer.common.render.*;
-import com.gamemode.tkviewer.common.resources.Resources;
-import com.gamemode.tkviewer.common.utilities.FileUtils;
-import com.gamemode.tkviewer.common.utilities.RenderUtils;
+import com.gamemode.tkviewer.file_handlers.CmpFileHandler;
+import com.gamemode.tkviewer.file_handlers.MapFileHandler;
+import com.gamemode.tkviewer.render.EffectRenderer;
+import com.gamemode.tkviewer.render.MapRenderer;
+import com.gamemode.tkviewer.render.MobRenderer;
+import com.gamemode.tkviewer.render.PartRenderer;
+import com.gamemode.tkviewer.resources.Resources;
+import com.gamemode.tkviewer.utilities.FileUtils;
+import com.gamemode.tkviewer.utilities.RenderUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -356,6 +360,7 @@ public class TKViewerGUI extends JFrame implements ActionListener {
                     SwingWorker renderLoadingWorker = new SwingWorker<Boolean, Integer>() {
                         @Override
                         protected Boolean doInBackground() throws Exception {
+                            map = null;
                             if (fileExtension.equals("cmp")) {
                                 map = mapRenderer.renderMap(new CmpFileHandler(selectedFile));
                             } else if (fileExtension.equals("map")) {
@@ -378,7 +383,7 @@ public class TKViewerGUI extends JFrame implements ActionListener {
                 // Display Map
                 JFrame mapFrame = new JFrame(selectedFile.getName());
                 mapFrame.setIconImage(clientIcon);
-                Dimension currentDimensions = new Dimension(((BufferedImage) map).getWidth(), ((BufferedImage) map).getHeight());
+                Dimension currentDimensions = new Dimension(map.getWidth(), map.getHeight());
                 Dimension scaledDimensions = getScaledDimensions(currentDimensions, Toolkit.getDefaultToolkit().getScreenSize());
                 if (!currentDimensions.equals(scaledDimensions)) {
                     scaledMap = map.getScaledInstance((int) scaledDimensions.getWidth(), (int) scaledDimensions.getHeight(), Image.SCALE_SMOOTH);

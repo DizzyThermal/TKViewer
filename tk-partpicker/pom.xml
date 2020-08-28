@@ -55,10 +55,6 @@
             <artifactId>common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.gamemode.tkviewer</groupId>
-            <artifactId>tk-viewer</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>

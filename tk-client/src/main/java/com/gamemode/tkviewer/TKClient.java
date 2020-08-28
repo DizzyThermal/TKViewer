@@ -24,14 +24,14 @@ public class TKClient {
         Game.info().setVersion("1.0.0");
 
         Game.init(args);
-        Game.graphics().setBaseRenderScale(1.0f);
+        Game.graphics().setBaseRenderScale(1.00f);
 
         GameResources.init();
-        PlayerLogic.init(30, 10);
+        PlayerLogic.init(5, 5);
 
         Game.screens().add(new GameScreen());
 
-        IMap map = Resources.maps().get("maps/000041_mod.tmx");
+        IMap map = Resources.maps().get("maps/000002.tmx");
         Game.world().loadEnvironment(map);
 
         // Warp Test

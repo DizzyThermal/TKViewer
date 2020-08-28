@@ -1,8 +1,8 @@
 package com.gamemode.tkviewer;
 
-import com.gamemode.tkviewer.common.resources.Resources;
-import com.gamemode.tkviewer.common.utilities.FileUtils;
-import com.gamemode.tkviewer.common.utilities.Utils;
+import com.gamemode.tkviewer.resources.Resources;
+import com.gamemode.tkviewer.utilities.FileUtils;
+import com.gamemode.tkviewer.utilities.Utils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class TKTmxer {
 
-    private static String outputDirectory = "C:\\TKTmxer\\maps";
+    private static String outputDirectory = "C:\\Users\\Stephen\\IdeaProjects\\TKViewer\\maps";
 
     private static String tileDirectory = Paths.get(outputDirectory, "tiles").toString();
     private static String sObjDirectory = Paths.get(outputDirectory, "objects").toString();
@@ -20,7 +20,8 @@ public class TKTmxer {
     private static List<Integer> mapsToConvert = new ArrayList<Integer>(
             Arrays.asList(
                     2,
-                    41
+                    41,
+                    18000
             )
     );
 
