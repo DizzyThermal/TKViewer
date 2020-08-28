@@ -2,6 +2,7 @@ package com.gamemode.tkviewer.common.utilities;
 
 import com.gamemode.tkviewer.common.EffectImage;
 import com.gamemode.tkviewer.common.Frame;
+import com.gamemode.tkviewer.common.SObject;
 import com.gamemode.tkviewer.common.Tile;
 import com.gamemode.tkviewer.common.file_handlers.*;
 import com.gamemode.tkviewer.common.render.*;
@@ -23,8 +24,6 @@ import static com.gamemode.tkviewer.common.utilities.Utils.pad;
 
 // Static File Utilities Class
 public class FileUtils {
-
-    public static ByteBuffer sObjBytes = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat").getFile("SObj.tbl");
 
     public FileUtils() {
     }
@@ -275,31 +274,33 @@ public class FileUtils {
         for (int i = 0; i < (tileTblFileHandler.tileCount / tilesetDelimiter) + 1; i++) {
             File groundTileSetFile = Paths.get(outputDirectory.toString(),
                     "ground_tiles_" + pad(i, 2) + ".tsx").toFile();
-            boolean isLastTileSet = !((i + 1) < (tileTblFileHandler.tileCount / tilesetDelimiter));
-            int tileCount = isLastTileSet?((int)(tileTblFileHandler.tileCount % tilesetDelimiter)):tilesetDelimiter;
+            if (!groundTileSetFile.exists()) {
+                boolean isLastTileSet = !((i + 1) < (tileTblFileHandler.tileCount / tilesetDelimiter));
+                int tileCount = isLastTileSet ? ((int) (tileTblFileHandler.tileCount % tilesetDelimiter)) : tilesetDelimiter;
 
-            try {
-                FileWriter writer = new FileWriter(groundTileSetFile);
-                // Clear the file
-                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.append("<tileset version=\"1.4\" tiledversion=\"1.4.2\" name=\"tiles_" + pad(i, 2) + "\" tilewidth=\"48\" tileheight=\"48\" tilecount=\"" + tileCount + "\" columns=\"0\">\n");
-                writer.append("\t<grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
+                try {
+                    FileWriter writer = new FileWriter(groundTileSetFile);
+                    // Clear the file
+                    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                    writer.append("<tileset version=\"1.4\" tiledversion=\"1.4.2\" name=\"tiles_" + pad(i, 2) + "\" tilewidth=\"48\" tileheight=\"48\" tilecount=\"" + tileCount + "\" columns=\"0\">\n");
+                    writer.append("\t<grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
 
-                for (int j = 0; j < tilesetDelimiter; j++) {
-                    int tileId = (i * tilesetDelimiter) + j;
-                    if (tileId == tileTblFileHandler.tileCount) {
-                        break;
+                    for (int j = 0; j < tilesetDelimiter; j++) {
+                        int tileId = (i * tilesetDelimiter) + j;
+                        if (tileId == tileTblFileHandler.tileCount) {
+                            break;
+                        }
+                        writer.append("\t<tile id=\"" + j + "\">\n");
+                        writer.append("\t\t<image width=\"48\" height=\"48\" source=\"tiles/" + pad(tileId, 5) + ".png\"/>\n");
+                        writer.append("\t</tile>\n");
                     }
-                    writer.append("\t<tile id=\"" + j + "\">\n");
-                    writer.append("\t\t<image width=\"48\" height=\"48\" source=\"tiles/" + pad(tileId, 5) + ".png\"/>\n");
-                    writer.append("\t</tile>\n");
+
+                    writer.append("</tileset>\n");
+
+                    writer.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
                 }
-
-                writer.append("</tileset>\n");
-
-                writer.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
     }
@@ -318,34 +319,36 @@ public class FileUtils {
 
         // Break the tilesets up by, tileset_delim
         for (int i = 0; i < (sObjTblFileHandler.objectCount / tilesetDelimiter) + 1; i++) {
-            File groundTileSetFile = Paths.get(outputDirectory.toString(),
+            File staticObjectTileSetFile = Paths.get(outputDirectory.toString(),
                     "object_tiles_" + pad(i, 2) + ".tsx").toFile();
-            boolean isLastTileSet = !((i + 1) < (sObjTblFileHandler.objectCount / tilesetDelimiter));
-            int tileCount = isLastTileSet?((int)(sObjTblFileHandler.objectCount % tilesetDelimiter)):tilesetDelimiter;
+            if (!staticObjectTileSetFile.exists()) {
+                boolean isLastTileSet = !((i + 1) < (sObjTblFileHandler.objectCount / tilesetDelimiter));
+                int tileCount = isLastTileSet ? ((int) (sObjTblFileHandler.objectCount % tilesetDelimiter)) : tilesetDelimiter;
 
-            try {
-                FileWriter writer = new FileWriter(groundTileSetFile);
-                // Clear the file
-                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.append("<tileset version=\"1.4\" tiledversion=\"1.4.2\" name=\"objects_" + pad(i, 2) + "\" tilewidth=\"48\" tileheight=\"480\" tilecount=\"" + tileCount + "\" columns=\"0\">\n");
-                writer.append("\t<grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
+                try {
+                    FileWriter writer = new FileWriter(staticObjectTileSetFile);
+                    // Clear the file
+                    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                    writer.append("<tileset version=\"1.4\" tiledversion=\"1.4.2\" name=\"objects_" + pad(i, 2) + "\" tilewidth=\"48\" tileheight=\"480\" tilecount=\"" + tileCount + "\" columns=\"0\">\n");
+                    writer.append("\t<grid orientation=\"orthogonal\" width=\"1\" height=\"1\"/>\n");
 
-                for (int j = 0; j < tilesetDelimiter; j++) {
-                    int objectId = (i * tilesetDelimiter) + j;
-                    if (objectId == sObjTblFileHandler.objectCount) {
-                        break;
+                    for (int j = 0; j < tilesetDelimiter; j++) {
+                        int objectId = (i * tilesetDelimiter) + j;
+                        if (objectId == sObjTblFileHandler.objectCount) {
+                            break;
+                        }
+                        writer.append("\t<tile id=\"" + j + "\">\n");
+                        int objectHeight = sObjTblFileHandler.objects.get(objectId).getHeight();
+                        writer.append("\t\t<image width=\"48\" height=\"" + (objectHeight * 48) + "\" source=\"objects/" + pad(objectId, 5) + ".png\"/>\n");
+                        writer.append("\t</tile>\n");
                     }
-                    writer.append("\t<tile id=\"" + j + "\">\n");
-                    int objectHeight = sObjTblFileHandler.objects.get(objectId).getHeight();
-                            writer.append("\t\t<image width=\"48\" height=\"" + (objectHeight * 48) + "\" source=\"objects/" + pad(objectId, 5) + ".png\"/>\n");
-                    writer.append("\t</tile>\n");
+
+                    writer.append("</tileset>\n");
+
+                    writer.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
                 }
-
-                writer.append("</tileset>\n");
-
-                writer.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
     }
@@ -421,6 +424,7 @@ public class FileUtils {
 
     public static void cmpFileToTmxFile(final File cmpFile, final File tmxFile, int tileDelimiter) {
         CmpFileHandler cmp = new CmpFileHandler(cmpFile);
+        SObjTblFileHandler sObjTblFileHandler = new SObjTblFileHandler(new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat").getFile("SObj.tbl"));
 
         try {
             Pattern p = Pattern.compile("firstgid=\"([0-9]+)\"");
@@ -446,6 +450,9 @@ public class FileUtils {
 
             // Ground Layer
             writer.append("\t<layer id=\"1\" name=\"Ground\" width=\"" + cmp.mapWidth + "\" height=\"" + cmp.mapHeight + "\">\n");
+            writer.append("\t\t<properties>\n");
+            writer.append("\t\t\t<property name=\"layerOrder\" type=\"int\" value=\"0\"/>\n");
+            writer.append("\t\t</properties>\n");
             writer.append("\t\t<data encoding=\"csv\">\n");
 
             int tileCount = 0;
@@ -465,7 +472,10 @@ public class FileUtils {
             writer.append("\t</layer>\n");
 
             // Object Layer
-            writer.append("\t<layer id=\"1\" name=\"Objects\" width=\"" + cmp.mapWidth + "\" height=\"" + cmp.mapHeight + "\">\n");
+            writer.append("\t<layer id=\"2\" name=\"Objects\" width=\"" + cmp.mapWidth + "\" height=\"" + cmp.mapHeight + "\">\n");
+            writer.append("\t\t<properties>\n");
+            writer.append("\t\t\t<property name=\"layerOrder\" type=\"int\" value=\"1\"/>\n");
+            writer.append("\t\t</properties>\n");
             writer.append("\t\t<data encoding=\"csv\">\n");
 
             int objectCount = 0;
@@ -484,6 +494,77 @@ public class FileUtils {
             writer.append("\t\t</data>\n");
             writer.append("\t</layer>\n");
 
+            // Object Collisions
+            writer.append("\t<objectgroup id=\"3\" name=\"Collisions\">\n");
+            writer.append("\t\t<properties>\n");
+            writer.append("\t\t\t<property name=\"layerOrder\" type=\"int\" value=\"2\"/>\n");
+            writer.append("\t\t</properties>\n");
+
+            objectCount = 0;
+            int collisionWidthHeight = 10;
+            for (int i = 0; i < cmp.mapHeight; i++) {
+                for (int j = 0; j < cmp.mapWidth; j++) {
+                    Tile mapTile = cmp.mapTiles.get(objectCount);
+                    int sObjTile = mapTile.getSObjTile();
+                    int x = -1;
+                    int y = -1;
+                    int width = -1;
+                    int height = -1;
+                    if (sObjTile >= 0) {
+                        SObject sObj = sObjTblFileHandler.objects.get(sObjTile);
+                        byte movementDirection = sObj.getMovementDirection();
+                        if (movementDirection == 0xF) {
+                            // Full
+                            x = (j * 48);
+                            y = (i * 48);
+                            width = 48;
+                            height = 48;
+                        }
+                        if (movementDirection == 0x1) {
+                            // Bottom
+                            x = (j * 48) + 1;
+                            y = (i * 48) + 48 - collisionWidthHeight;
+                            width = 46;
+                            height = collisionWidthHeight;
+                        } else if (movementDirection == 0x2) {
+                            // Top
+                            x = (j * 48) + 1;
+                            y = (i * 48) + collisionWidthHeight;
+                            width = 46;
+                            height = collisionWidthHeight;
+                        } else if (movementDirection == 0x4) {
+                            // Left
+                            x = (j * 48) - collisionWidthHeight;
+                            y = (i * 48) + 1;
+                            width = collisionWidthHeight;
+                            height = 46;
+                        } else if (movementDirection == 0x8) {
+                            // Right
+                            x = (j * 48) + 48 - collisionWidthHeight;
+                            y = (i * 48) + 1;
+                            width = collisionWidthHeight;
+                            height = 46;
+                        }
+                    }
+                    if (mapTile.getPassableTile() != 0) {
+                        // Full
+                        x = (j * 48);
+                        y = (i * 48);
+                        width = 48;
+                        height = 48;
+                    }
+
+                    if (x == -1 || y == -1 || width == -1 || height == -1) {
+                        objectCount++;
+                        continue;
+                    }
+
+                    writer.append("\t\t<object id=\"" + objectCount + "\" type=\"COLLISIONBOX\" x=\"" + x + "\" y=\"" + y + "\" width=\"" + width + "\" height=\"" + height + "\"/>\n");
+                    objectCount++;
+                }
+            }
+
+            writer.append("\t</objectgroup>\n");
 
             writer.append("</map>");
 

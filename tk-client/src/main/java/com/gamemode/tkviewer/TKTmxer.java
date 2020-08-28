@@ -12,7 +12,7 @@ import java.util.List;
 
 public class TKTmxer {
 
-    private static String outputDirectory = "C:\\TKTmxer";
+    private static String outputDirectory = "C:\\TKTmxer\\maps";
 
     private static String tileDirectory = Paths.get(outputDirectory, "tiles").toString();
     private static String sObjDirectory = Paths.get(outputDirectory, "objects").toString();

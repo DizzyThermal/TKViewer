@@ -1,5 +1,6 @@
 package com.gamemode.tkviewer;
 
+
 import com.gamemode.tkviewer.client.GameResources;
 import com.gamemode.tkviewer.client.Player;
 import com.gamemode.tkviewer.client.PlayerLogic;
@@ -31,7 +32,7 @@ public class TKClient {
 
         Game.screens().add(new GameScreen());
 
-        IMap map = Resources.maps().get("maps/000041_mod.tmx");
+        IMap map = Resources.maps().get("000041.tmx");
         Game.world().loadEnvironment(map);
 
         // Warp Test

@@ -55,6 +55,10 @@
             <artifactId>common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.gamemode.tkviewer</groupId>
+            <artifactId>tk-viewer</artifactId>
+        </dependency>
+        <dependency>
             <groupId>de.gurkenlabs</groupId>
             <artifactId>litiengine</artifactId>
         </dependency>

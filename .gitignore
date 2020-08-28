@@ -111,5 +111,11 @@ src/main/resources/tiles
 
 src/main/java/com/gamemode/tkviewer/ignore
 
-
+crash.txt
+game.litidata
+game.log*
+*.tmx
 *.tsx
+maps
+screenshots
+sprites
