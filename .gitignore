@@ -111,3 +111,5 @@ src/main/resources/tiles
 
 src/main/java/com/gamemode/tkviewer/ignore
 
+
+*.tsx
