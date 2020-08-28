@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.gamemode.tkviewer</groupId>
+    <artifactId>tkviewer</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>TK Viewer</name>
+    <description>NexusTK Data Viewer</description>
+	<packaging>pom</packaging>
+	
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <kotlin.version>1.3.40</kotlin.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+		<!--Module Dependencies-->
+			<dependency>
+				<groupId>com.gamemode.tkviewer</groupId>
+				<artifactId>common</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+			</dependency>
+            <dependency>
+                <groupId>com.gamemode.tkviewer</groupId>
+                <artifactId>tk-client</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.gamemode.tkviewer</groupId>
+                <artifactId>tk-partpicker</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.gamemode.tkviewer</groupId>
+                <artifactId>tk-viewer</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>28.0-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>net.imagej</groupId>
+                <artifactId>ij</artifactId>
+                <version>1.52o</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test</artifactId>
+                <version>${kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>de.gurkenlabs</groupId>
+                <artifactId>litiengine</artifactId>
+                <version>0.5.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.gamemode.tkviewer</groupId>
+                <artifactId>TKViewer</artifactId>
+                <version>3.3</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+	<modules>
+		<module>tk-client</module>
+		<module>tk-viewer</module>
+		<module>tk-partpicker</module>
+		<module>common</module>
+	</modules>
+</project>
