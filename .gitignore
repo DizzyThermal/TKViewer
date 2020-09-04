@@ -116,6 +116,7 @@ game.litidata
 game.log*
 *.tmx
 *.tsx
-maps
+../tk-client/maps/tiles
+../tk-client/maps/objects
 screenshots
-sprites
+../tk-client/sprites

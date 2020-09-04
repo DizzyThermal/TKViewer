@@ -28,11 +28,6 @@
 			</dependency>
             <dependency>
                 <groupId>com.gamemode.tkviewer</groupId>
-                <artifactId>tk-client</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.gamemode.tkviewer</groupId>
                 <artifactId>tk-partpicker</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -81,7 +76,6 @@
     </dependencyManagement>
 
 	<modules>
-		<module>tk-client</module>
 		<module>tk-viewer</module>
 		<module>tk-partpicker</module>
 		<module>common</module>
