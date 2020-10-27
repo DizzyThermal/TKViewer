@@ -131,6 +131,42 @@ public class MobRenderer implements Renderer {
         return image;
     }
 
+    public int[] getGlobalCanvasSize(int mobIndex) {
+        // Returns [l, t, r, b] for all chunks in mob
+        Mob mob = this.mobDna.mobs.get(mobIndex);
+
+        // Determine Canvas Size
+        int l, t, r, b;
+        l = t = r = b = 0;
+        for (int i = 0; i < mob.getChunkCount(); i++) {
+            MobChunk chunk = mob.getChunks().get(i);
+            int frameCount = chunk.getBlockCount();
+            for (int j = 0; j < frameCount; j++) {
+                MobBlock block = chunk.getBlocks().get(j);
+                int frameIndex = (int) (mob.getFrameIndex() + block.getFrameOffset());
+
+                Frame frame = FileUtils.getFrameFromEpfs(frameIndex, this.mobEpfs);
+                if (frame == null) {
+                    continue;
+                }
+                if (frame.getLeft() < l) {
+                    l = frame.getLeft();
+                }
+                if (frame.getTop() < t) {
+                    t = frame.getTop();
+                }
+                if (frame.getRight() > r) {
+                    r = frame.getRight();
+                }
+                if (frame.getBottom() > b) {
+                    b = frame.getBottom();
+                }
+            }
+        }
+
+        return new int[]{l, t, r, b};
+    }
+
     public List<EffectImage> renderAnimation(int mobIndex, ANIMATIONS animation) {
         return renderAnimation(mobIndex, animation.ordinal());
     }
@@ -141,31 +177,11 @@ public class MobRenderer implements Renderer {
 
         int frameCount = chunk.getBlockCount();
 
-        // Determine Canvas Size
-        int l, t, r, b;
-        l = t = r = b = 0;
-        for (int i = 0; i < frameCount; i++) {
-            MobBlock block = chunk.getBlocks().get(i);
-            int frameIndex = (int)(mob.getFrameIndex() + block.getFrameOffset());
-
-            Frame frame = FileUtils.getFrameFromEpfs(frameIndex, this.mobEpfs);
-            if (frame == null) {
-                continue;
-            }
-//            if (frame)
-            if (frame.getLeft() < l) {
-                l = frame.getLeft();
-            }
-            if (frame.getTop() < t) {
-                t = frame.getTop();
-            }
-            if (frame.getRight() > r) {
-                r = frame.getRight();
-            }
-            if (frame.getBottom() > b) {
-                b = frame.getBottom();
-            }
-        }
+        int[] dims = getGlobalCanvasSize(mobIndex);
+        int l = dims[0];
+        int t = dims[1];
+        int r = dims[2];
+        int b = dims[3];
 
         int effectWidth = r-l;
         int effectHeight = b-t;

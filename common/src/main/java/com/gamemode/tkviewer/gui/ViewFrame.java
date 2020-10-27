@@ -7,6 +7,7 @@ import com.gamemode.tkviewer.render.*;
 import com.gamemode.tkviewer.render.Renderer;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -17,7 +18,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,7 @@ public class ViewFrame extends JFrame implements ActionListener {
     JPanel imagePanel;
     JList list;
 
+    JButton exportButton;
     JRadioButton framesButton;
     JRadioButton animationsButton;
 
@@ -118,6 +122,9 @@ public class ViewFrame extends JFrame implements ActionListener {
         statusPanel.setBorder(new LineBorder(Color.BLACK));
         statusPanel.setPreferredSize(new Dimension(this.getWidth(), 36));
 
+        exportButton = new JButton("Export Frames");
+        exportButton.addActionListener(this);
+
         framesButton = new JRadioButton("Frames");
         animationsButton = new JRadioButton("Animations");
         animationsButton.setSelected(true);
@@ -128,6 +135,8 @@ public class ViewFrame extends JFrame implements ActionListener {
 
         framesButton.addActionListener(this);
         animationsButton.addActionListener(this);
+
+        statusPanel.add(exportButton);
 
         statusPanel.add(framesButton);
         statusPanel.add(animationsButton);
@@ -298,6 +307,22 @@ public class ViewFrame extends JFrame implements ActionListener {
         revalidate();
     }
 
+    public void exportFrames(int index) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Choose export directory");
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            Image[] images = renderer.getFrames(index);
+            for (int i = 0; i < images.length; i++) {
+                final int frameIndex = renderer.getFrameIndex(index, i);
+                FileUtils.writeBufferedImageToFile(((BufferedImage) images[i]), Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + "-" + frameIndex + ".png").toString());
+            }
+
+            JOptionPane.showMessageDialog(this, "Frames exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent ae) {
         int listIndex = list.getSelectedIndex();
@@ -315,6 +340,8 @@ public class ViewFrame extends JFrame implements ActionListener {
             } else if (renderer instanceof PartRenderer) {
                 this.renderPartAnimations(listIndex);
             }
+        } else if (ae.getSource() == this.exportButton) {
+            this.exportFrames(listIndex);
         }
     }
 }
