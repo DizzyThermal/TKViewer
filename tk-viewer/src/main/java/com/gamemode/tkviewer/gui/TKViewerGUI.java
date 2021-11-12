@@ -2,10 +2,8 @@ package com.gamemode.tkviewer.gui;
 
 import com.gamemode.tkviewer.file_handlers.CmpFileHandler;
 import com.gamemode.tkviewer.file_handlers.MapFileHandler;
-import com.gamemode.tkviewer.render.EffectRenderer;
-import com.gamemode.tkviewer.render.MapRenderer;
-import com.gamemode.tkviewer.render.MobRenderer;
-import com.gamemode.tkviewer.render.PartRenderer;
+import com.gamemode.tkviewer.render.*;
+import com.gamemode.tkviewer.render.Renderer;
 import com.gamemode.tkviewer.resources.Resources;
 import com.gamemode.tkviewer.utilities.FileUtils;
 import com.gamemode.tkviewer.utilities.RenderUtils;
@@ -22,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class TKViewerGUI extends JFrame implements ActionListener {
 
@@ -39,22 +38,34 @@ public class TKViewerGUI extends JFrame implements ActionListener {
     JMenuItem editBrowseCacheMenuItem = new JMenuItem("Browse Cache");
 
     JMenu viewMenu = new JMenu("View");
+
+    JMenu characterMenu = new JMenu("Character");
     JMenuItem viewBodyMenuItem = new JMenuItem("Bodies");
-    JMenuItem viewBowMenuItem = new JMenuItem("Bows");
-    JMenuItem viewCoatMenuItem = new JMenuItem("Coats");
-    JMenuItem viewEffectMenuItem = new JMenuItem("Effects");
     JMenuItem viewFaceMenuItem = new JMenuItem("Faces");
     JMenuItem viewFaceDecMenuItem = new JMenuItem("Face Decorations");
-    JMenuItem viewFanMenuItem = new JMenuItem("Fans");
     JMenuItem viewHairMenuItem = new JMenuItem("Hair");
+    JMenuItem viewShoesMenuItem = new JMenuItem("Shoes");
+
+    JMenu armorMenu = new JMenu("Armor");
+    JMenuItem viewCoatMenuItem = new JMenuItem("Coats");
     JMenuItem viewHelmetMenuItem = new JMenuItem("Helmets");
     JMenuItem viewMantleMenuItem = new JMenuItem("Mantles");
+    JMenuItem viewShieldMenuItem = new JMenuItem("Shields");
+
+    JMenu weaponsMenu = new JMenu("Weapons");
+    JMenuItem viewBowMenuItem = new JMenuItem("Bows");
+    JMenuItem viewFanMenuItem = new JMenuItem("Fans");
+    JMenuItem viewSwordMenuItem = new JMenuItem("Swords");
+    JMenuItem viewSpearMenuItem = new JMenuItem("Spears");
+
+    JMenu miscMenu = new JMenu("Misc");
+    JMenuItem viewEffectMenuItem = new JMenuItem("Effects");
+    JMenuItem viewItemMenuItem = new JMenuItem("Items");
+    JMenuItem viewLegendResourceMenuItem = new JMenuItem("Legend Resources");
     JMenuItem viewMobMenuItem = new JMenuItem("Mobs");
     JMenuItem viewMusicMenuItem = new JMenuItem("Music");
-    JMenuItem viewSpearMenuItem = new JMenuItem("Spears");
-    JMenuItem viewShoesMenuItem = new JMenuItem("Shoes");
-    JMenuItem viewShieldMenuItem = new JMenuItem("Shields");
-    JMenuItem viewSwordMenuItem = new JMenuItem("Swords");
+    JMenuItem viewMiniMapResourceMenuItem = new JMenuItem("Mini Map Resources");
+    JMenuItem viewWorldMapMenuItem = new JMenuItem("World Maps");
 
     // Renderers
     MapRenderer mapRenderer;
@@ -67,12 +78,16 @@ public class TKViewerGUI extends JFrame implements ActionListener {
     PartRenderer fanRenderer;
     PartRenderer hairRenderer;
     PartRenderer helmetRenderer;
+    TileRenderer itemRenderer;
+    TileRenderer legendResourceRenderer;
     PartRenderer mantleRenderer;
+    ArrayList<TileRenderer> miniMapResourceRenderers;
     MobRenderer mobRenderer;
     PartRenderer spearRenderer;
     PartRenderer shoeRenderer;
     PartRenderer shieldRenderer;
     PartRenderer swordRenderer;
+    ArrayList<TileRenderer> worldMapRenderers;
 
     BufferedImage map;
     Image scaledMap;
@@ -119,69 +134,101 @@ public class TKViewerGUI extends JFrame implements ActionListener {
         editMenu.add(editBrowseCacheMenuItem);
         menuBar.add(editMenu);
 
-        // View > Bodies
+        // View > Character
+
+        // View > Character > Bodies
         viewBodyMenuItem.addActionListener(this);
-        viewMenu.add(viewBodyMenuItem);
+        characterMenu.add(viewBodyMenuItem);
 
-        // View > Bows
-        viewBowMenuItem.addActionListener(this);
-        viewMenu.add(viewBowMenuItem);
-
-        // View > Coats
-        viewCoatMenuItem.addActionListener(this);
-        viewMenu.add(viewCoatMenuItem);
-
-        // View > Effects
-        viewEffectMenuItem.addActionListener(this);
-        viewMenu.add(viewEffectMenuItem);
-
-        // View > Faces
+        // View > Character > Faces
         viewFaceMenuItem.addActionListener(this);
-        viewMenu.add(viewFaceMenuItem);
+        characterMenu.add(viewFaceMenuItem);
 
-        // View > Faces
+        // View > Character > Face Decorations
         viewFaceDecMenuItem.addActionListener(this);
-        viewMenu.add(viewFaceDecMenuItem);
+        characterMenu.add(viewFaceDecMenuItem);
 
-        // View > Fans
-        viewFanMenuItem.addActionListener(this);
-        viewMenu.add(viewFanMenuItem);
-
-        // View > Hair
+        // View >  Character > Hair
         viewHairMenuItem.addActionListener(this);
-        viewMenu.add(viewHairMenuItem);
+        characterMenu.add(viewHairMenuItem);
 
-        // View > Helmet
-        viewHelmetMenuItem.addActionListener(this);
-        viewMenu.add(viewHelmetMenuItem);
-
-        // View > Mantles
-        viewMantleMenuItem.addActionListener(this);
-        viewMenu.add(viewMantleMenuItem);
-
-        // View > Mobs
-        viewMobMenuItem.addActionListener(this);
-        viewMenu.add(viewMobMenuItem);
-
-        // View > Music
-        viewMusicMenuItem.addActionListener(this);
-        viewMenu.add(viewMusicMenuItem);
-
-        // View > Spears
-        viewSpearMenuItem.addActionListener(this);
-        viewMenu.add(viewSpearMenuItem);
-
-        // View > Shoes
+        // View >  Character > Shoes
         viewShoesMenuItem.addActionListener(this);
-        viewMenu.add(viewShoesMenuItem);
+        characterMenu.add(viewShoesMenuItem);
 
-        // View > Shields
+        viewMenu.add(characterMenu);
+
+        // View > Armor
+
+        // View > Armor > Coats
+        viewCoatMenuItem.addActionListener(this);
+        armorMenu.add(viewCoatMenuItem);
+
+        // View > Armor > Helmet
+        viewHelmetMenuItem.addActionListener(this);
+        armorMenu.add(viewHelmetMenuItem);
+
+        // View > Armor > Mantles
+        viewMantleMenuItem.addActionListener(this);
+        armorMenu.add(viewMantleMenuItem);
+
+        // View > Armor > Shields
         viewShieldMenuItem.addActionListener(this);
-        viewMenu.add(viewShieldMenuItem);
+        armorMenu.add(viewShieldMenuItem);
 
-        // View > Swords
+        viewMenu.add(armorMenu);
+
+        // View > Weapons
+
+        // View > Weapons > Bows
+        viewBowMenuItem.addActionListener(this);
+        weaponsMenu.add(viewBowMenuItem);
+
+        // View > Weapons > Fans
+        viewFanMenuItem.addActionListener(this);
+        weaponsMenu.add(viewFanMenuItem);
+
+        // View > Weapons > Spears
+        viewSpearMenuItem.addActionListener(this);
+        weaponsMenu.add(viewSpearMenuItem);
+
+        // View > Weapons > Swords
         viewSwordMenuItem.addActionListener(this);
-        viewMenu.add(viewSwordMenuItem);
+        weaponsMenu.add(viewSwordMenuItem);
+
+        viewMenu.add(weaponsMenu);
+
+        // View > Misc
+
+        // View > Misc >  Effects
+        viewEffectMenuItem.addActionListener(this);
+        miscMenu.add(viewEffectMenuItem);
+
+        // View > Misc >  Items
+        viewItemMenuItem.addActionListener(this);
+        miscMenu.add(viewItemMenuItem);
+
+        // View > Misc > Legend Resources
+        viewLegendResourceMenuItem.addActionListener(this);
+        miscMenu.add(viewLegendResourceMenuItem);
+
+        // View > Misc > Mini Map Resources
+        viewMiniMapResourceMenuItem.addActionListener(this);
+        miscMenu.add(viewMiniMapResourceMenuItem);
+
+        // View > Misc > Mobs
+        viewMobMenuItem.addActionListener(this);
+        miscMenu.add(viewMobMenuItem);
+
+        // View > Misc >  Music
+        viewMusicMenuItem.addActionListener(this);
+        miscMenu.add(viewMusicMenuItem);
+
+        // View > Misc >  World Maps
+        viewWorldMapMenuItem.addActionListener(this);
+        miscMenu.add(viewWorldMapMenuItem);
+
+        viewMenu.add(miscMenu);
 
         menuBar.add(viewMenu);
     }
@@ -269,6 +316,16 @@ public class TKViewerGUI extends JFrame implements ActionListener {
                             helmetRenderer = RenderUtils.createHelmetRenderer();
                         }
                         break;
+                    case ITEMS:
+                        if (itemRenderer == null) {
+                            itemRenderer = RenderUtils.createItemRenderer();
+                        }
+                        break;
+                    case LEGEND_RESOURCES:
+                        if (legendResourceRenderer == null) {
+                            legendResourceRenderer = RenderUtils.createLegendResourceRenderer();
+                        }
+                        break;
                     case MANTLES:
                         if (mantleRenderer == null) {
                             mantleRenderer = RenderUtils.createMantleRenderer();
@@ -282,6 +339,11 @@ public class TKViewerGUI extends JFrame implements ActionListener {
                     case MOBS:
                         if (mobRenderer == null) {
                             mobRenderer = RenderUtils.createMobRenderer();
+                        }
+                        break;
+                    case MINI_MAP_RESOURCES:
+                        if (miniMapResourceRenderers == null) {
+                            miniMapResourceRenderers = RenderUtils.createMiniMapResourceRenderers();
                         }
                         break;
                     case SPEARS:
@@ -302,6 +364,11 @@ public class TKViewerGUI extends JFrame implements ActionListener {
                     case SWORDS:
                         if (swordRenderer == null) {
                             swordRenderer = RenderUtils.createSwordRenderer();
+                        }
+                        break;
+                    case WORLD_MAPS:
+                        if (worldMapRenderers == null) {
+                            worldMapRenderers = RenderUtils.createWorldMapRenderers();
                         }
                         break;
                 }
@@ -549,6 +616,20 @@ public class TKViewerGUI extends JFrame implements ActionListener {
             }
 
             new ViewFrame("Helmets", "Helmet", "Helmets", this.helmetRenderer);
+        } else if (ae.getSource() == this.viewItemMenuItem) {
+            // Initialize Item Data if needed
+            if (this.itemRenderer == null) {
+                showLoadingDialog("Loading item resources, please wait...", Resources.GUI_LOADING_FUNCTION.ITEMS);
+            }
+
+            new ViewFrame("Items", "Item", "Items", this.itemRenderer);
+        } else if (ae.getSource() == this.viewLegendResourceMenuItem) {
+            // Initialize Legend Resource Data if needed
+            if (this.legendResourceRenderer == null) {
+                showLoadingDialog("Loading legend resources, please wait...", Resources.GUI_LOADING_FUNCTION.LEGEND_RESOURCES);
+            }
+
+            new ViewFrame("Legend Resources", "Legend Resource", "Legend Resources", this.legendResourceRenderer);
         } else if (ae.getSource() == this.viewMantleMenuItem) {
             // Initialize Mantle Data if needed
             if (this.mantleRenderer == null) {
@@ -556,6 +637,13 @@ public class TKViewerGUI extends JFrame implements ActionListener {
             }
 
             new ViewFrame("Mantles", "Mantle", "Mantles", this.mantleRenderer);
+        } else if (ae.getSource() == this.viewMiniMapResourceMenuItem) {
+            // Initialize Mini Map Resource Data if needed
+            if (this.miniMapResourceRenderers == null) {
+                showLoadingDialog("Loading mini map resources, please wait...", Resources.GUI_LOADING_FUNCTION.MINI_MAP_RESOURCES);
+            }
+
+            new ViewFrame("Mini Map Resources", "Mini Map Resource", "Mini Map Resources", this.miniMapResourceRenderers);
         } else if (ae.getSource() == this.viewMobMenuItem) {
             // Initialize Mob Data if needed
             if (this.mobRenderer == null) {
@@ -598,6 +686,13 @@ public class TKViewerGUI extends JFrame implements ActionListener {
             }
 
             new ViewFrame("Swords", "Sword", "Swords", this.swordRenderer);
+        } else if (ae.getSource() == this.viewWorldMapMenuItem) {
+            // Initialize World Map Data if needed
+            if (this.worldMapRenderers == null) {
+                showLoadingDialog("Loading world map resources, please wait...", Resources.GUI_LOADING_FUNCTION.WORLD_MAPS);
+            }
+
+            new ViewFrame("World Maps", "World Map", "World Maps", this.worldMapRenderers);
         } else if (ae.getSource() == this.exitMenuItem) {
             System.exit(0);
         }
@@ -635,6 +730,9 @@ public class TKViewerGUI extends JFrame implements ActionListener {
         if (helmetRenderer != null) {
             helmetRenderer.dispose();
         }
+        if (itemRenderer != null) {
+            itemRenderer.dispose();
+        }
         if (mantleRenderer != null) {
             mantleRenderer.dispose();
         }
@@ -652,6 +750,11 @@ public class TKViewerGUI extends JFrame implements ActionListener {
         }
         if (swordRenderer != null) {
             swordRenderer.dispose();
+        }
+        if (worldMapRenderers != null) {
+            for (Renderer renderer : worldMapRenderers) {
+                renderer.dispose();
+            }
         }
 
         File cacheDirectory = new File(Resources.TKVIEWER_DIRECTORY);

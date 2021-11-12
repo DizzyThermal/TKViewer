@@ -3,10 +3,9 @@ package com.gamemode.tkviewer.utilities;
 import com.gamemode.tkviewer.EffectImage;
 import com.gamemode.tkviewer.Frame;
 import com.gamemode.tkviewer.file_handlers.DatFileHandler;
-import com.gamemode.tkviewer.render.EffectRenderer;
-import com.gamemode.tkviewer.render.MapRenderer;
-import com.gamemode.tkviewer.render.MobRenderer;
-import com.gamemode.tkviewer.render.PartRenderer;
+import com.gamemode.tkviewer.file_handlers.EpfFileHandler;
+import com.gamemode.tkviewer.file_handlers.PalFileHandler;
+import com.gamemode.tkviewer.render.*;
 import com.gamemode.tkviewer.PivotData;
 import com.gamemode.tkviewer.resources.Resources;
 
@@ -14,6 +13,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -146,10 +146,41 @@ public class RenderUtils {
     public static PartRenderer createHelmetRenderer () {
         return new PartRenderer("Helmet");
     }
+    public static TileRenderer createItemRenderer () {
+        DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
+        DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
+
+        EpfFileHandler itemEpf = new EpfFileHandler(miscDat.getFile("ITEM.EPF"));
+        PalFileHandler itemPal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
+
+        return new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(itemEpf)), itemPal, 0);
+    }
+    public static TileRenderer createLegendResourceRenderer () {
+        DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
+        DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
+
+        EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"));
+        PalFileHandler pal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
+
+        return new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0);
+    }
     public static PartRenderer createMantleRenderer () {
         return new PartRenderer("Mantle");
     }
     public static MapRenderer createMapRenderer () { return new MapRenderer(); }
+    public static ArrayList<TileRenderer> createMiniMapResourceRenderers () {
+        ArrayList<TileRenderer> miniMapResourceRenderers = new ArrayList<TileRenderer>();
+        String[] mmrExts = {"PLAYER", "SYMBOL", "TITLE"};
+        DatFileHandler mnmDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "mnm.dat");
+        for (String mmrExt : mmrExts) {
+            EpfFileHandler epf = new EpfFileHandler(mnmDat.getFile("MN" + mmrExt + ".epf"));
+            PalFileHandler pal = new PalFileHandler(mnmDat.getFile("MN" + mmrExt + ".pal"));
+
+            miniMapResourceRenderers.add(new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0));
+        }
+
+        return miniMapResourceRenderers;
+    }
     public static MobRenderer createMobRenderer () {
         return new MobRenderer();
     }
@@ -162,5 +193,18 @@ public class RenderUtils {
     }
     public static PartRenderer createSwordRenderer () {
         return new PartRenderer("Sword");
+    }
+    public static ArrayList<TileRenderer> createWorldMapRenderers () {
+        ArrayList<TileRenderer> worldMapRenderers = new ArrayList<TileRenderer>();
+        String[] wmExts = {"", "2", "3", "4", "kru"};
+        DatFileHandler wmDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "wm.dat");
+        for (String wmExt : wmExts) {
+            EpfFileHandler epf = new EpfFileHandler(wmDat.getFile("WM" + wmExt + ".epf"));
+            PalFileHandler pal = new PalFileHandler(wmDat.getFile("WM" + wmExt + ".pal"));
+
+            worldMapRenderers.add(new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0));
+        }
+
+        return worldMapRenderers;
     }
 }

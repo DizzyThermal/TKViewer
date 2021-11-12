@@ -121,12 +121,16 @@ public class FileUtils {
     public static List<DatFileHandler> getDatFileHandlers(String prefix) {
         List<DatFileHandler> datFileHandlers = new ArrayList<DatFileHandler>();
 
-        File[] datFiles = getDats(Resources.NTK_DATA_DIRECTORY, prefix);
+        File[] datFiles = getDats(prefix);
         for (File datFile : datFiles) {
             datFileHandlers.add(new DatFileHandler(datFile));
         }
 
         return datFileHandlers;
+    }
+
+    public static File[] getDats(String prefix) {
+        return getDats(Resources.NTK_DATA_DIRECTORY, prefix);
     }
 
     public static File[] getDats(String dataDirectory, String prefix) {
