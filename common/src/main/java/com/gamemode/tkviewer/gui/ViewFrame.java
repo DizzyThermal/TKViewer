@@ -22,19 +22,21 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //import javax.swing.*;
 
 public class ViewFrame extends JFrame implements ActionListener {
 
-    Renderer renderer;
+    List<Renderer> renderers;
     String singular;
     String plural;
 
     Image clientIcon;
     JPanel imagePanel;
     JList list;
+    Integer itemCount;
 
     JButton exportButton;
     JRadioButton framesButton;
@@ -56,19 +58,19 @@ public class ViewFrame extends JFrame implements ActionListener {
 
     public ViewFrame(String title, String singular, String plural, EffectRenderer effectRenderer) {
         this(title, singular, plural);
-        this.renderer = effectRenderer;
+        this.renderers = Arrays.asList(effectRenderer);
         this.configure(false);
     }
 
     public ViewFrame(String title, String singular, String plural, MobRenderer mobRenderer) {
         this(title, singular, plural);
-        this.renderer = mobRenderer;
+        this.renderers = Arrays.asList(mobRenderer);
         this.configure(false);
     }
 
     public ViewFrame(String title, String singular, String plural, PartRenderer partRenderer) {
         this(title, singular, plural);
-        this.renderer = partRenderer;
+        this.renderers = Arrays.asList(partRenderer);
         this.configure(false);
     }
 
@@ -76,9 +78,16 @@ public class ViewFrame extends JFrame implements ActionListener {
         this(title, singular, plural, tileRenderer, false);
     }
 
+    public ViewFrame(String title, String singular, String plural, ArrayList<TileRenderer> tileRenderers) {
+        this(title, singular, plural);
+        this.renderers = new ArrayList<Renderer>();
+        this.renderers.addAll(tileRenderers);
+        this.configure(false);
+    }
+
     public ViewFrame(String title, String singular, String plural, TileRenderer tileRenderer, boolean useEpfCount) {
         this(title, singular, plural);
-        this.renderer = tileRenderer;
+        this.renderers = Arrays.asList(tileRenderer);
         this.configure(useEpfCount);
     }
 
@@ -88,9 +97,12 @@ public class ViewFrame extends JFrame implements ActionListener {
         imagePanel.setBackground(Color.GRAY);
         imagePanel.setPreferredSize(new Dimension(600, 520));
 
-        int count = this.renderer.getCount(useEpfCount);
-        String[] items = new String[count];
-        for (int i = 0; i < count; i++) {
+        itemCount = 0;
+        for (Renderer renderer : this.renderers) {
+            itemCount += renderer.getCount(useEpfCount);
+        }
+        String[] items = new String[itemCount];
+        for (int i = 0; i < itemCount; i++) {
             items[i] = this.singular + " " + i;
         }
         list = new JList(items);
@@ -102,11 +114,11 @@ public class ViewFrame extends JFrame implements ActionListener {
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     int idx = list.getSelectedIndex();
-                    if (renderer instanceof MobRenderer && !framesButton.isSelected()) {
+                    if (renderers.get(0) instanceof MobRenderer && !framesButton.isSelected()) {
                         renderMobAnimations(idx);
-                    } else if (renderer instanceof EffectRenderer && !framesButton.isSelected()) {
+                    } else if (renderers.get(0) instanceof EffectRenderer && !framesButton.isSelected()) {
                         renderEffectAnimations(idx);
-                    } else if (renderer instanceof PartRenderer && !framesButton.isSelected()) {
+                    } else if (renderers.get(0) instanceof PartRenderer && !framesButton.isSelected()) {
                         renderPartAnimations(idx);
                     } else {
                         renderFrames(idx);
@@ -172,17 +184,51 @@ public class ViewFrame extends JFrame implements ActionListener {
         imagePanel.repaint();
     }
 
+    public int determineEpfIndex(int index) {
+        int currentIndex = index;
+        int currentRendererIndex = 0;
+        while (true) {
+            if (currentIndex >= this.renderers.get(currentRendererIndex).getCount()) {
+                currentIndex -= this.renderers.get(currentRendererIndex).getCount();
+                currentRendererIndex++;
+            } else {
+                break;
+            }
+        }
+
+        return currentIndex;
+    }
+
+    public int determineRendererIndex(int index) {
+        int currentIndex = index;
+        int currentRendererIndex = 0;
+        while (true) {
+            if (currentIndex >= this.renderers.get(currentRendererIndex).getCount()) {
+                currentIndex -= this.renderers.get(currentRendererIndex).getCount();
+                currentRendererIndex++;
+            } else {
+                break;
+            }
+        }
+
+        return currentRendererIndex;
+    }
+
     public void renderEffectAnimations(int index) {
+        this.renderEffectAnimations(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void renderEffectAnimations(int index, int rendererIndex) {
         clearImagePanel();
 
         // Get Effect Images
-        List<EffectImage> images = ((EffectRenderer) renderer).renderEffect(index);
+        List<EffectImage> images = ((EffectRenderer) renderers.get(rendererIndex)).renderEffect(index);
 
         // Create GIF in Temp Directory
         if (!new File(Resources.EFFECT_ANIMATION_DIRECTORY).exists()) {
             new File(Resources.EFFECT_ANIMATION_DIRECTORY).mkdirs();
         }
-        String gifPath = (Resources.EFFECT_ANIMATION_DIRECTORY + File.separator + "effect-" + index + ".gif");
+        String gifPath = (Resources.EFFECT_ANIMATION_DIRECTORY + File.separator + "effect-" + index + "-" + rendererIndex + ".gif");
         if (!new File(gifPath).exists()) {
             FileUtils.exportGifFromImages(images, gifPath);
         }
@@ -200,6 +246,10 @@ public class ViewFrame extends JFrame implements ActionListener {
     }
 
     public void renderMobAnimations(int index) {
+        this.renderMobAnimations(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void renderMobAnimations(int index, int rendererIndex) {
         clearImagePanel();
 
         // Create Part Animations in Temp Directory
@@ -208,14 +258,14 @@ public class ViewFrame extends JFrame implements ActionListener {
             outputDirectory.mkdirs();
         }
 
-        MobRenderer mobRenderer = ((MobRenderer) renderer);
+        MobRenderer mobRenderer = ((MobRenderer) renderers.get(rendererIndex));
 
         List<String> gifPaths = new ArrayList<String>();
         Mob mob = mobRenderer.mobDna.mobs.get(index);
         for (int i = 0; i < mob.getChunks().size(); i++) {
             List<EffectImage> chunkImages = mobRenderer.renderAnimation(index, i);
             if (chunkImages.size() != 0) {
-                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-.gif";
+                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-" + rendererIndex + ".gif";
                 FileUtils.exportGifFromImages(chunkImages, gifPath);
                 gifPaths.add(gifPath);
             }
@@ -237,6 +287,10 @@ public class ViewFrame extends JFrame implements ActionListener {
     }
 
     public void renderPartAnimations(int index) {
+        this.renderPartAnimations(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void renderPartAnimations(int index, int rendererIndex) {
         clearImagePanel();
 
         // Create Part Animations in Temp Directory
@@ -245,14 +299,14 @@ public class ViewFrame extends JFrame implements ActionListener {
             outputDirectory.mkdirs();
         }
 
-        PartRenderer partRenderer = ((PartRenderer) renderer);
+        PartRenderer partRenderer = ((PartRenderer) renderers.get(rendererIndex));
 
         List<String> gifPaths = new ArrayList<String>();
         Part part = partRenderer.partDsc.parts.get(index);
         for (int i = 0; i < part.getChunks().size(); i++) {
             List<EffectImage> chunkImages = partRenderer.renderAnimation(index, i);
             if (chunkImages.size() != 0) {
-                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-.gif";
+                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-" + rendererIndex + ".gif";
                 FileUtils.exportGifFromImages(chunkImages, gifPath);
                 gifPaths.add(gifPath);
             }
@@ -274,11 +328,15 @@ public class ViewFrame extends JFrame implements ActionListener {
     }
 
     public void renderFrames(int index) {
+        this.renderFrames(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void renderFrames(int index, int rendererIndex) {
         clearImagePanel();
 
-        Image[] images = renderer.getFrames(index);
+        Image[] images = renderers.get(rendererIndex).getFrames(index);
         for (int i = 0; i < images.length; i++) {
-            final int frameIndex = renderer.getFrameIndex(index, i);
+            final int frameIndex = renderers.get(rendererIndex).getFrameIndex(index, i);
             JLabel jLabel = new JLabel(new ImageIcon(images[i]));
             jLabel.addMouseListener(new MouseAdapter() {
                 @Override
@@ -289,7 +347,7 @@ public class ViewFrame extends JFrame implements ActionListener {
                         loadingNotification.setIconImage(clientIcon);
                         JTextPane info = new JTextPane();
                         info.setContentType("text/html");
-                        info.setText(renderer.getInfo(frameIndex));
+                        info.setText(renderers.get(rendererIndex).getInfo(frameIndex));
                         info.setEditable(false);
                         info.setFont(new Font("Consolas", Font.BOLD, 12));
                         loadingNotification.add(info);
@@ -308,14 +366,18 @@ public class ViewFrame extends JFrame implements ActionListener {
     }
 
     public void exportFrames(int index) {
+        this.exportFrames(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void exportFrames(int index, int rendererIndex) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setDialogTitle("Choose export directory");
         int result = fileChooser.showSaveDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            Image[] images = renderer.getFrames(index);
+            Image[] images = renderers.get(rendererIndex).getFrames(index);
             for (int i = 0; i < images.length; i++) {
-                final int frameIndex = renderer.getFrameIndex(index, i);
+                final int frameIndex = renderers.get(rendererIndex).getFrameIndex(index, i);
                 FileUtils.writeBufferedImageToFile(((BufferedImage) images[i]), Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + "-" + frameIndex + ".png").toString());
             }
 
@@ -335,9 +397,9 @@ public class ViewFrame extends JFrame implements ActionListener {
         if (ae.getSource() == this.framesButton) {
             this.renderFrames(listIndex);
         } else if (ae.getSource() == this.animationsButton) {
-            if (renderer instanceof EffectRenderer) {
+            if (renderers.get(0) instanceof EffectRenderer) {
                 this.renderEffectAnimations(listIndex);
-            } else if (renderer instanceof PartRenderer) {
+            } else if (renderers.get(0) instanceof PartRenderer) {
                 this.renderPartAnimations(listIndex);
             }
         } else if (ae.getSource() == this.exportButton) {

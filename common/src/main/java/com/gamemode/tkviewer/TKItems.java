@@ -24,13 +24,13 @@ public class TKItems {
         DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
         DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
 
-        EpfFileHandler itemEpf = new EpfFileHandler(miscDat.getFile("ITEM.EPF"));
-        PalFileHandler itemPal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
+        EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"));
+        PalFileHandler pal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
 
-        TileRenderer tileRenderer = new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(itemEpf)), itemPal, 0);
+        TileRenderer tileRenderer = new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0);
 
-        for (int i = 0; i < itemEpf.frameCount; i++) {
-            FileUtils.writeBufferedImageToFile(tileRenderer.renderTile(i), Paths.get(outputDirectory.toString(), "item-" + i + ".png").toString());
+        for (int i = 0; i < epf.frameCount; i++) {
+            FileUtils.writeBufferedImageToFile(tileRenderer.renderTile(i), Paths.get(outputDirectory.toString(), i + ".png").toString());
         }
     }
 }
