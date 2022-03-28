@@ -12,7 +12,12 @@ import org.apache.commons.io.FilenameUtils;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -231,6 +236,46 @@ public class TKViewerGUI extends JFrame implements ActionListener {
         viewMenu.add(miscMenu);
 
         menuBar.add(viewMenu);
+
+        // Drag-and-Drog Area
+        String text
+                = "<html><div align=center style=\"height: 100%; font-family: Arial; font-size: 18px; font-weight: bold;\">"
+                + "Drop map here";
+
+        DefaultTableModel model = new DefaultTableModel(0, 1);
+        model.addRow(new String[]{text});
+
+        JTable table = new JTable(model);
+        ((JLabel)table.getDefaultRenderer(Object.class)).setHorizontalAlignment(JLabel.CENTER);
+        ((JLabel)table.getDefaultRenderer(Object.class)).setVerticalAlignment(JLabel.CENTER);
+        table.setDragEnabled(true);
+        table.setEnabled(false);
+        table.setRowHeight(430);
+        table.setDropTarget(new DropTarget() {
+            public synchronized void drop(DropTargetDropEvent evt) {
+                try {
+                    evt.acceptDrop(DnDConstants.ACTION_COPY);
+                    java.util.List<File> droppedFiles = (java.util.List<File>)
+                            evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    for (File file : droppedFiles) {
+
+                        String fileExtension = FilenameUtils.getExtension(file.getAbsolutePath());
+
+                        // Render Map
+                        if (fileExtension.equals("cmp") || fileExtension.equals("map")) {
+                            openMap(file);
+                            // Exit after first map (don't do bulk open)
+                            break;
+                        } else {
+                            System.out.println("Cannot open file: " + file.getName());
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        this.add(table);
     }
 
     public Dimension getScaledDimensions(Dimension currentDimensions, Dimension maxDimensions) {
@@ -390,15 +435,137 @@ public class TKViewerGUI extends JFrame implements ActionListener {
         frame.dispose();
     }
 
+    public void openMap(File mapFile) {
+        // Initialize Map Data if needed
+        if (this.mapRenderer == null) {
+            showLoadingDialog("Loading map resources, please wait...", Resources.GUI_LOADING_FUNCTION.MAPS);
+        }
+
+        String fileExtension = FilenameUtils.getExtension(mapFile.getAbsolutePath());
+
+        // Render Map
+        if (fileExtension.equals("cmp") || fileExtension.equals("map")) {
+            JDialog renderloadingNotification = new JDialog(this, "TKViewer", true);
+            renderloadingNotification.setTitle("TKViewer");
+            renderloadingNotification.setIconImage(this.clientIcon);
+
+            renderloadingNotification.add(new JLabel("Rendering " + mapFile.getName() + ", please wait...", SwingConstants.CENTER));
+            renderloadingNotification.setSize(new Dimension(300, 75));
+            renderloadingNotification.setResizable(false);
+            renderloadingNotification.setLocationRelativeTo(this);
+            SwingWorker renderLoadingWorker = new SwingWorker<Boolean, Integer>() {
+                @Override
+                protected Boolean doInBackground() throws Exception {
+                    map = null;
+                    if (fileExtension.equals("cmp")) {
+                        map = mapRenderer.renderMap(new CmpFileHandler(mapFile));
+                    } else if (fileExtension.equals("map")) {
+                        map = mapRenderer.renderMap(new MapFileHandler(mapFile));
+                    }
+
+                    return true;
+                }
+
+                @Override
+                protected void done() {
+                    renderloadingNotification.setVisible(false);
+                    renderloadingNotification.dispose();
+                }
+            };
+            renderLoadingWorker.execute();
+            renderloadingNotification.setVisible(true);
+
+            // Display Map
+            JFrame mapFrame = new JFrame(mapFile.getName());
+            mapFrame.setIconImage(clientIcon);
+            Dimension currentDimensions = new Dimension(map.getWidth(), map.getHeight());
+            Dimension scaledDimensions = getScaledDimensions(currentDimensions, Toolkit.getDefaultToolkit().getScreenSize());
+            scaledMap = null;
+            if (!currentDimensions.equals(scaledDimensions)) {
+                scaledMap = map.getScaledInstance((int) scaledDimensions.getWidth(), (int) scaledDimensions.getHeight(), Image.SCALE_SMOOTH);
+            }
+            JLabel label = new JLabel(new ImageIcon((scaledMap != null) ? scaledMap : map));
+            mapFrame.setSize(this.MAX_IMAGE_DIMENSIONS);
+            mapFrame.add(label);
+            mapFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            mapFrame.pack();
+            mapFrame.setVisible(true);
+
+            // Add Menu
+            JMenuBar imageMenuBar = new JMenuBar();
+            mapFrame.setJMenuBar(imageMenuBar);
+
+            // File > Save (Full Quality)
+            JMenuItem saveMenuItem = new JMenuItem("Save (Full Quality)");
+            saveMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JFileChooser saveFileChooser = new JFileChooser();
+                    saveFileChooser.setDialogTitle("Save Full Quality Map");
+                    saveFileChooser.setSelectedFile(new File(new File(System.getProperty("user.home"), "Desktop"),
+                            FilenameUtils.getBaseName(mapFile.getName()) + ".png"));
+                    int result = saveFileChooser.showDialog(mapFrame, "Save");
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        // Get Map File
+                        saveFile = saveFileChooser.getSelectedFile();
+                        if (FilenameUtils.getExtension(saveFile.getName()).equalsIgnoreCase("xml")) {
+                            // filename is OK as-is
+                        } else {
+                            saveFile = new File(saveFile.getParentFile(), FilenameUtils.getBaseName(saveFile.getName()) + ".png");
+                        }
+
+                        JDialog saveMapLoadingNotification = new JDialog(mapFrame, "TKViewer", true);
+                        saveMapLoadingNotification.setTitle("TKViewer");
+                        saveMapLoadingNotification.setIconImage(clientIcon);
+
+                        saveMapLoadingNotification.add(new JLabel("Saving " + FilenameUtils.getBaseName(saveFile.getName()) + ".png " + ", please wait...", SwingConstants.CENTER));
+                        saveMapLoadingNotification.setSize(new Dimension(300, 75));
+                        saveMapLoadingNotification.setResizable(false);
+                        saveMapLoadingNotification.setLocationRelativeTo(mapFrame);
+                        SwingWorker saveLoadingWorker = new SwingWorker<Boolean, Integer>() {
+                            @Override
+                            protected Boolean doInBackground() throws Exception {
+                                saveMap(saveFile);
+
+                                return true;
+                            }
+
+                            @Override
+                            protected void done() {
+                                saveMapLoadingNotification.setVisible(false);
+                                saveMapLoadingNotification.dispose();
+                            }
+                        };
+                        saveLoadingWorker.execute();
+                        saveMapLoadingNotification.setVisible(true);
+
+                        JOptionPane.showMessageDialog(mapFrame, "Map saved successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
+
+            // File > Close
+            JMenuItem closeMenuItem = new JMenuItem("Close");
+            closeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    scaledMap = null;
+                    closeWindow(mapFrame);
+                }
+            });
+
+            // File
+            JMenu imageFileMenu = new JMenu("File");
+            imageFileMenu.add(saveMenuItem);
+            imageFileMenu.add(closeMenuItem);
+            imageMenuBar.add(imageFileMenu);
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent ae) {
         // Open Map
         if (ae.getSource() == this.openMapMenuItem) {
-            // Initialize Map Data if needed
-            if (this.mapRenderer == null) {
-                showLoadingDialog("Loading map resources, please wait...", Resources.GUI_LOADING_FUNCTION.MAPS);
-            }
-
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Select a NexusTK map");
 
@@ -410,126 +577,7 @@ public class TKViewerGUI extends JFrame implements ActionListener {
 
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
-                // Get Map File
-                File selectedFile = fileChooser.getSelectedFile();
-                String fileExtension = FilenameUtils.getExtension(selectedFile.getAbsolutePath());
-
-                // Render Map
-                if (fileExtension.equals("cmp") || fileExtension.equals("map")) {
-                    JDialog renderloadingNotification = new JDialog(this, "TKViewer", true);
-                    renderloadingNotification.setTitle("TKViewer");
-                    renderloadingNotification.setIconImage(this.clientIcon);
-
-                    renderloadingNotification.add(new JLabel("Rendering " + selectedFile.getName() + ", please wait...", SwingConstants.CENTER));
-                    renderloadingNotification.setSize(new Dimension(300, 75));
-                    renderloadingNotification.setResizable(false);
-                    renderloadingNotification.setLocationRelativeTo(this);
-                    SwingWorker renderLoadingWorker = new SwingWorker<Boolean, Integer>() {
-                        @Override
-                        protected Boolean doInBackground() throws Exception {
-                            map = null;
-                            if (fileExtension.equals("cmp")) {
-                                map = mapRenderer.renderMap(new CmpFileHandler(selectedFile));
-                            } else if (fileExtension.equals("map")) {
-                                map = mapRenderer.renderMap(new MapFileHandler(selectedFile));
-                            }
-
-                            return true;
-                        }
-
-                        @Override
-                        protected void done() {
-                            renderloadingNotification.setVisible(false);
-                            renderloadingNotification.dispose();
-                        }
-                    };
-                    renderLoadingWorker.execute();
-                    renderloadingNotification.setVisible(true);
-                }
-
-                // Display Map
-                JFrame mapFrame = new JFrame(selectedFile.getName());
-                mapFrame.setIconImage(clientIcon);
-                Dimension currentDimensions = new Dimension(map.getWidth(), map.getHeight());
-                Dimension scaledDimensions = getScaledDimensions(currentDimensions, Toolkit.getDefaultToolkit().getScreenSize());
-                if (!currentDimensions.equals(scaledDimensions)) {
-                    scaledMap = map.getScaledInstance((int) scaledDimensions.getWidth(), (int) scaledDimensions.getHeight(), Image.SCALE_SMOOTH);
-                }
-                JLabel label = new JLabel(new ImageIcon((scaledMap != null) ? scaledMap : map));
-                mapFrame.setSize(this.MAX_IMAGE_DIMENSIONS);
-                mapFrame.add(label);
-                mapFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                mapFrame.pack();
-                mapFrame.setVisible(true);
-
-                // Add Menu
-                JMenuBar imageMenuBar = new JMenuBar();
-                mapFrame.setJMenuBar(imageMenuBar);
-
-                // File > Save (Full Quality)
-                JMenuItem saveMenuItem = new JMenuItem("Save (Full Quality)");
-                saveMenuItem.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JFileChooser saveFileChooser = new JFileChooser();
-                        saveFileChooser.setDialogTitle("Save Full Quality Map");
-                        saveFileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-                        saveFileChooser.setSelectedFile(new File(fileChooser.getSelectedFile().getParentFile(), FilenameUtils.getBaseName(fileChooser.getSelectedFile().getName()) + ".png"));
-                        int result = saveFileChooser.showDialog(mapFrame, "Save");
-                        if (result == JFileChooser.APPROVE_OPTION) {
-                            // Get Map File
-                            saveFile = saveFileChooser.getSelectedFile();
-                            if (FilenameUtils.getExtension(saveFile.getName()).equalsIgnoreCase("xml")) {
-                                // filename is OK as-is
-                            } else {
-                                saveFile = new File(saveFile.getParentFile(), FilenameUtils.getBaseName(saveFile.getName()) + ".png");
-                            }
-
-                            JDialog saveMapLoadingNotification = new JDialog(mapFrame, "TKViewer", true);
-                            saveMapLoadingNotification.setTitle("TKViewer");
-                            saveMapLoadingNotification.setIconImage(clientIcon);
-
-                            saveMapLoadingNotification.add(new JLabel("Saving " + FilenameUtils.getBaseName(saveFile.getName()) + ".png " + ", please wait...", SwingConstants.CENTER));
-                            saveMapLoadingNotification.setSize(new Dimension(300, 75));
-                            saveMapLoadingNotification.setResizable(false);
-                            saveMapLoadingNotification.setLocationRelativeTo(mapFrame);
-                            SwingWorker saveLoadingWorker = new SwingWorker<Boolean, Integer>() {
-                                @Override
-                                protected Boolean doInBackground() throws Exception {
-                                    saveMap(saveFile);
-
-                                    return true;
-                                }
-
-                                @Override
-                                protected void done() {
-                                    saveMapLoadingNotification.setVisible(false);
-                                    saveMapLoadingNotification.dispose();
-                                }
-                            };
-                            saveLoadingWorker.execute();
-                            saveMapLoadingNotification.setVisible(true);
-
-                            JOptionPane.showMessageDialog(mapFrame, "Map saved successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    }
-                });
-
-                // File > Close
-                JMenuItem closeMenuItem = new JMenuItem("Close");
-                closeMenuItem.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        scaledMap = null;
-                        closeWindow(mapFrame);
-                    }
-                });
-
-                // File
-                JMenu imageFileMenu = new JMenu("File");
-                imageFileMenu.add(saveMenuItem);
-                imageFileMenu.add(closeMenuItem);
-                imageMenuBar.add(imageFileMenu);
+                this.openMap(fileChooser.getSelectedFile());
             }
         } else if (ae.getSource() == this.editClearCacheMenuItem) {
             Frame[] frames = JFrame.getFrames();
