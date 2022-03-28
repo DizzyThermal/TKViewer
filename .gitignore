@@ -109,7 +109,8 @@ src/main/resources/maps
 src/main/resources/objects
 src/main/resources/tiles
 
-src/main/java/com/gamemode/tkviewer/ignore
+common/src/main/java/com/gamemode/tkviewer/ignore
+tkviewer/src/main/java/com/gamemode/tkviewer/ignore
 
 crash.txt
 game.litidata
