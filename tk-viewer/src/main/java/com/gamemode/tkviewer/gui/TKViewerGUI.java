@@ -2,6 +2,7 @@ package com.gamemode.tkviewer.gui;
 
 import com.gamemode.tkviewer.file_handlers.CmpFileHandler;
 import com.gamemode.tkviewer.file_handlers.MapFileHandler;
+import com.gamemode.tkviewer.file_handlers.MnmFileHandler;
 import com.gamemode.tkviewer.render.*;
 import com.gamemode.tkviewer.render.Renderer;
 import com.gamemode.tkviewer.resources.Resources;
@@ -476,7 +477,16 @@ public class TKViewerGUI extends JFrame implements ActionListener {
             renderloadingNotification.setVisible(true);
 
             // Display Map
-            JFrame mapFrame = new JFrame(mapFile.getName());
+            String frameTitle = mapFile.getName();
+            String mapId = mapFile.getName().replace("TK", "").replace(".cmp", "");
+            Path mnmPath = Paths.get(System.getProperty("user.home"),
+                    "Documents", "NexusTK", "MiniMapImages", mapId + ".mnm");
+            if (mnmPath.toFile().exists()) {
+                MnmFileHandler mnmFile = new MnmFileHandler(mnmPath.toFile());
+                frameTitle += " :: " + mnmFile.mapName;
+                System.out.println(frameTitle);
+            }
+            JFrame mapFrame = new JFrame(frameTitle);
             mapFrame.setIconImage(clientIcon);
             Dimension currentDimensions = new Dimension(map.getWidth(), map.getHeight());
             Dimension scaledDimensions = getScaledDimensions(currentDimensions, Toolkit.getDefaultToolkit().getScreenSize());

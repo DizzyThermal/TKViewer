@@ -351,23 +351,41 @@ public abstract class FileHandler {
 
         Integer returnShort = (int)this.bytes.getShort();
 
+        this.filePosition += 4;
 
         if (unsigned) {
             return (((int) returnShort & 0xFFFF));
         }
 
-        this.filePosition += 4;
         return returnShort;
     }
 
     public String readString(int length, boolean littleEndian) {
+        return readString(length, littleEndian, false);
+    }
+
+    public String readString(int length, boolean littleEndian, boolean utf16) {
+        // Double the length if it's UTF-16
+        if (utf16) {
+            length *= 2;
+        }
+
         // Uses this.readBytes, no need to check for this.file/this.bytes
         ByteBuffer byteBuffer = this.readBytes(length, littleEndian);
         if (littleEndian) {
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         }
 
-        return new String(byteBuffer.array());
+        StringBuilder stringBuilder = new StringBuilder();
+        byte[] bytes = byteBuffer.array();
+        for (int i = 0; i < bytes.length; i++) {
+            if (utf16 && (i % 2) != 0) {
+                continue;
+            }
+            stringBuilder.append((char)bytes[i]);
+        }
+
+        return stringBuilder.toString();
     }
 
     public void close() {
