@@ -351,7 +351,7 @@ public abstract class FileHandler {
 
         Integer returnShort = (int)this.bytes.getShort();
 
-        this.filePosition += 4;
+        this.filePosition += 2;
 
         if (unsigned) {
             return (((int) returnShort & 0xFFFF));
