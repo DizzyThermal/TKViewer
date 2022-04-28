@@ -9,27 +9,39 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DatFileHandler extends FileHandler {
-
+    boolean isBaram;
+    public String filePath;
     public long fileCount;
     public Map<String, ByteBuffer> files = new LinkedHashMap<>();
 
-    public DatFileHandler(Path filepath) { this(filepath.toFile()); }
+    public DatFileHandler(Path filepath) {
+        this(filepath.toFile(), false);
+    }
 
     public DatFileHandler(String filepath) {
-        this(new File(filepath));
+        this(new File(filepath), false);
+    }
+
+    public DatFileHandler(String filepath, boolean isBaram) {
+        this(new File(filepath), isBaram);
     }
 
     public DatFileHandler(File file) {
-        super(file);
+        this(file, false);
+    }
 
+    public DatFileHandler(File file, boolean isBaram) {
+        super(file);
+        this.isBaram = isBaram;
+        this.filePath = this.file.getPath();
         this.fileCount = this.readInt(true, true) - 1;
         for (int i = 0; i < this.fileCount; i++) {
             long dataLocation = this.readInt(true, true);
-            int totalRead = 13;
+            int totalRead = isBaram ? 32 : 13;
             int readLength = lengthUntilZero();
             String fileName = this.readString(readLength, true);
             if (readLength < totalRead) {
-                this.seek(totalRead-readLength, false);
+                this.seek(totalRead - readLength, false);
             }
             long nextFileLocation = this.filePosition;
             long fileSize = this.readInt(true, true) - dataLocation;
@@ -145,8 +157,8 @@ public class DatFileHandler extends FileHandler {
     private int lengthUntilZero() {
         long currentPosition = this.filePosition;
         int length = 0;
-        while(true) {
-            byte b = (byte)this.readSignedByte();
+        while (true) {
+            byte b = (byte) this.readSignedByte();
             if (b != 0) {
                 length++;
             } else {

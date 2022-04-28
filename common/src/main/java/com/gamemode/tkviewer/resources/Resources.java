@@ -66,8 +66,10 @@ public class Resources {
     public static final int REQUIRED_SWORD_FILES = 6;
 
     public static final String PROGRAM_FILES_X86 = "C:\\Program Files (x86)";
+    public static final String C = "C:";
 
     public static final String NTK_DATA_DIRECTORY = PROGRAM_FILES_X86 + File.separator + "KRU\\NexusTK\\Data";
+    public static final String BARAM_DATA_DIRECTORY = C + File.separator + "Nexon\\Kingdom of the Winds\\Data";
     public static final String NTK_MAP_DIRECTORY = System.getProperty("user.home") + File.separator + "Documents" + File.separator +  "NexusTK"  + File.separator + "Maps";
     public static final String TKVIEWER_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "TKViewer";
     public static final String DATA_DIRECTORY = TKVIEWER_DIRECTORY + File.separator + "Data";

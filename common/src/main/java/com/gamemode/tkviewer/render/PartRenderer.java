@@ -105,7 +105,7 @@ public class PartRenderer implements Renderer {
         SWING_DOWN_1H_2,            // 65
         SWING_LEFT_1H_2             // 66
     }
-    
+
     Map<Integer, BufferedImage> parts;
 
     public List<EpfFileHandler> partEpfs;
@@ -114,15 +114,19 @@ public class PartRenderer implements Renderer {
     public int manualPaletteIndex = 0;
 
     public PartRenderer(String partName) {
-        this(partName, new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat"));
+        this(partName, new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat"), false);
     }
 
-    public PartRenderer(String partName, DatFileHandler charDat) {
+    public PartRenderer(String partName, String dataDirectory) {
+        this(partName, new DatFileHandler(dataDirectory + File.separator + "char.dat", dataDirectory == Resources.BARAM_DATA_DIRECTORY), dataDirectory == Resources.BARAM_DATA_DIRECTORY);
+    }
+
+    public PartRenderer(String partName, DatFileHandler charDat, boolean isBaram) {
         parts = new HashMap<Integer, BufferedImage>();
 
-        this.partEpfs = FileUtils.createEpfsFromDats(partName);
+        this.partEpfs = FileUtils.createEpfsFromDats(partName, isBaram);
         this.partPal = new PalFileHandler(charDat.getFile(partName + ".pal"));
-        this.partDsc = new DscFileHandler(charDat.getFile(partName + ".dsc"));
+        this.partDsc = new DscFileHandler(charDat.getFile(partName + ".dsc"), isBaram);
     }
 
     public PartRenderer(List<EpfFileHandler> partEpfs, PalFileHandler partPal, DscFileHandler partDsc) {
@@ -140,83 +144,83 @@ public class PartRenderer implements Renderer {
         String palName = null;
         String dscName = null;
 
-        switch(rendererType) {
+        switch (rendererType) {
 
             case BODIES:
                 epfPrefix = "Body";
                 palName = "Body.pal";
-                dscName ="Body.dsc";
+                dscName = "Body.dsc";
                 break;
 
             case BOWS:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case COATS:
                 epfPrefix = "Coat";
                 palName = "Coat.pal";
-                dscName ="Coat.dsc";
+                dscName = "Coat.dsc";
                 break;
 
             case FACES:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Face.dsc";
+                dscName = "Face.dsc";
                 break;
 
             case FANS:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case HAIR:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case HELMETS:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case MANTLES:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case SPEARS:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case SHOES:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case SHIELDS:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
 
             case SWORDS:
                 epfPrefix = "Bow";
                 palName = "Bow.pal";
-                dscName ="Bow.dsc";
+                dscName = "Bow.dsc";
                 break;
         }
         this.partEpfs = FileUtils.createEpfsFromFiles(FileUtils.getEpfs(tkDataDirectory, Objects.requireNonNull(epfPrefix)));
         this.partPal = new PalFileHandler(tkDataDirectory + File.separator + Objects.requireNonNull(palName));
-        this.partDsc = new DscFileHandler(tkDataDirectory + File.separator + Objects.requireNonNull(dscName));
+        this.partDsc = new DscFileHandler(tkDataDirectory + File.separator + Objects.requireNonNull(dscName), false);
 
     }
 
@@ -226,6 +230,24 @@ public class PartRenderer implements Renderer {
         this.partEpfs = partEpfs;
         this.partPal = partPal;
         this.manualPaletteIndex = manualPaletteIndex;
+    }
+
+    public String getEpfNameForFrame( int frameOffset) {
+        long frameIndex = this.partDsc.parts.get(frameOffset).getFrameIndex();
+
+        int epfIndex = 0;
+
+        int frameCount = 0;
+        for (int i = 0; i < partEpfs.size(); i++) {
+            if ((frameIndex + frameOffset) < (frameCount + this.partEpfs.get(i).frameCount)) {
+                epfIndex = i;
+                break;
+            }
+
+            frameCount += this.partEpfs.get(i).frameCount;
+        }
+
+        return this.partEpfs.get(epfIndex).filePath;
     }
 
     public Frame getFrame(int frameIndex, int frameOffset) {
@@ -325,12 +347,12 @@ public class PartRenderer implements Renderer {
             BufferedImage canvasImage = new BufferedImage(pivotData.getCanvasWidth(), pivotData.getCanvasHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D graphicsObject = canvasImage.createGraphics();
             PartBlock block = chunk.getBlocks().get(i);
-            int frameIndex = (int)part.getFrameIndex();
+            int frameIndex = (int) part.getFrameIndex();
             int frameOffset = block.getFrameOffset();
 
             int paletteIndex = manualPaletteIndex;
             if (paletteIndex < 0) {
-                paletteIndex = (int)part.getPaletteId();
+                paletteIndex = (int) part.getPaletteId();
             }
             BufferedImage partImage = this.renderPart(partIndex, frameIndex, frameOffset, paletteIndex);
             Frame frame = FileUtils.getFrameFromEpfs(frameIndex + frameOffset, partEpfs);
@@ -340,7 +362,7 @@ public class PartRenderer implements Renderer {
 
             int frameLeft = pivotData.getPivotX() + frame.getLeft();
             int frameTop = pivotData.getPivotY() + frame.getTop();
-            graphicsObject.drawImage(partImage,null, frameLeft, frameTop);
+            graphicsObject.drawImage(partImage, null, frameLeft, frameTop);
 
             int defaultDuration = 64 * 16; // (ms)
             images.add(new EffectImage(canvasImage, defaultDuration, pivotData, frame));
@@ -375,7 +397,7 @@ public class PartRenderer implements Renderer {
 
         for (int i = 0; i < this.partDsc.partCount; i++) {
             Part part = this.partDsc.parts.get(i);
-            Frame frame = getFrame((int)part.getFrameIndex(), frameOffset);
+            Frame frame = getFrame((int) part.getFrameIndex(), frameOffset);
 
             if (frame.getWidth() > returnDim.getWidth()) {
                 returnDim.setSize(frame.getWidth(), returnDim.getHeight());
@@ -393,7 +415,7 @@ public class PartRenderer implements Renderer {
         int output = 0;
 
         if (!useEpfCount) {
-            output = (int)this.partDsc.partCount;
+            output = (int) this.partDsc.partCount;
         } else {
             for (EpfFileHandler epf : this.partEpfs) {
                 output += epf.frameCount;
@@ -410,12 +432,12 @@ public class PartRenderer implements Renderer {
 
     @Override
     public Image[] getFrames(int index) {
-        Image[] frames = new Image[(int)this.partDsc.parts.get(index).getFrameCount()];
+        Image[] frames = new Image[(int) this.partDsc.parts.get(index).getFrameCount()];
         for (int i = 0; i < this.partDsc.parts.get(index).getFrameCount(); i++) {
             frames[i] = this.renderPart(index,
-                    (int)this.partDsc.parts.get(index).getFrameIndex(),
+                    (int) this.partDsc.parts.get(index).getFrameIndex(),
                     i,
-                    (int)this.partDsc.parts.get(index).getPaletteId());
+                    (int) this.partDsc.parts.get(index).getPaletteId());
         }
 
         return frames;
@@ -423,7 +445,7 @@ public class PartRenderer implements Renderer {
 
     @Override
     public int getFrameIndex(int index, int offset) {
-        return (int)this.partDsc.parts.get(index).getFrameIndex() + offset;
+        return (int) this.partDsc.parts.get(index).getFrameIndex() + offset;
     }
 
     @Override

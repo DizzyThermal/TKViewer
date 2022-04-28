@@ -18,21 +18,21 @@ public class DscFileHandler extends FileHandler {
 
     public List<Part> parts;
 
-    public DscFileHandler(String filepath) {
-        this(new File(filepath));
+    public DscFileHandler(String filepath, boolean isBaram) {
+        this(new File(filepath), isBaram);
     }
 
-    public DscFileHandler(ByteBuffer bytes) {
+    public DscFileHandler(ByteBuffer bytes, boolean isBaram) {
         super(bytes);
-        init();
+        init(isBaram);
     }
 
-    public DscFileHandler(File file) {
+    public DscFileHandler(File file, boolean isBaram) {
         super(file);
-        init();
+        init(isBaram);
     }
 
-    public void init() {
+    public void init(boolean isBaram) {
         // Seek past header
         this.seek(DscFileHandler.HEADER, true);
 
@@ -40,11 +40,12 @@ public class DscFileHandler extends FileHandler {
 
         this.parts = new ArrayList<Part>();
         for (int i = 0; i < this.partCount; i++) {
+
             long id = this.readInt(true, true);
             long paletteIndex = this.readInt(true, true);
 
-            long frameIndex = this.readInt(true,true);
-            long frameCount = this.readInt(true,true);
+            long frameIndex = this.readInt(true, true);
+            long frameCount = this.readInt(true, true);
 
             // Unknown Flags
             int partUnknown1 = this.readShort(true, false);
@@ -75,11 +76,16 @@ public class DscFileHandler extends FileHandler {
                     int unknownId5 = this.readUnsignedByte();
                     int unknownId6 = this.readUnsignedByte();
                     int unknownId7 = this.readUnsignedByte();
+                    if (isBaram) {
+                        int unknownId8 = this.readUnsignedByte();
+                        int unknownId9 = this.readUnsignedByte();
+                        int unknownId10 = this.readUnsignedByte();
+                    }
                     PartBlock block = new PartBlock(frameOffset, unknownId1, unknownId2, unknownId3, unknownId4,
                             unknownId5, unknownId6, unknownId7);
                     partBlocks.add(block);
                 }
-                PartChunk chunk = new PartChunk((int)chunkNumber, (int)chunkUnknown2, partBlocks);
+                PartChunk chunk = new PartChunk((int) chunkNumber, (int) chunkUnknown2, partBlocks);
                 partChunks.add(chunk);
             }
 

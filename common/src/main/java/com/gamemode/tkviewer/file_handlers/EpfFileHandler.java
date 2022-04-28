@@ -23,23 +23,32 @@ public class EpfFileHandler extends FileHandler {
     public int bitBLT;
     public long pixelDataLength;
     public Map<Integer, Frame> frames_map;
+    public String filePath;
 
-    public EpfFileHandler(String filepath) {
-        this(new File(filepath), false);
-    }
-    public EpfFileHandler(String filepath, boolean loadAllFrames) {
-        this(new File(filepath), loadAllFrames);
+    public EpfFileHandler(String filePath) {
+        this(new File(filePath), false);
+        this.filePath = filePath;
     }
 
-    public EpfFileHandler(ByteBuffer bytes) { this(bytes, false); }
-    public EpfFileHandler(ByteBuffer bytes, boolean loadAllFrames) {
+    public EpfFileHandler(String filePath, boolean loadAllFrames) {
+        this(new File(filePath), loadAllFrames);
+        this.filePath = filePath;
+    }
+
+    public EpfFileHandler(ByteBuffer bytes, String filePath) {
+        this(bytes, filePath, false);
+    }
+
+    public EpfFileHandler(ByteBuffer bytes, String filePath, boolean loadAllFrames) {
         super(bytes);
         init(loadAllFrames);
+        this.filePath = filePath;
     }
 
     public EpfFileHandler(File file) {
         this(file, false);
     }
+
     public EpfFileHandler(File file, boolean loadAllFrames) {
         super(file);
         init(loadAllFrames);
@@ -83,6 +92,7 @@ public class EpfFileHandler extends FileHandler {
         this.seek(HEADER_SIZE + pixelDataOffset, true);
         ByteBuffer rawPixelData = this.readBytes((width * height), true);
         dataSize += rawPixelData.capacity();
+
         Stencil stencil = new Stencil(this, stencilDataOffset, new Dimension(width, height));
         ByteBuffer rawStencilData = stencil.toByteBuffer();
         dataSize += rawStencilData.capacity();
@@ -112,11 +122,11 @@ public class EpfFileHandler extends FileHandler {
         epfBytes.order(ByteOrder.LITTLE_ENDIAN);
 
         // Header
-        epfBytes.putShort((short)this.frameCount);
-        epfBytes.putShort((short)this.width);
-        epfBytes.putShort((short)this.height);
-        epfBytes.putShort((short)this.bitBLT);
-        epfBytes.putInt((int)this.pixelDataLength);
+        epfBytes.putShort((short) this.frameCount);
+        epfBytes.putShort((short) this.width);
+        epfBytes.putShort((short) this.height);
+        epfBytes.putShort((short) this.bitBLT);
+        epfBytes.putInt((int) this.pixelDataLength);
 
         // Frames (Pixel Data)
         for (int i = 0; i < this.frames_map.size(); i++) {
@@ -129,12 +139,12 @@ public class EpfFileHandler extends FileHandler {
         for (int i = 0; i < this.frames_map.size(); i++) {
             Frame frame = this.frames_map.get(i);
 
-            epfBytes.putShort((short)frame.getTop());
-            epfBytes.putShort((short)frame.getLeft());
-            epfBytes.putShort((short)frame.getBottom());
-            epfBytes.putShort((short)frame.getRight());
-            epfBytes.putInt((int)frame.getPixelDataOffset());
-            epfBytes.putInt((int)frame.getStencilDataOffset());
+            epfBytes.putShort((short) frame.getTop());
+            epfBytes.putShort((short) frame.getLeft());
+            epfBytes.putShort((short) frame.getBottom());
+            epfBytes.putShort((short) frame.getRight());
+            epfBytes.putInt((int) frame.getPixelDataOffset());
+            epfBytes.putInt((int) frame.getStencilDataOffset());
         }
 
         return epfBytes;

@@ -125,6 +125,15 @@ public class RenderUtils {
         return newImage;
     }
 
+    public static PartRenderer createRenderer(String fileSubstring, String dataDirectory){
+        return new PartRenderer(fileSubstring, dataDirectory);
+    }
+    public static PartRenderer createBaramBodyRenderer () {
+        return new PartRenderer("Body", Resources.BARAM_DATA_DIRECTORY);
+    }
+    public static PartRenderer createBaramClassicBodyRenderer () {
+        return new PartRenderer("C_Body", Resources.BARAM_DATA_DIRECTORY);
+    }
     public static PartRenderer createBodyRenderer () { return new PartRenderer("Body"); }
     public static PartRenderer createBowRenderer () {
         return new PartRenderer("Bow");
@@ -150,7 +159,7 @@ public class RenderUtils {
         DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
         DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
 
-        EpfFileHandler itemEpf = new EpfFileHandler(miscDat.getFile("ITEM.EPF"));
+        EpfFileHandler itemEpf = new EpfFileHandler(miscDat.getFile("ITEM.EPF"),"ITEM.EPF");
         PalFileHandler itemPal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
 
         return new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(itemEpf)), itemPal, 0);
@@ -159,7 +168,7 @@ public class RenderUtils {
         DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
         DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
 
-        EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"));
+        EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"),"SYMBOLS.EPF");
         PalFileHandler pal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
 
         return new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0);
@@ -173,7 +182,7 @@ public class RenderUtils {
         String[] mmrExts = {"PLAYER", "SYMBOL", "TITLE"};
         DatFileHandler mnmDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "mnm.dat");
         for (String mmrExt : mmrExts) {
-            EpfFileHandler epf = new EpfFileHandler(mnmDat.getFile("MN" + mmrExt + ".epf"));
+            EpfFileHandler epf = new EpfFileHandler(mnmDat.getFile("MN" + mmrExt + ".epf"),"MN" + mmrExt + ".epf");
             PalFileHandler pal = new PalFileHandler(mnmDat.getFile("MN" + mmrExt + ".pal"));
 
             miniMapResourceRenderers.add(new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0));
@@ -199,7 +208,7 @@ public class RenderUtils {
         String[] wmExts = {"", "2", "3", "4", "kru"};
         DatFileHandler wmDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "wm.dat");
         for (String wmExt : wmExts) {
-            EpfFileHandler epf = new EpfFileHandler(wmDat.getFile("WM" + wmExt + ".epf"));
+            EpfFileHandler epf = new EpfFileHandler(wmDat.getFile("WM" + wmExt + ".epf"),"WM" + wmExt + ".epf");
             PalFileHandler pal = new PalFileHandler(wmDat.getFile("WM" + wmExt + ".pal"));
 
             worldMapRenderers.add(new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0));
