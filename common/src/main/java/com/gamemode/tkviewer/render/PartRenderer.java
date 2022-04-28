@@ -118,17 +118,17 @@ public class PartRenderer implements Renderer {
     }
 
     public PartRenderer(String partName, String dataDirectory) {
-        this(partName, new DatFileHandler(dataDirectory + File.separator + "char.dat", dataDirectory == Resources.BARAM_DATA_DIRECTORY),dataDirectory == Resources.BARAM_DATA_DIRECTORY);
+        this(partName, new DatFileHandler(dataDirectory + File.separator + "char.dat", dataDirectory == Resources.BARAM_DATA_DIRECTORY), dataDirectory == Resources.BARAM_DATA_DIRECTORY);
     }
 
     public PartRenderer(String partName, DatFileHandler charDat, boolean isBaram) {
         parts = new HashMap<Integer, BufferedImage>();
 
-        System.out.println("Creating EPFs from partName: "+partName);
+        System.out.println("Creating EPFs from partName: " + partName);
         this.partEpfs = FileUtils.createEpfsFromDats(partName, isBaram);
-        System.out.println("Creating PALs from partName: "+partName);
+        System.out.println("Creating PALs from partName: " + partName);
         this.partPal = new PalFileHandler(charDat.getFile(partName + ".pal"));
-        System.out.println("Creating DSCs from partName: "+partName);
+        System.out.println("Creating DSCs from partName: " + partName);
         this.partDsc = new DscFileHandler(charDat.getFile(partName + ".dsc"), isBaram);
     }
 
@@ -233,6 +233,24 @@ public class PartRenderer implements Renderer {
         this.partEpfs = partEpfs;
         this.partPal = partPal;
         this.manualPaletteIndex = manualPaletteIndex;
+    }
+
+    public String getEpfNameForFrame( int frameOffset) {
+        long frameIndex = this.partDsc.parts.get(frameOffset).getFrameIndex();
+
+        int epfIndex = 0;
+
+        int frameCount = 0;
+        for (int i = 0; i < partEpfs.size(); i++) {
+            if ((frameIndex + frameOffset) < (frameCount + this.partEpfs.get(i).frameCount)) {
+                epfIndex = i;
+                break;
+            }
+
+            frameCount += this.partEpfs.get(i).frameCount;
+        }
+
+        return this.partEpfs.get(epfIndex).filePath;
     }
 
     public Frame getFrame(int frameIndex, int frameOffset) {

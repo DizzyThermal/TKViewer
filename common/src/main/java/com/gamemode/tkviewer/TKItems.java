@@ -24,7 +24,7 @@ public class TKItems {
         DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
         DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
 
-        EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"));
+        EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"),"SYMBOLS.EPF");
         PalFileHandler pal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
 
         TileRenderer tileRenderer = new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0);

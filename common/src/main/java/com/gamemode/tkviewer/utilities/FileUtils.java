@@ -45,7 +45,7 @@ public class FileUtils {
         List<DatFileHandler> datFileHandlers = getDatFileHandlers(datPrefix, isBaram);
         for (int i = 0; i < datFileHandlers.size(); i++) {
             ByteBuffer b = datFileHandlers.get(i).getFile(epfPrefix + i + "." + extension);
-            EpfFileHandler epf = new EpfFileHandler(b);
+            EpfFileHandler epf = new EpfFileHandler(b, epfPrefix + i + "." + extension);
             epfFileHandlers.add(epf);
         }
 
