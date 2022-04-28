@@ -53,7 +53,7 @@ public class MobRenderer implements Renderer {
 
         mobs = new HashMap<Integer, BufferedImage>();
 
-        this.mobEpfs = FileUtils.createEpfsFromDats("mon");
+        this.mobEpfs = FileUtils.createEpfsFromDats("mon", false);
         this.mobPal = new PalFileHandler(monDat.getFile("monster.pal"));
         this.mobDna = new DnaFileHandler(monDat.getFile("monster.dna"));
     }

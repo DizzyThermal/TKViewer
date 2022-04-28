@@ -31,16 +31,18 @@ public class FileUtils {
     public FileUtils() {
     }
 
-    public static List<EpfFileHandler> createEpfsFromDats(String epfPrefix) {
-        return createEpfsFromDats(epfPrefix, epfPrefix,"epf");
+    public static List<EpfFileHandler> createEpfsFromDats(String epfPrefix, boolean isBaram) {
+        return createEpfsFromDats(epfPrefix, epfPrefix, "epf", isBaram);
     }
-    public static List<EpfFileHandler> createEpfsFromDats(String epfPrefix, String datPrefix) {
-        return createEpfsFromDats(epfPrefix, datPrefix, "epf");
+
+    public static List<EpfFileHandler> createEpfsFromDats(String epfPrefix, String datPrefix, boolean isBaram) {
+        return createEpfsFromDats(epfPrefix, datPrefix, "epf", isBaram);
     }
-    public static List<EpfFileHandler> createEpfsFromDats(String epfPrefix, String datPrefix, String extension) {
+
+    public static List<EpfFileHandler> createEpfsFromDats(String epfPrefix, String datPrefix, String extension, boolean isBaram) {
         List<EpfFileHandler> epfFileHandlers = new ArrayList<EpfFileHandler>();
 
-        List<DatFileHandler> datFileHandlers = getDatFileHandlers(datPrefix);
+        List<DatFileHandler> datFileHandlers = getDatFileHandlers(datPrefix, isBaram);
         for (int i = 0; i < datFileHandlers.size(); i++) {
             ByteBuffer b = datFileHandlers.get(i).getFile(epfPrefix + i + "." + extension);
             EpfFileHandler epf = new EpfFileHandler(b);
@@ -118,18 +120,21 @@ public class FileUtils {
         return files;
     }
 
-    public static List<DatFileHandler> getDatFileHandlers(String prefix) {
+    public static List<DatFileHandler> getDatFileHandlers(String prefix, boolean isBaram) {
         List<DatFileHandler> datFileHandlers = new ArrayList<DatFileHandler>();
 
-        File[] datFiles = getDats(prefix);
+        File[] datFiles = getDats(prefix, isBaram);
         for (File datFile : datFiles) {
-            datFileHandlers.add(new DatFileHandler(datFile));
+            datFileHandlers.add(new DatFileHandler(datFile, isBaram));
         }
 
         return datFileHandlers;
     }
 
-    public static File[] getDats(String prefix) {
+    public static File[] getDats(String prefix, boolean isBaram) {
+        if (isBaram) {
+            return getDats(Resources.BARAM_DATA_DIRECTORY, prefix);
+        }
         return getDats(Resources.NTK_DATA_DIRECTORY, prefix);
     }
 

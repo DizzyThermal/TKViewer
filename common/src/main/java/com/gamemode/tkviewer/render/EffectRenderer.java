@@ -30,7 +30,7 @@ public class EffectRenderer implements Renderer {
     public EffectRenderer() {
         DatFileHandler efxDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "efx.dat");
 
-        this.effectEpfs = FileUtils.createEpfsFromDats("EFFECT", "efx");
+        this.effectEpfs = FileUtils.createEpfsFromDats("EFFECT", "efx", false);
         this.effectPal = new PalFileHandler(efxDat.getFile("EFFECT.PAL"));
         this.effectEfxTbl = new EfxTblFileHandler(efxDat.getFile("effect.tbl"));
         this.effectFrm = new FrmFileHandler(efxDat.getFile("EFFECT.FRM"));

@@ -125,6 +125,28 @@ public class RenderUtils {
         return newImage;
     }
 
+    public static DatFileHandler createDatFileHandler(){
+        String filePath = Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat";
+        System.out.println("Creating DatFileHandler for file: "+filePath);
+        DatFileHandler datFileHandler= new DatFileHandler(filePath,false);
+        System.out.println("Done.\n");
+        return datFileHandler;
+    }
+    public static DatFileHandler createBaramDatFileHandler(){
+        String filePath = Resources.BARAM_DATA_DIRECTORY + File.separator + "char.dat";
+        System.out.println("Creating DatFileHandler for file: "+filePath);
+        DatFileHandler datFileHandler= new DatFileHandler(filePath,true);
+        System.out.println("Done.\n");
+        return datFileHandler;
+    }
+    public static PartRenderer createBaramBodyRenderer () {
+        System.out.println("Creating baram body renderer");
+        return new PartRenderer("Body", Resources.BARAM_DATA_DIRECTORY);
+    }
+    public static PartRenderer createBaramClassicBodyRenderer () {
+        System.out.println("Creating baram classic body renderer");
+        return new PartRenderer("C_Body", Resources.BARAM_DATA_DIRECTORY);
+    }
     public static PartRenderer createBodyRenderer () { return new PartRenderer("Body"); }
     public static PartRenderer createBowRenderer () {
         return new PartRenderer("Bow");

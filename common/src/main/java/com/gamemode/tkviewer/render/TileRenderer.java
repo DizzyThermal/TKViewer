@@ -37,7 +37,7 @@ public class TileRenderer implements Renderer {
 
         tiles = new HashMap<Integer, BufferedImage>();
 
-        this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix);
+        this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix, false);
         this.tilePal = new PalFileHandler(tileDat.getFile(palName));
         this.tileTbl = new TileTblFileHandler(tileDat.getFile(tblName));
     }
@@ -47,7 +47,7 @@ public class TileRenderer implements Renderer {
 
         tiles = new HashMap<Integer, BufferedImage>();
 
-        this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix);
+        this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix, false);
         this.tilePal = new PalFileHandler(tileDat.getFile(palName));
         this.manualPaletteIndex = manualPaletteIndex;
     }
