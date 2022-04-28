@@ -34,27 +34,18 @@ public class DscFileHandler extends FileHandler {
 
     public void init(boolean isBaram) {
         // Seek past header
-//        System.out.println("Initializing DSC at index: " + this.filePosition);
         this.seek(DscFileHandler.HEADER, true);
 
-        long partCountIndex = this.filePosition;
         this.partCount = this.readInt(true, true);
-//        System.out.println("  partCount(" + partCountIndex + "): " + partCount);
 
         this.parts = new ArrayList<Part>();
         for (int i = 0; i < this.partCount; i++) {
-            long partIndex = this.filePosition;
-//            System.out.println("part " + i + " begins at " + partIndex);
 
             long id = this.readInt(true, true);
             long paletteIndex = this.readInt(true, true);
 
-            long frameIndexIndex = this.filePosition;
             long frameIndex = this.readInt(true, true);
-//            System.out.println("  frameIndex(" + frameIndexIndex + "): " + frameIndex);
-            long frameCountIndex = this.filePosition;
             long frameCount = this.readInt(true, true);
-//            System.out.println("  frameCount(" + frameCountIndex + "): " + frameCount);
 
             // Unknown Flags
             int partUnknown1 = this.readShort(true, false);
@@ -66,21 +57,15 @@ public class DscFileHandler extends FileHandler {
             int partUnknown7 = this.readShort(true, false);
 
             // Number of Chunks
-            long chunkCountIndex = this.filePosition;
             long chunkCount = this.readInt(true, true);
-//            System.out.println("  chunkCount(" + chunkCountIndex + "): " + chunkCount);
             List<PartChunk> partChunks = new ArrayList<>();
             for (int j = 0; j < chunkCount; j++) {
-                long chunkIndex = this.filePosition;
-//                System.out.println("    chunk " + j + " begins at " + chunkIndex);
                 // Two Unknown Ints
                 long chunkNumber = this.readInt(true, false);
                 long chunkUnknown2 = this.readInt(true, false);
 
                 // Number of Blocks
-                long blockCountIndex = this.filePosition;
                 long blockCount = this.readInt(true, true);
-//                System.out.println("      blockCount(" + blockCountIndex + "): " + blockCount);
                 List<PartBlock> partBlocks = new ArrayList<>();
                 for (int k = 0; k < blockCount; k++) {
                     int frameOffset = this.readShort(true, false);

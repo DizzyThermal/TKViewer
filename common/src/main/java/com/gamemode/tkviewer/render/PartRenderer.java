@@ -124,11 +124,8 @@ public class PartRenderer implements Renderer {
     public PartRenderer(String partName, DatFileHandler charDat, boolean isBaram) {
         parts = new HashMap<Integer, BufferedImage>();
 
-        System.out.println("Creating EPFs from partName: " + partName);
         this.partEpfs = FileUtils.createEpfsFromDats(partName, isBaram);
-        System.out.println("Creating PALs from partName: " + partName);
         this.partPal = new PalFileHandler(charDat.getFile(partName + ".pal"));
-        System.out.println("Creating DSCs from partName: " + partName);
         this.partDsc = new DscFileHandler(charDat.getFile(partName + ".dsc"), isBaram);
     }
 

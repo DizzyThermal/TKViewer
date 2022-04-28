@@ -64,12 +64,6 @@ public class EpfFileHandler extends FileHandler {
         this.bitBLT = this.readShort(true, false);
         this.pixelDataLength = this.readInt(true, true);
 
-//        System.out.println("Read EPF metadata:");
-//        System.out.println("  frameCount: " + this.frameCount + ",");
-//        System.out.println("  width: " + this.width + ",");
-//        System.out.println("  height: " + this.height + ",");
-//        System.out.println("  bitBLT: " + this.bitBLT + ",");
-//        System.out.println("  pixelDataLength: " + this.pixelDataLength);
         if (loadAllFrames) {
             this.loadAllFrames();
         }
@@ -82,8 +76,6 @@ public class EpfFileHandler extends FileHandler {
         }
 
         // Seek to Frame and read
-//        System.out.println("Gathering metadata for frame at index " + index + ": ");
-//        System.out.println("  Seeking to: " + (HEADER_SIZE + this.pixelDataLength + (index * FRAME_SIZE)));
         this.seek((HEADER_SIZE + this.pixelDataLength + (index * FRAME_SIZE)), true);
         int top = this.readShort(true, false);
         int left = this.readShort(true, false);
@@ -96,20 +88,11 @@ public class EpfFileHandler extends FileHandler {
         long pixelDataOffset = this.readInt(true, true);
         long stencilDataOffset = this.readInt(true, true);
 
-//        System.out.println("Read frame metadata: {");
-//        System.out.println("  \"top\": " + top + ",");
-//        System.out.println("  \"left\": " + left + ",");
-//        System.out.println("  \"bottom\": " + bottom + ",");
-//        System.out.println("  \"right\": " + right + ",");
-//        System.out.println("  \"pixelDataOffset\": " + pixelDataOffset + ",");
-//        System.out.println("  \"stencilDataOffset\": " + stencilDataOffset);
-//        System.out.println("}");
         // Seek to Pixel Data and Stencil Data
         this.seek(HEADER_SIZE + pixelDataOffset, true);
         ByteBuffer rawPixelData = this.readBytes((width * height), true);
         dataSize += rawPixelData.capacity();
 
-//        System.out.println("Creating stencil for index: "+index);
         Stencil stencil = new Stencil(this, stencilDataOffset, new Dimension(width, height));
         ByteBuffer rawStencilData = stencil.toByteBuffer();
         dataSize += rawStencilData.capacity();

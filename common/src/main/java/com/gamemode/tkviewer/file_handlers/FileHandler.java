@@ -16,10 +16,9 @@ public abstract class FileHandler {
     public RandomAccessFile fileInputStream;
 
     public abstract ByteBuffer toByteBuffer();
-
     public int getLength() {
         if (this.file != null) {
-            return (int) this.file.length();
+            return (int)this.file.length();
         } else if (this.bytes != null) {
             return this.bytes.capacity();
         } else {
@@ -79,7 +78,7 @@ public abstract class FileHandler {
         } else {
             this.filePosition += position;
         }
-        this.bytes.position((int) this.filePosition);
+        this.bytes.position((int)this.filePosition);
     }
 
     public ByteBuffer read(boolean littleEndian) {
@@ -132,7 +131,7 @@ public abstract class FileHandler {
             try {
                 byte[] buffer = new byte[2048];
                 int len;
-                while ((len = inflaterInputStream.read(buffer)) > 0) {
+                while((len = inflaterInputStream.read(buffer)) > 0) {
                     uncompressedOutputStream.write(buffer, 0, len);
                 }
             } catch (IOException e) {
@@ -251,7 +250,7 @@ public abstract class FileHandler {
     }
 
     public ByteBuffer readBytesBytes(long length, boolean littleEndian) {
-        byte[] rtnBytes = new byte[(int) length];
+        byte[] rtnBytes = new byte[(int)length];
         bytes.get(rtnBytes);
         this.filePosition += length;
 
@@ -276,18 +275,6 @@ public abstract class FileHandler {
         return returnInt;
     }
 
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
     public Long readIntFile(boolean littleEndian, boolean unsigned) {
         byte[] content = new byte[4];
         try {
@@ -296,7 +283,6 @@ public abstract class FileHandler {
         } catch (IOException ioe) {
             System.out.println("Unable to read from file: " + ioe);
         }
-//        System.out.println("Read an integer from file: " + bytesToHex(content));
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(content);
         if (littleEndian) {
@@ -306,7 +292,7 @@ public abstract class FileHandler {
         if (unsigned) {
             return (((long) byteBuffer.getInt() & 0xFFFFFFFFL));
         } else {
-            return (long) byteBuffer.getInt();
+            return (long)byteBuffer.getInt();
         }
     }
 
@@ -317,7 +303,7 @@ public abstract class FileHandler {
         } else if (!littleEndian && this.bytes.order() != ByteOrder.BIG_ENDIAN) {
             this.bytes.order(ByteOrder.BIG_ENDIAN);
         }
-        Long returnInt = (long) this.bytes.getInt();
+        Long returnInt = (long)this.bytes.getInt();
         this.filePosition += 4;
         return returnInt;
     }
@@ -363,7 +349,7 @@ public abstract class FileHandler {
             this.bytes.order(ByteOrder.BIG_ENDIAN);
         }
 
-        Integer returnShort = (int) this.bytes.getShort();
+        Integer returnShort = (int)this.bytes.getShort();
 
         this.filePosition += 2;
 
@@ -396,7 +382,7 @@ public abstract class FileHandler {
             if (utf16 && (i % 2) != 0) {
                 continue;
             }
-            stringBuilder.append((char) bytes[i]);
+            stringBuilder.append((char)bytes[i]);
         }
 
         return stringBuilder.toString();

@@ -129,11 +129,9 @@ public class RenderUtils {
         return new PartRenderer(fileSubstring, dataDirectory);
     }
     public static PartRenderer createBaramBodyRenderer () {
-        System.out.println("Creating baram body renderer");
         return new PartRenderer("Body", Resources.BARAM_DATA_DIRECTORY);
     }
     public static PartRenderer createBaramClassicBodyRenderer () {
-        System.out.println("Creating baram classic body renderer");
         return new PartRenderer("C_Body", Resources.BARAM_DATA_DIRECTORY);
     }
     public static PartRenderer createBodyRenderer () { return new PartRenderer("Body"); }
