@@ -135,7 +135,7 @@ public class FileUtils {
         if (isBaram) {
             return getDats(Resources.BARAM_DATA_DIRECTORY, prefix);
         }
-        return getDats(Resources.NTK_DATA_DIRECTORY, prefix);
+        return getDats(Resources.getNtkDataDirectory(), prefix);
     }
 
     public static File[] getDats(String dataDirectory, String prefix) {

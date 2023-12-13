@@ -49,7 +49,7 @@ public class MobRenderer implements Renderer {
     public int manualPaletteIndex = 0;
 
     public MobRenderer() {
-        DatFileHandler monDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "mon.dat");
+        DatFileHandler monDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "mon.dat");
 
         mobs = new HashMap<Integer, BufferedImage>();
 

@@ -21,8 +21,9 @@ public class TKItems {
             outputDirectory.mkdirs();
         }
 
-        DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
-        DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
+        String ntkDataDirectory = Resources.getNtkDataDirectory();
+        DatFileHandler charDat = new DatFileHandler(ntkDataDirectory + File.separator + "char.dat");
+        DatFileHandler miscDat = new DatFileHandler(ntkDataDirectory + File.separator + "misc.dat");
 
         EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"),"SYMBOLS.EPF");
         PalFileHandler pal = new PalFileHandler(charDat.getFile("ITEM.PAL"));

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RenderUtils {
-    public static DatFileHandler CHAR_DAT = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
+    public static DatFileHandler CHAR_DAT = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "char.dat");
 
     /**
      * Private constructor to prevent instantiation of static utility class
@@ -156,8 +156,9 @@ public class RenderUtils {
         return new PartRenderer("Helmet");
     }
     public static TileRenderer createItemRenderer () {
-        DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
-        DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
+        String ntkDataDirectory = Resources.getNtkDataDirectory();
+        DatFileHandler charDat = new DatFileHandler(ntkDataDirectory + File.separator + "char.dat");
+        DatFileHandler miscDat = new DatFileHandler(ntkDataDirectory + File.separator + "misc.dat");
 
         EpfFileHandler itemEpf = new EpfFileHandler(miscDat.getFile("ITEM.EPF"),"ITEM.EPF");
         PalFileHandler itemPal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
@@ -165,8 +166,9 @@ public class RenderUtils {
         return new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(itemEpf)), itemPal, 0);
     }
     public static TileRenderer createLegendResourceRenderer () {
-        DatFileHandler charDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat");
-        DatFileHandler miscDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "misc.dat");
+        String ntkDataDirectory = Resources.getNtkDataDirectory();
+        DatFileHandler charDat = new DatFileHandler(ntkDataDirectory + File.separator + "char.dat");
+        DatFileHandler miscDat = new DatFileHandler(ntkDataDirectory + File.separator + "misc.dat");
 
         EpfFileHandler epf = new EpfFileHandler(miscDat.getFile("SYMBOLS.EPF"),"SYMBOLS.EPF");
         PalFileHandler pal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
@@ -180,7 +182,7 @@ public class RenderUtils {
     public static ArrayList<TileRenderer> createMiniMapResourceRenderers () {
         ArrayList<TileRenderer> miniMapResourceRenderers = new ArrayList<TileRenderer>();
         String[] mmrExts = {"PLAYER", "SYMBOL", "TITLE"};
-        DatFileHandler mnmDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "mnm.dat");
+        DatFileHandler mnmDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "mnm.dat");
         for (String mmrExt : mmrExts) {
             EpfFileHandler epf = new EpfFileHandler(mnmDat.getFile("MN" + mmrExt + ".epf"),"MN" + mmrExt + ".epf");
             PalFileHandler pal = new PalFileHandler(mnmDat.getFile("MN" + mmrExt + ".pal"));
@@ -206,7 +208,7 @@ public class RenderUtils {
     public static ArrayList<TileRenderer> createWorldMapRenderers () {
         ArrayList<TileRenderer> worldMapRenderers = new ArrayList<TileRenderer>();
         String[] wmExts = {"", "2", "3", "4", "kru"};
-        DatFileHandler wmDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "wm.dat");
+        DatFileHandler wmDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "wm.dat");
         for (String wmExt : wmExts) {
             EpfFileHandler epf = new EpfFileHandler(wmDat.getFile("WM" + wmExt + ".epf"),"WM" + wmExt + ".epf");
             PalFileHandler pal = new PalFileHandler(wmDat.getFile("WM" + wmExt + ".pal"));

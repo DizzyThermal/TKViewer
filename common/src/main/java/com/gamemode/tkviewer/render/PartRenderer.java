@@ -114,7 +114,7 @@ public class PartRenderer implements Renderer {
     public int manualPaletteIndex = 0;
 
     public PartRenderer(String partName) {
-        this(partName, new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "char.dat"), false);
+        this(partName, new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "char.dat"), false);
     }
 
     public PartRenderer(String partName, String dataDirectory) {

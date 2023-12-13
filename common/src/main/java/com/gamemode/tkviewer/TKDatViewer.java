@@ -34,8 +34,7 @@ public class TKDatViewer {
         if (!outputDataDirectory.exists()) {
             outputDataDirectory.mkdirs();
         }
-
-        File dataDirectory = new File(Resources.NTK_DATA_DIRECTORY);
+        File dataDirectory = new File(Resources.getNtkDataDirectory());
         if (dataDirectory.exists() && dataDirectory.isDirectory()) {
             File[] datFiles = dataDirectory.listFiles((dir, name) -> name.matches(DAT_REGEX));
 
@@ -50,7 +49,7 @@ public class TKDatViewer {
     }
 
     private static void printAllDats() {
-        File dataDirectory = new File(Resources.NTK_DATA_DIRECTORY);
+        File dataDirectory = new File(Resources.getNtkDataDirectory());
         if (dataDirectory.exists() && dataDirectory.isDirectory()) {
             File[] datFiles = dataDirectory.listFiles((dir, name) -> name.matches(DAT_REGEX));
 
@@ -107,7 +106,7 @@ public class TKDatViewer {
 
             try (BufferedWriter writer = Files.newBufferedWriter(path))
             {
-                File dataDirectory = new File(Resources.NTK_DATA_DIRECTORY);
+                File dataDirectory = new File(Resources.getNtkDataDirectory());
                 if (dataDirectory.exists() && dataDirectory.isDirectory()) {
                     File[] datFiles = dataDirectory.listFiles((dir, name) -> name.matches(DAT_REGEX));
 

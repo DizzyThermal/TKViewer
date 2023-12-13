@@ -26,21 +26,22 @@ public class TKDumper {
         (new File(NTK_DAT_OUTPUT_DIR)).mkdirs();
         (new File(BARAM_DAT_OUTPUT_DIR)).mkdirs();
 
-        extractDats(Resources.NTK_DATA_DIRECTORY, NTK_DAT_OUTPUT_DIR, false);
+        String ntkDataDirectory = Resources.getNtkDataDirectory();
+        extractDats(ntkDataDirectory, NTK_DAT_OUTPUT_DIR, false);
         extractDats(Resources.BARAM_DATA_DIRECTORY, BARAM_DAT_OUTPUT_DIR, true);
 
         System.out.println("===============BEGIN TK RENDERING===========");
-        dumpAllImages(new PartRenderer("Sword", Resources.NTK_DATA_DIRECTORY), "Sword", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Spear", Resources.NTK_DATA_DIRECTORY), "Spear", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Body", Resources.NTK_DATA_DIRECTORY), "Body", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Fan", Resources.NTK_DATA_DIRECTORY), "Fan", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Shield", Resources.NTK_DATA_DIRECTORY), "Shield", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Bow", Resources.NTK_DATA_DIRECTORY), "Bow", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Coat", Resources.NTK_DATA_DIRECTORY), "Coat", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Face", Resources.NTK_DATA_DIRECTORY), "Face", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Hair", Resources.NTK_DATA_DIRECTORY), "Hair", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Mantle", Resources.NTK_DATA_DIRECTORY), "Mantle", NTK_FRAMES_OUTPUT_DIR);
-        dumpAllImages(new PartRenderer("Shoes", Resources.NTK_DATA_DIRECTORY), "Shoes", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Sword", ntkDataDirectory), "Sword", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Spear", ntkDataDirectory), "Spear", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Body", ntkDataDirectory), "Body", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Fan", ntkDataDirectory), "Fan", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Shield", ntkDataDirectory), "Shield", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Bow", ntkDataDirectory), "Bow", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Coat", ntkDataDirectory), "Coat", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Face", ntkDataDirectory), "Face", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Hair", ntkDataDirectory), "Hair", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Mantle", ntkDataDirectory), "Mantle", NTK_FRAMES_OUTPUT_DIR);
+        dumpAllImages(new PartRenderer("Shoes", ntkDataDirectory), "Shoes", NTK_FRAMES_OUTPUT_DIR);
         System.out.println("===============END TK RENDERING===========");
 
         System.out.println("===============BEGIN BARAM RENDERING===========");

@@ -33,7 +33,7 @@ public class TileRenderer implements Renderer {
     public TileRenderer(String epfPrefix) { this(epfPrefix, epfPrefix + ".pal", epfPrefix + ".tbl"); }
 
     public TileRenderer(String epfPrefix, String palName, String tblName) {
-        DatFileHandler tileDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat");
+        DatFileHandler tileDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "tile.dat");
 
         tiles = new HashMap<Integer, BufferedImage>();
 
@@ -43,7 +43,7 @@ public class TileRenderer implements Renderer {
     }
 
     public TileRenderer(String epfPrefix, String palName, int manualPaletteIndex) {
-        DatFileHandler tileDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat");
+        DatFileHandler tileDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "tile.dat");
 
         tiles = new HashMap<Integer, BufferedImage>();
 

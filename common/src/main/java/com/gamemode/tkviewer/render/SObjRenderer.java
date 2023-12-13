@@ -21,7 +21,7 @@ public class SObjRenderer {
     TileRenderer tileRenderer;
 
     public SObjRenderer() {
-        DatFileHandler tileDat = new DatFileHandler(Resources.NTK_DATA_DIRECTORY + File.separator + "tile.dat");
+        DatFileHandler tileDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "tile.dat");
 
         sObjs = new HashMap<Integer, BufferedImage>();
 

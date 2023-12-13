@@ -277,6 +277,7 @@ public class ViewFrame extends JFrame implements ActionListener {
             if (new File(gifPath).exists()) {
                 Icon gifIcon = new ImageIcon(gifPath);
                 JLabel jLabel = new JLabel(gifIcon);
+                jLabel.setToolTipText(String.valueOf(i));
                 imagePanel.add(jLabel);
             } else {
                 System.err.println("Couldn't find file: " + gifPath);
@@ -318,6 +319,7 @@ public class ViewFrame extends JFrame implements ActionListener {
             if (new File(gifPath).exists()) {
                 Icon gifIcon = new ImageIcon(gifPath);
                 JLabel jLabel = new JLabel(gifIcon);
+                jLabel.setToolTipText(String.valueOf(i));
                 imagePanel.add(jLabel);
             } else {
                 System.err.println("Couldn't find file: " + gifPath);
@@ -338,6 +340,7 @@ public class ViewFrame extends JFrame implements ActionListener {
         for (int i = 0; i < images.length; i++) {
             final int frameIndex = renderers.get(rendererIndex).getFrameIndex(index, i);
             JLabel jLabel = new JLabel(new ImageIcon(images[i]));
+            jLabel.setToolTipText(String.valueOf(i));
             jLabel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
