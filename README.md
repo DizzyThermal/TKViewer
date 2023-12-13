@@ -5,21 +5,35 @@ NexusTK Resource Viewer for EPF and related files.
 ## Quickstart
 
 IntelliJ is recommended for development, but you should be able to build with
-just Maven: (mvn clean; mvn package)
+just Java 8+ and Maven:
+
+### Building TKViewer with Maven:
 
 ```bash
-mvn clean
-mvn package
+$ mvn clean install
+$ (cd tk-viewer; mvn clean package)
 ```
 
 * Output is stored in `target/`
 
-Run TKViewer with:
+### Run TKViewer with:
 
 ```bash
-java -jar target/TKViewer-*.jar
+java -jar tk-viewer/target/tk-viewer*.jar
 ```
 
+### Building TKPartPicker with Maven:
+
+```bash
+$ mvn clean install
+$ (cd tk-partpicker; mvn clean package)
+```
+
+### Run TKPartPicker with:
+
+```bash
+java -jar tk-viewer/target/tk-partpicker*.jar
+```
 
 ## FileReader Classes
 
@@ -57,44 +71,44 @@ typedef struct {
 #### DAT
 
 ```cpp
-int file_count                         (4 bytes)                         # file count + 1 (decrement for file count)
-file[file_count] files                 ((file_count * file_size) bytes)  # list of file structures
-byte[] file_data                                                         # binary data of all files (head-to-tail)
+int file_count                           (4 bytes)                         # file count + 1 (decrement for file count)
+file[file_count] files                   ((file_count * file_size) bytes)  # list of file structures
+byte[] file_data                                                           # binary data of all files (head-to-tail)
 
 typedef struct {
-  int data_location                    (4 bytes)                         # index of 'file_data' for the start of this file
-  byte[13] file_name                   (13 bytes)                        # the file name (UTF-8 padded - 13 bytes) 
-} file                                 (17 + size bytes)
+  int data_location                      (4 bytes)                         # index of 'file_data' for the start of this file
+  byte[13] file_name                     (13 bytes)                        # the file name (UTF-8 padded - 13 bytes) 
+} file                                   (17 + size bytes)
 ```
 
 #### DNA
 
 ```cpp
-int mob_count                          (4 bytes)                         # number of mobs in file
-mob[mob_count] mobs                    (mob_count * mob_size bytes)      # list of mob structures
+int mob_count                            (4 bytes)                         # number of mobs in file
+mob[mob_count] mobs                      (mob_count * mob_size bytes)      # list of mob structures
 
 typedef struct {
-  int frame_index                      (4 bytes)                         # frame index of mob
-  byte chunk_count                     (1 byte)                          # number of chunks in mob
-  byte unknown1                        (1 byte)                          # unknown id/flag (1)
-  short palette_index                  (2 bytes)                         # palette index of mob
-  chunk[chunk_count] chunks            (chunk_count * chunk_size bytes)  # list of chunk structures
-} mob                                  (8 + (chunk_count * chunk_size) bytes)
+  int frame_index                        (4 bytes)                         # frame index of mob
+  byte chunk_count                       (1 byte)                          # number of chunks in mob
+  byte unknown1                          (1 byte)                          # unknown id/flag (1)
+  short palette_index                    (2 bytes)                         # palette index of mob
+  chunk[chunk_count] chunks              (chunk_count * chunk_size bytes)  # list of chunk structures
+} mob                                    (8 + (chunk_count * chunk_size) bytes)
 
 typedef struct {
-  short block_count                    (2 bytes)                         # block count of chunk
-  block[block_count] blocks            (block_count * block_size bytes)  # list of block structures
-} chunk                                (2 + (block_count * block_size) bytes)
+  short block_count                      (2 bytes)                         # block count of chunk
+  block[block_count] blocks              (block_count * block_size bytes)  # list of block structures
+} chunk                                  (2 + (block_count * block_size) bytes)
 
 typedef struct {
-  short frame_offset                   (2 bytes)                         # offset from frame_index in chunk
-  short duration                       (2 bytes)                         # amount of time to play the frame
-  short unknownId1                     (2 bytes)                         # normally -1, only has real values
-                                                                           in death animations for 2 mobs
-  byte transparency                    (1 bytes)                         # transparency
-  byte unknownId2                      (1 byte)                          # unknown id/flag (5)
-  byte unknownId3                      (1 byte)                          # unknown id/flag (5)
-} block                                (9 bytes)
+  short frame_offset                     (2 bytes)                         # offset from frame_index in chunk
+  short duration                         (2 bytes)                         # amount of time to play the frame
+  short unknownId1                       (2 bytes)                         # normally -1, only has real values
+                                                                             in death animations for 2 mobs
+  byte transparency                      (1 bytes)                         # transparency
+  byte unknownId2                        (1 byte)                          # unknown id/flag (5)
+  byte unknownId3                        (1 byte)                          # unknown id/flag (5)
+} block                                  (9 bytes)
 ```
 
 #### DSC
@@ -158,21 +172,21 @@ typedef struct {
 #### FRM
 
 ```cpp
-int effect_count                       (4 bytes)                         # number of effects in FRM
-int[effect_count] palette_index        (effect_count * 4 bytes)          # list of palette indicies for effects
+int effect_count                      (4 bytes)                         # number of effects in FRM
+int[effect_count] palette_index       (effect_count * 4 bytes)          # list of palette indicies for effects
 ```
 
 #### MAP
 
 ```cpp
-short width                            (2 bytes)                         # width of the map (in tiles)
-short height                           (2 bytes)                         # height of the map (in tiles)
-tile[width*height] tiles               (width * height * 4 bytes)        # list of tile structures
+short width                             (2 bytes)                         # width of the map (in tiles)
+short height                            (2 bytes)                         # height of the map (in tiles)
+tile[width*height] tiles                (width * height * 4 bytes)        # list of tile structures
 
 typedef struct {
-  short ab_tile_id                     (2 bytes)                         # ground tile frame index (Tile/Tbl)
-  short sobj_tile_id                   (2 bytes)                         # static object index (TileC/SObjTbl)
-} tile                                 (4 bytes)
+  short ab_tile_id                      (2 bytes)                         # ground tile frame index (Tile/Tbl)
+  short sobj_tile_id                    (2 bytes)                         # static object index (TileC/SObjTbl)
+} tile                                  (4 bytes)
 ```
 #### PAL (Single)
 
@@ -199,37 +213,37 @@ int palette_count                                                        # numbe
 PAL[palette_count] palettes                                              # list of PAL structures
 
 typedef struct {
-  byte[9] header                     (9 bytes)                           # DLPalette (literal)
-  byte[15] unknown                   (15 bytes)                          # unknown bytes (1)
-  byte animation_color_count         (1 byte)                            # number of animation colors
-  byte[7] unknown2                   (7 bytes)                           # unknown bytes (2)
-  short[animation_color_count]       (animation_color_count * 2 bytes)   # list of animation colors (short)
-  color[256] palette                 (1024 bytes)                        # list of color structures
+  byte[9] header                      (9 bytes)                           # DLPalette (literal)
+  byte[15] unknown                    (15 bytes)                          # unknown bytes (1)
+  byte animation_color_count          (1 byte)                            # number of animation colors
+  byte[7] unknown2                    (7 bytes)                           # unknown bytes (2)
+  short[animation_color_count]        (animation_color_count * 2 bytes)   # list of animation colors (short)
+  color[256] palette                  (1024 bytes)                        # list of color structures
 
   typedef struct {
-    byte blue                        (1 byte)                            # blue value for color
-    byte green                       (1 byte)                            # green value for color
-    byte red                         (1 byte)                            # red value for color
-    byte alpha                       (1 byte)                            # alpha value for color
-  } color                            (4 bytes)
+    byte red                          (1 byte)                            # blue value for color
+    byte green                        (1 byte)                            # green value for color
+    byte blue                         (1 byte)                            # red value for color
+    byte alpha                        (1 byte)                            # alpha value for color
+  } color                             (4 bytes)
 } PAL
 ```
 
 #### TBL (Effects)
 ```cpp
-int effect count                     (4 bytes)                           # number of effects in TBL
+int effect count                    (4 bytes)                           # number of effects in TBL
 
 effect [effect_count] effects                                            # list of effect structures
 typedef struct {
-  int effect_index                   (4 bytes)                           # effect index
-  int frame count                    (4 bytes)                           # number of sequential frames after effect_index
+  int effect_index                  (4 bytes)                           # effect index
+  int frame count                   (4 bytes)                           # number of sequential frames after effect_index
   byte[20] unknown                                                       # unknown bytes (1)
   frame [frame_count] frames                                             # list of frame structures
   typedef struct {
-	int frame index                 (4 bytes)                            # start frame index for effect
-	int frame delay                 (4 bytes)                            # delay until next frame (milliseconds)
-	int pallete number              (4 bytes)                            # palette index to use when renderer
-	byte[4] unknown                 (4 bytes)                            # unknown bytes (1)
+	int frame index             (4 bytes)                            # start frame index for effect
+	int frame delay             (4 bytes)                            # delay until next frame (milliseconds)
+	int pallete number          (4 bytes)                            # palette index to use when renderer
+	byte[4] unknown             (4 bytes)                            # unknown bytes (1)
   }
 } effect
 ```
@@ -276,3 +290,4 @@ Huge thank you to everyone who helps figure out NTK file structures:
   * rbcastner
   * SapMagic
   * wattostudios
+  * mac
