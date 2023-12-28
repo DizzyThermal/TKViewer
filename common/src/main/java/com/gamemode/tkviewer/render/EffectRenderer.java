@@ -182,7 +182,7 @@ public class EffectRenderer implements Renderer {
 
     @Override
     public int getFrameIndex(int index, int offset) {
-        return index;
+        return index + offset;
     }
 
     @Override
