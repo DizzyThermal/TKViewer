@@ -175,6 +175,16 @@ public class RenderUtils {
 
         return new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0);
     }
+    public static TileRenderer createSanResourceRenderer () {
+        String ntkDataDirectory = Resources.getNtkDataDirectory();
+        DatFileHandler charDat = new DatFileHandler(ntkDataDirectory + File.separator + "char.dat");
+        DatFileHandler bintDat = new DatFileHandler(ntkDataDirectory + File.separator + "bint2.dat");
+
+        EpfFileHandler epf = new EpfFileHandler(bintDat.getFile("STAR.EPF"),"STAR.EPF");
+        PalFileHandler pal = new PalFileHandler(charDat.getFile("ITEM.PAL"));
+
+        return new TileRenderer(new ArrayList<EpfFileHandler>(Arrays.asList(epf)), pal, 0);
+    }
     public static PartRenderer createMantleRenderer () {
         return new PartRenderer("Mantle");
     }

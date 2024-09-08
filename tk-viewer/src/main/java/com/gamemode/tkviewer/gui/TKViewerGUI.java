@@ -68,6 +68,7 @@ public class TKViewerGUI extends JFrame implements ActionListener {
     JMenuItem viewEffectMenuItem = new JMenuItem("Effects");
     JMenuItem viewItemMenuItem = new JMenuItem("Items");
     JMenuItem viewLegendResourceMenuItem = new JMenuItem("Legend Resources");
+    JMenuItem viewSanResourceMenuItem = new JMenuItem("San Resources");
     JMenuItem viewMobMenuItem = new JMenuItem("Mobs");
     JMenuItem viewMusicMenuItem = new JMenuItem("Music");
     JMenuItem viewMiniMapResourceMenuItem = new JMenuItem("Mini Map Resources");
@@ -86,6 +87,7 @@ public class TKViewerGUI extends JFrame implements ActionListener {
     PartRenderer helmetRenderer;
     TileRenderer itemRenderer;
     TileRenderer legendResourceRenderer;
+    TileRenderer sanResourceRenderer;
     PartRenderer mantleRenderer;
     ArrayList<TileRenderer> miniMapResourceRenderers;
     MobRenderer mobRenderer;
@@ -217,6 +219,10 @@ public class TKViewerGUI extends JFrame implements ActionListener {
         // View > Misc > Legend Resources
         viewLegendResourceMenuItem.addActionListener(this);
         miscMenu.add(viewLegendResourceMenuItem);
+
+        // View > Misc > San Resources
+        viewSanResourceMenuItem.addActionListener(this);
+        miscMenu.add(viewSanResourceMenuItem);
 
         // View > Misc > Mini Map Resources
         viewMiniMapResourceMenuItem.addActionListener(this);
@@ -370,6 +376,11 @@ public class TKViewerGUI extends JFrame implements ActionListener {
                     case LEGEND_RESOURCES:
                         if (legendResourceRenderer == null) {
                             legendResourceRenderer = RenderUtils.createLegendResourceRenderer();
+                        }
+                        break;
+                    case SAN_RESOURCES:
+                        if (sanResourceRenderer == null) {
+                            sanResourceRenderer = RenderUtils.createSanResourceRenderer();
                         }
                         break;
                     case MANTLES:
@@ -682,12 +693,19 @@ public class TKViewerGUI extends JFrame implements ActionListener {
 
             new ViewFrame("Items", "Item", "Items", this.itemRenderer);
         } else if (ae.getSource() == this.viewLegendResourceMenuItem) {
-            // Initialize Legend Resource Data if needed
-            if (this.legendResourceRenderer == null) {
-                showLoadingDialog("Loading legend resources, please wait...", Resources.GUI_LOADING_FUNCTION.LEGEND_RESOURCES);
-            }
+          // Initialize Legend Resource Data if needed
+          if (this.legendResourceRenderer == null) {
+              showLoadingDialog("Loading legend resources, please wait...", Resources.GUI_LOADING_FUNCTION.LEGEND_RESOURCES);
+          }
 
-            new ViewFrame("Legend Resources", "Legend Resource", "Legend Resources", this.legendResourceRenderer);
+          new ViewFrame("Legend Resources", "Legend Resource", "Legend Resources", this.legendResourceRenderer);
+        } else if (ae.getSource() == this.viewSanResourceMenuItem) {
+          // Initialize San Resource Data if needed
+          if (this.sanResourceRenderer == null) {
+              showLoadingDialog("Loading san resources, please wait...", Resources.GUI_LOADING_FUNCTION.SAN_RESOURCES);
+          }
+
+          new ViewFrame("San Resources", "San Resource", "San Resources", this.sanResourceRenderer);
         } else if (ae.getSource() == this.viewMantleMenuItem) {
             // Initialize Mantle Data if needed
             if (this.mantleRenderer == null) {
