@@ -47,6 +47,8 @@ java -jar tk-viewer/target/tk-partpicker*.jar
   * [MAP](#map)
   * [PAL (Single)](#pal-single)
   * [PAL (Packed)](#pal-packed)
+  * [TBL (Effects)](#tbl-effects)
+  * [TBL (Motion)](#tbl-motion)
   * [TBL (Tiles)](#tbl-tiles)
   * [TBL (Static Objects)](#tbl-static-objects)
 
@@ -231,12 +233,12 @@ typedef struct {
 
 #### TBL (Effects)
 ```cpp
-int effect count                    (4 bytes)                           # number of effects in TBL
+int effect count                    (4 bytes)                            # number of effects in TBL
 
 effect [effect_count] effects                                            # list of effect structures
 typedef struct {
-  int effect_index                  (4 bytes)                           # effect index
-  int frame count                   (4 bytes)                           # number of sequential frames after effect_index
+  int effect_index                  (4 bytes)                            # effect index
+  int frame count                   (4 bytes)                            # number of sequential frames after effect_index
   byte[20] unknown                                                       # unknown bytes (1)
   frame [frame_count] frames                                             # list of frame structures
   typedef struct {
@@ -246,6 +248,25 @@ typedef struct {
 	byte[4] unknown             (4 bytes)                            # unknown bytes (1)
   }
 } effect
+```
+
+#### TBL (Motion)
+```cpp
+string header                       (21 bytes)                           # MotionStandard (literal)
+byte[2] unknown                     (2 bytes)                            # unknown null bytes (i.e., [00, 01])
+int motion_count                    (4 bytes)                            # number of motions
+motion[motion_count] motions        (motion_count * motion_size bytes)   # list of motion structures
+                                                                         # motion_size = 33 + (frame_count * 122 bytes)
+typedef struct {
+  int id                            (4 bytes)                            # id of the motion
+  string name                       (21 bytes)                           # name of motion (i.e., "SwingEast")
+  int unknown_int                   (4 bytes)                            # unknown int (i.e., [FF, FF, FF, FF])
+  int frame_count                   (4 bytes)                            # number of frames in the motion
+
+  typedef struct {                  (frame_count * 122 bytes)
+    short unknown_short             (2 bytes)                            # unknown short (i.e., [FF, FF])
+    int[30] layer_ids               (120 bytes)                          # list of layer ids describing z-order, read until first -1 int (i.e., [FF, FF, FF, FF])
+}                                                                        # then can skip to end of struct (122 bytes)
 ```
 
 #### TBL (Static Objects)
