@@ -7,7 +7,7 @@
     <groupId>com.gamemode.tkviewer</groupId>
     <artifactId>tkviewer</artifactId>
     <name>TK Viewer</name>
-    <version>3.7.0</version>
+    <version>3.7.2</version>
     <description>NexusTK DAT Viewer</description>
 	<packaging>pom</packaging>
 	
@@ -23,17 +23,17 @@
 			    <dependency>
             <groupId>com.gamemode.tkviewer</groupId>
             <artifactId>common</artifactId>
-            <version>3.7.0</version>
+            <version>3.7.2</version>
             </dependency>
             <dependency>
                 <groupId>com.gamemode.tkviewer</groupId>
                 <artifactId>tk-partpicker</artifactId>
-                <version>3.7.0</version>
+                <version>3.7.2</version>
             </dependency>
             <dependency>
                 <groupId>com.gamemode.tkviewer</groupId>
                 <artifactId>tk-viewer</artifactId>
-                <version>3.7.0</version>
+                <version>3.7.2</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -64,7 +64,7 @@
             <dependency>
                 <groupId>com.gamemode.tkviewer</groupId>
                 <artifactId>TKViewer</artifactId>
-                <version>3.7.0</version>
+                <version>3.7.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
