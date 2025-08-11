@@ -38,7 +38,8 @@ public class ViewFrame extends JFrame implements ActionListener {
     JList list;
     Integer itemCount;
 
-    JButton exportButton;
+    JButton exportFramesButton;
+    JButton exportAnimationSheetButton;
     JRadioButton framesButton;
     JRadioButton animationsButton;
 
@@ -134,8 +135,11 @@ public class ViewFrame extends JFrame implements ActionListener {
         statusPanel.setBorder(new LineBorder(Color.BLACK));
         statusPanel.setPreferredSize(new Dimension(this.getWidth(), 36));
 
-        exportButton = new JButton("Export Frames");
-        exportButton.addActionListener(this);
+        exportFramesButton = new JButton("Export Frames");
+        exportFramesButton.addActionListener(this);
+
+        exportAnimationSheetButton = new JButton("Export Animation Sheet");
+        exportAnimationSheetButton.addActionListener(this);
 
         framesButton = new JRadioButton("Frames");
         animationsButton = new JRadioButton("Animations");
@@ -148,7 +152,10 @@ public class ViewFrame extends JFrame implements ActionListener {
         framesButton.addActionListener(this);
         animationsButton.addActionListener(this);
 
-        statusPanel.add(exportButton);
+        statusPanel.add(exportFramesButton);
+        if (renderers.get(0) instanceof EffectRenderer || renderers.get(0) instanceof MobRenderer || renderers.get(0) instanceof PartRenderer) {
+            statusPanel.add(exportAnimationSheetButton);
+        }
 
         statusPanel.add(framesButton);
         statusPanel.add(animationsButton);
@@ -388,6 +395,86 @@ public class ViewFrame extends JFrame implements ActionListener {
         }
     }
 
+    public void exportEffectAnimationSheet(int index) {
+        this.exportEffectAnimationSheet(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void exportEffectAnimationSheet(int index, int rendererIndex) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Choose export directory");
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            EffectRenderer effectRenderer = (EffectRenderer) renderers.get(rendererIndex);
+            List<List<BufferedImage>> imageGrid = new ArrayList<>();
+            List<BufferedImage> images = new ArrayList<BufferedImage>();
+            List<EffectImage> effectImages = effectRenderer.renderEffect(index);
+            for (int j = 0; j < effectImages.size(); j++) {
+                images.add((BufferedImage)effectImages.get(j).getImage());
+            }
+            imageGrid.add(images);
+
+            FileUtils.writeImageGridToFile(imageGrid, Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + ".png").toString());
+
+            JOptionPane.showMessageDialog(this, "Animation Sheet exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    public void exportMobAnimationSheet(int index) {
+        this.exportMobAnimationSheet(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void exportMobAnimationSheet(int index, int rendererIndex) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Choose export directory");
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            MobRenderer mobRenderer = (MobRenderer) renderers.get(rendererIndex);
+            List<List<BufferedImage>> imageGrid = new ArrayList<>();
+            Mob mob = mobRenderer.mobDna.mobs.get(index);
+            for (int i = 0; i < mob.getChunks().size(); i++) {
+                List<BufferedImage> images = new ArrayList<BufferedImage>();
+                List<EffectImage> chunkImages = mobRenderer.renderAnimation(index, i);
+                for (int j = 0; j < chunkImages.size(); j++) {
+                    images.add((BufferedImage)chunkImages.get(j).getImage());
+                }
+                imageGrid.add(images);
+            }
+            FileUtils.writeImageGridToFile(imageGrid, Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + ".png").toString());
+
+            JOptionPane.showMessageDialog(this, "Animation Sheet exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    public void exportPartAnimationSheet(int index) {
+        this.exportPartAnimationSheet(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void exportPartAnimationSheet(int index, int rendererIndex) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Choose export directory");
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            PartRenderer partRenderer = ((PartRenderer) renderers.get(rendererIndex));
+            List<List<BufferedImage>> imageGrid = new ArrayList<>();
+            Part part = partRenderer.partDsc.parts.get(index);
+            for (int i = 0; i < part.getChunks().size(); i++) {
+                List<BufferedImage> images = new ArrayList<BufferedImage>();
+                List<EffectImage> chunkImages = partRenderer.renderAnimation(index, i);
+                for (int j = 0; j < chunkImages.size(); j++) {
+                    images.add((BufferedImage)chunkImages.get(j).getImage());
+                }
+                imageGrid.add(images);
+            }
+            FileUtils.writeImageGridToFile(imageGrid, Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + ".png").toString());
+
+            JOptionPane.showMessageDialog(this, "Animation Sheet exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+
     @Override
     public void actionPerformed(ActionEvent ae) {
         int listIndex = list.getSelectedIndex();
@@ -404,9 +491,20 @@ public class ViewFrame extends JFrame implements ActionListener {
                 this.renderEffectAnimations(listIndex);
             } else if (renderers.get(0) instanceof PartRenderer) {
                 this.renderPartAnimations(listIndex);
+            } else if (renderers.get(0) instanceof MobRenderer) {
+                this.renderMobAnimations(listIndex);
             }
-        } else if (ae.getSource() == this.exportButton) {
+        } else if (ae.getSource() == this.exportFramesButton) {
             this.exportFrames(listIndex);
+        } else if (ae.getSource() == this.exportAnimationSheetButton) {
+            if (renderers.get(0) instanceof EffectRenderer) {
+                this.exportEffectAnimationSheet(listIndex);
+            } else if (renderers.get(0) instanceof PartRenderer) {
+                this.exportPartAnimationSheet(listIndex);
+            } else if (renderers.get(0) instanceof MobRenderer) {
+                this.exportMobAnimationSheet(listIndex);
+            }
+
         }
     }
 }

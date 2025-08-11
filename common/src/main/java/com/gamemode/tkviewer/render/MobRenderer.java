@@ -199,12 +199,13 @@ public class MobRenderer implements Renderer {
                 continue;
             }
 
+            float alpha = 1.0f - ((float) block.getTransparency() / 255.0f);
+            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
             graphicsObject.drawImage(
                     tile,
                     null,
                     (frame.getLeft() - l),
                     (frame.getTop() - t));
-            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)block.getTransparency()/(float)255));
 
             images.add(new EffectImage(frameImage, block.getDuration(), null, null));
         }
