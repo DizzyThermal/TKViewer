@@ -103,7 +103,7 @@ public class TKDumper {
         }
 
         for (int i = 0; i < renderer.getCount(); i++) {
-            Image[] images = renderer.getFrames(i);
+            Image[] images = renderer.getFrames(i, -1);
             String epfName = renderer.getEpfNameForFrame(i);
             for (int j = 0; j < images.length; j++) {
                 try {

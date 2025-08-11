@@ -13,6 +13,9 @@ import com.gamemode.tkviewer.third_party.GifSequenceWriter;
 
 import javax.imageio.*;
 import javax.imageio.stream.*;
+
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.*;
 import java.io.FileWriter;
 import java.io.*;
@@ -219,6 +222,44 @@ public class FileUtils {
     public static void writeBufferedImageToFile(BufferedImage image, String outputPath) {
         try {
             ImageIO.write(image, "png", new File(outputPath));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void writeImageGridToFile(List<List<BufferedImage>> imageGrid, String outputPath) {
+        try {
+            int sheetWidth = 0;
+            int sheetHeight = 0;
+
+            for (int i = 0; i < imageGrid.size(); i++) {
+                List<BufferedImage> imageList = imageGrid.get(i);
+                Image first = (Image)imageList.get(0);
+                int width = first.getWidth(null);
+                int height = first.getHeight(null);
+                sheetWidth = Math.max(sheetWidth, imageList.size() * width);
+                sheetHeight += height;
+            }
+
+            BufferedImage sheet = new BufferedImage(sheetWidth, sheetHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = sheet.createGraphics();
+
+            int y = 0;
+            for (int i = 0; i < imageGrid.size(); i++) {
+                List<BufferedImage> imageList = imageGrid.get(i);
+                Image first = (Image)imageList.get(0);
+
+                // All images within one chunk are to be same size
+                int width = first.getWidth(null);
+                int height = first.getHeight(null);
+                for (int j = 0; j < imageList.size(); j++) {
+                    g2d.drawImage(imageList.get(j), width * j, y, null);
+                }
+                y += height;
+            }
+            g2d.dispose();
+
+            ImageIO.write(sheet, "png", new File(outputPath));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

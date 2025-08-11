@@ -21,7 +21,7 @@ public class TileRenderer implements Renderer {
 
     public static int ALPHA = 0x0;
 
-    Map<Integer, BufferedImage> tiles;
+    Map<String, BufferedImage> tiles;
 
     public List<EpfFileHandler> tileEpfs;
     public PalFileHandler tilePal;
@@ -35,7 +35,7 @@ public class TileRenderer implements Renderer {
     public TileRenderer(String epfPrefix, String palName, String tblName) {
         DatFileHandler tileDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "tile.dat");
 
-        tiles = new HashMap<Integer, BufferedImage>();
+        tiles = new HashMap<String, BufferedImage>();
 
         this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix, false);
         this.tilePal = new PalFileHandler(tileDat.getFile(palName));
@@ -45,7 +45,7 @@ public class TileRenderer implements Renderer {
     public TileRenderer(String epfPrefix, String palName, int manualPaletteIndex) {
         DatFileHandler tileDat = new DatFileHandler(Resources.getNtkDataDirectory() + File.separator + "tile.dat");
 
-        tiles = new HashMap<Integer, BufferedImage>();
+        tiles = new HashMap<String, BufferedImage>();
 
         this.tileEpfs = FileUtils.createEpfsFromDats(epfPrefix, false);
         this.tilePal = new PalFileHandler(tileDat.getFile(palName));
@@ -53,7 +53,7 @@ public class TileRenderer implements Renderer {
     }
 
     public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, TileTblFileHandler tileTbl) {
-        tiles = new HashMap<Integer, BufferedImage>();
+        tiles = new HashMap<String, BufferedImage>();
 
         this.tileEpfs = tileEpfs;
         this.tilePal = tilePal;
@@ -61,7 +61,7 @@ public class TileRenderer implements Renderer {
     }
 
     public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, FrmFileHandler tileFrm) {
-        tiles = new HashMap<Integer, BufferedImage>();
+        tiles = new HashMap<String, BufferedImage>();
 
         this.tileEpfs = tileEpfs;
         this.tilePal = tilePal;
@@ -69,7 +69,7 @@ public class TileRenderer implements Renderer {
     }
 
     public TileRenderer(List<EpfFileHandler> tileEpfs, PalFileHandler tilePal, int manualPaletteIndex) {
-        tiles = new HashMap<Integer, BufferedImage>();
+        tiles = new HashMap<String, BufferedImage>();
 
         this.tileEpfs = tileEpfs;
         this.tilePal = tilePal;
@@ -77,17 +77,34 @@ public class TileRenderer implements Renderer {
     }
 
     public BufferedImage renderTile(int tileIndex) {
-        return this.renderTile(tileIndex, 0);
+        return this.renderTile(tileIndex, -1);
     }
 
-    public BufferedImage renderTile(int tileIndex, int animationOffset) {
-        return this.renderTile(tileIndex, animationOffset, true);
+    public BufferedImage renderTile(int tileIndex, int paletteIndex) {
+        return this.renderTile(tileIndex, paletteIndex, 0);
     }
 
-    public BufferedImage renderTile(int tileIndex, int animationOffset, boolean useCache) {
+    public BufferedImage renderTile(int tileIndex, int paletteIndex, int animationOffset) {
+        return this.renderTile(tileIndex, paletteIndex, animationOffset, true);
+    }
+
+    public BufferedImage renderTile(int tileIndex, int paletteIndex, int animationOffset, boolean useCache) {
+        int computedPaletteIndex = this.manualPaletteIndex;
+        if (this.isFrmHandled()) {
+            computedPaletteIndex = this.tileFrm.paletteIndices.get(tileIndex);
+        } else if (this.tileTbl != null) {
+            computedPaletteIndex = this.tileTbl.paletteIndices.get(tileIndex).getPaletteIndex();
+        } else if (paletteIndex >= 0) {
+            computedPaletteIndex = paletteIndex;
+        }
+        if (computedPaletteIndex > this.tilePal.paletteCount) {
+            computedPaletteIndex = 0;
+        }
+
         // Return Tile if cached.
-        if (useCache && tiles.containsKey(tileIndex)) {
-            return tiles.get(tileIndex);
+        String cacheKey = tileIndex + "-" + computedPaletteIndex;
+        if (useCache && tiles.containsKey(cacheKey)) {
+            return tiles.get(cacheKey);
         }
 
         int epfIndex = 0;
@@ -119,16 +136,7 @@ public class TileRenderer implements Renderer {
             return image;
         }
         // Else
-        int paletteIndex = this.manualPaletteIndex;
-        if (this.isFrmHandled()) {
-            paletteIndex = this.tileFrm.paletteIndices.get(tileIndex);
-        } else if (this.tileTbl != null) {
-            paletteIndex = this.tileTbl.paletteIndices.get(tileIndex).getPaletteIndex();
-        }
-        if (paletteIndex > this.tilePal.paletteCount) {
-            paletteIndex = 0;
-        }
-        Palette palette = this.tilePal.palettes.get(paletteIndex);
+        Palette palette = this.tilePal.palettes.get(computedPaletteIndex);
         IndexColorModel icm = new IndexColorModel(
                 8,
                 256,
@@ -159,7 +167,7 @@ public class TileRenderer implements Renderer {
         }
 
         if (useCache) {
-            this.tiles.put(tileIndex, image);
+            this.tiles.put(cacheKey, image);
         }
         return image;
     }
@@ -199,9 +207,14 @@ public class TileRenderer implements Renderer {
     }
 
     @Override
-    public Image[] getFrames(int index) {
+    public long getPaletteCount() {
+        return this.tilePal.paletteCount;
+    }
+
+    @Override
+    public Image[] getFrames(int index, int paletteIndex) {
         Image[] frames = new Image[1];
-        frames[0] = this.renderTile(index);
+        frames[0] = this.renderTile(index, paletteIndex, 0, false);
 
         return frames;
     }

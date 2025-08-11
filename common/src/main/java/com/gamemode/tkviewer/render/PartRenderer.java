@@ -106,7 +106,7 @@ public class PartRenderer implements Renderer {
         SWING_LEFT_1H_2             // 66
     }
 
-    Map<Integer, BufferedImage> parts;
+    Map<String, BufferedImage> parts;
 
     public List<EpfFileHandler> partEpfs;
     public PalFileHandler partPal;
@@ -122,7 +122,7 @@ public class PartRenderer implements Renderer {
     }
 
     public PartRenderer(String partName, DatFileHandler charDat, boolean isBaram) {
-        parts = new HashMap<Integer, BufferedImage>();
+        parts = new HashMap<String, BufferedImage>();
 
         this.partEpfs = FileUtils.createEpfsFromDats(partName, isBaram);
         this.partPal = new PalFileHandler(charDat.getFile(partName + ".pal"));
@@ -130,7 +130,7 @@ public class PartRenderer implements Renderer {
     }
 
     public PartRenderer(List<EpfFileHandler> partEpfs, PalFileHandler partPal, DscFileHandler partDsc) {
-        parts = new HashMap<Integer, BufferedImage>();
+        parts = new HashMap<String, BufferedImage>();
 
         this.partEpfs = partEpfs;
         this.partPal = partPal;
@@ -138,7 +138,7 @@ public class PartRenderer implements Renderer {
     }
 
     public PartRenderer(String tkDataDirectory, PART_RENDERER_TYPE rendererType) {
-        parts = new HashMap<Integer, BufferedImage>();
+        parts = new HashMap<String, BufferedImage>();
 
         String epfPrefix = null;
         String palName = null;
@@ -225,7 +225,7 @@ public class PartRenderer implements Renderer {
     }
 
     public PartRenderer(List<EpfFileHandler> partEpfs, PalFileHandler partPal, int manualPaletteIndex) {
-        parts = new HashMap<Integer, BufferedImage>();
+        parts = new HashMap<String, BufferedImage>();
 
         this.partEpfs = partEpfs;
         this.partPal = partPal;
@@ -269,8 +269,9 @@ public class PartRenderer implements Renderer {
 
     public BufferedImage renderPart(int partIndex, int frameIndex, int frameOffset, int paletteIndex) {
         // Return Part if cached.
-        if (parts.containsKey(frameIndex + frameOffset)) {
-            return parts.get(frameIndex + frameOffset);
+        String cacheKey = frameIndex + frameOffset + "-" + paletteIndex;
+        if (parts.containsKey(cacheKey)) {
+            return parts.get(cacheKey);
         }
 
         Frame frame = getFrame(frameIndex, frameOffset);
@@ -312,7 +313,7 @@ public class PartRenderer implements Renderer {
             }
         }
 
-        this.parts.put(frameIndex + frameOffset, image);
+        this.parts.put(cacheKey, image);
         return image;
     }
 
@@ -431,13 +432,18 @@ public class PartRenderer implements Renderer {
     }
 
     @Override
-    public Image[] getFrames(int index) {
+    public long getPaletteCount() {
+        return this.partPal.paletteCount;
+    }
+
+    @Override
+    public Image[] getFrames(int index, int paletteIndex) {
         Image[] frames = new Image[(int) this.partDsc.parts.get(index).getFrameCount()];
         for (int i = 0; i < this.partDsc.parts.get(index).getFrameCount(); i++) {
             frames[i] = this.renderPart(index,
                     (int) this.partDsc.parts.get(index).getFrameIndex(),
                     i,
-                    (int) this.partDsc.parts.get(index).getPaletteId());
+                    paletteIndex >= 0 ? paletteIndex : (int) this.partDsc.parts.get(index).getPaletteId());
         }
 
         return frames;

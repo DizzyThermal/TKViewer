@@ -35,10 +35,12 @@ public class ViewFrame extends JFrame implements ActionListener {
 
     Image clientIcon;
     JPanel imagePanel;
-    JList list;
+    JList itemList;
+    JList paletteList;
     Integer itemCount;
 
-    JButton exportButton;
+    JButton exportFramesButton;
+    JButton exportAnimationSheetButton;
     JRadioButton framesButton;
     JRadioButton animationsButton;
 
@@ -105,37 +107,54 @@ public class ViewFrame extends JFrame implements ActionListener {
         for (int i = 0; i < itemCount; i++) {
             items[i] = this.singular + " " + i;
         }
-        list = new JList(items);
-        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        list.setLayoutOrientation(JList.VERTICAL);
-        list.setVisibleRowCount(-1);
-        list.addListSelectionListener(new ListSelectionListener() {
+        itemList = new JList(items);
+        itemList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        itemList.setLayoutOrientation(JList.VERTICAL);
+        itemList.setVisibleRowCount(-1);
+        itemList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    int idx = list.getSelectedIndex();
-                    if (renderers.get(0) instanceof MobRenderer && !framesButton.isSelected()) {
-                        renderMobAnimations(idx);
-                    } else if (renderers.get(0) instanceof EffectRenderer && !framesButton.isSelected()) {
-                        renderEffectAnimations(idx);
-                    } else if (renderers.get(0) instanceof PartRenderer && !framesButton.isSelected()) {
-                        renderPartAnimations(idx);
-                    } else {
-                        renderFrames(idx);
-                    }
+                    renderItem(itemList.getSelectedIndex());
                 }
             }
         });
 
-        JScrollPane scroller = new JScrollPane(list);
+        JScrollPane scroller = new JScrollPane(itemList);
         scroller.setPreferredSize(new Dimension(150, 520));
+
+        long paletteCount = renderers.get(0).getPaletteCount();
+        String[] palettes = new String[(int)paletteCount + 1];
+        palettes[0] = "Default Palette";
+        for (int i = 0; i < paletteCount; i++) {
+            palettes[i + 1] = "Palette " + i;
+        }
+
+        paletteList = new JList(palettes);
+        paletteList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        paletteList.setLayoutOrientation(JList.VERTICAL);
+        paletteList.setVisibleRowCount(-1);
+        paletteList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    renderItem(itemList.getSelectedIndex());
+                }
+            }
+        });
+
+        JScrollPane paletteScroller = new JScrollPane(paletteList);
+        paletteScroller.setPreferredSize(new Dimension(150, 520));
 
         JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         statusPanel.setBorder(new LineBorder(Color.BLACK));
         statusPanel.setPreferredSize(new Dimension(this.getWidth(), 36));
 
-        exportButton = new JButton("Export Frames");
-        exportButton.addActionListener(this);
+        exportFramesButton = new JButton("Export Frames");
+        exportFramesButton.addActionListener(this);
+
+        exportAnimationSheetButton = new JButton("Export Animation Sheet");
+        exportAnimationSheetButton.addActionListener(this);
 
         framesButton = new JRadioButton("Frames");
         animationsButton = new JRadioButton("Animations");
@@ -148,12 +167,18 @@ public class ViewFrame extends JFrame implements ActionListener {
         framesButton.addActionListener(this);
         animationsButton.addActionListener(this);
 
-        statusPanel.add(exportButton);
+        statusPanel.add(exportFramesButton);
+        if (renderers.get(0) instanceof EffectRenderer || renderers.get(0) instanceof MobRenderer || renderers.get(0) instanceof PartRenderer) {
+            statusPanel.add(exportAnimationSheetButton);
+        }
 
         statusPanel.add(framesButton);
         statusPanel.add(animationsButton);
 
         this.add(scroller, BorderLayout.WEST);
+        if (paletteCount > 1) {
+            this.add(paletteScroller, BorderLayout.EAST);
+        }
         this.add(imagePanel, BorderLayout.CENTER);
         this.add(statusPanel, BorderLayout.SOUTH);
 
@@ -182,6 +207,15 @@ public class ViewFrame extends JFrame implements ActionListener {
         imagePanel.removeAll();
         imagePanel.revalidate();
         imagePanel.repaint();
+    }
+
+    private int getPaletteIndex() {
+        int selectedIndex = paletteList.getSelectedIndex();
+        if (selectedIndex >= 0) {
+            return selectedIndex - 1;
+        } else {
+            return -1;
+        }
     }
 
     public int determineEpfIndex(int index) {
@@ -214,6 +248,24 @@ public class ViewFrame extends JFrame implements ActionListener {
         return currentRendererIndex;
     }
 
+    private void renderItem(int itemIndex) {
+        if (itemIndex == -1) {
+            // Don't render anything until a list selection is made
+            return;
+        }
+        if (framesButton.isSelected()) {
+            renderFrames(itemIndex);
+        } else if (renderers.get(0) instanceof MobRenderer) {
+            renderMobAnimations(itemIndex);
+        } else if (renderers.get(0) instanceof EffectRenderer) {
+            renderEffectAnimations(itemIndex);
+        } else if (renderers.get(0) instanceof PartRenderer) {
+            renderPartAnimations(itemIndex);
+        } else {
+            renderFrames(itemIndex);
+        }
+    }
+
     public void renderEffectAnimations(int index) {
         this.renderEffectAnimations(determineEpfIndex(index), determineRendererIndex(index));
     }
@@ -222,13 +274,14 @@ public class ViewFrame extends JFrame implements ActionListener {
         clearImagePanel();
 
         // Get Effect Images
-        List<EffectImage> images = ((EffectRenderer) renderers.get(rendererIndex)).renderEffect(index);
+        int paletteIndex = getPaletteIndex();
+        List<EffectImage> images = ((EffectRenderer) renderers.get(rendererIndex)).renderAnimation(index, paletteIndex);
 
         // Create GIF in Temp Directory
         if (!new File(Resources.EFFECT_ANIMATION_DIRECTORY).exists()) {
             new File(Resources.EFFECT_ANIMATION_DIRECTORY).mkdirs();
         }
-        String gifPath = (Resources.EFFECT_ANIMATION_DIRECTORY + File.separator + "effect-" + index + "-" + rendererIndex + ".gif");
+        String gifPath = (Resources.EFFECT_ANIMATION_DIRECTORY + File.separator + "effect-" + index + "-" + rendererIndex + "-" + paletteIndex + ".gif");
         if (!new File(gifPath).exists()) {
             FileUtils.exportGifFromImages(images, gifPath);
         }
@@ -259,13 +312,13 @@ public class ViewFrame extends JFrame implements ActionListener {
         }
 
         MobRenderer mobRenderer = ((MobRenderer) renderers.get(rendererIndex));
-
+        int paletteIndex = getPaletteIndex();
         List<String> gifPaths = new ArrayList<String>();
         Mob mob = mobRenderer.mobDna.mobs.get(index);
         for (int i = 0; i < mob.getChunks().size(); i++) {
-            List<EffectImage> chunkImages = mobRenderer.renderAnimation(index, i);
+            List<EffectImage> chunkImages = mobRenderer.renderAnimation(index, i, paletteIndex);
             if (chunkImages.size() != 0) {
-                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-" + rendererIndex + ".gif";
+                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-" + rendererIndex + "-" + paletteIndex + ".gif";
                 FileUtils.exportGifFromImages(chunkImages, gifPath);
                 gifPaths.add(gifPath);
             }
@@ -303,11 +356,12 @@ public class ViewFrame extends JFrame implements ActionListener {
         PartRenderer partRenderer = ((PartRenderer) renderers.get(rendererIndex));
 
         List<String> gifPaths = new ArrayList<String>();
+        int paletteIndex = getPaletteIndex();
         Part part = partRenderer.partDsc.parts.get(index);
         for (int i = 0; i < part.getChunks().size(); i++) {
-            List<EffectImage> chunkImages = partRenderer.renderAnimation(index, i);
+            List<EffectImage> chunkImages = partRenderer.renderAnimation(index, i, paletteIndex);
             if (chunkImages.size() != 0) {
-                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-" + rendererIndex + ".gif";
+                String gifPath = outputDirectory + File.separator + singular + "-" + index + "-" + i + "-" + rendererIndex + "-" + paletteIndex + ".gif";
                 FileUtils.exportGifFromImages(chunkImages, gifPath);
                 gifPaths.add(gifPath);
             }
@@ -336,7 +390,7 @@ public class ViewFrame extends JFrame implements ActionListener {
     public void renderFrames(int index, int rendererIndex) {
         clearImagePanel();
 
-        Image[] images = renderers.get(rendererIndex).getFrames(index);
+        Image[] images = renderers.get(rendererIndex).getFrames(index, getPaletteIndex());
         for (int i = 0; i < images.length; i++) {
             final int frameIndex = renderers.get(rendererIndex).getFrameIndex(index, i);
             JLabel jLabel = new JLabel(new ImageIcon(images[i]));
@@ -378,35 +432,129 @@ public class ViewFrame extends JFrame implements ActionListener {
         fileChooser.setDialogTitle("Choose export directory");
         int result = fileChooser.showSaveDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            Image[] images = renderers.get(rendererIndex).getFrames(index);
+            int paletteIndex = getPaletteIndex();
+            Image[] images = renderers.get(rendererIndex).getFrames(index, paletteIndex);
             for (int i = 0; i < images.length; i++) {
                 final int frameIndex = renderers.get(rendererIndex).getFrameIndex(index, i);
-                FileUtils.writeBufferedImageToFile(((BufferedImage) images[i]), Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + "-" + frameIndex + ".png").toString());
+                FileUtils.writeBufferedImageToFile(((BufferedImage) images[i]), Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + "-" + frameIndex + "-" + paletteIndex + ".png").toString());
             }
 
             JOptionPane.showMessageDialog(this, "Frames exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
+    public void exportEffectAnimationSheet(int index) {
+        this.exportEffectAnimationSheet(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void exportEffectAnimationSheet(int index, int rendererIndex) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Choose export directory");
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            EffectRenderer effectRenderer = (EffectRenderer) renderers.get(rendererIndex);
+            List<List<BufferedImage>> imageGrid = new ArrayList<>();
+            List<BufferedImage> images = new ArrayList<BufferedImage>();
+            int paletteIndex = getPaletteIndex();
+            List<EffectImage> effectImages = effectRenderer.renderAnimation(index, paletteIndex);
+            for (int j = 0; j < effectImages.size(); j++) {
+                images.add((BufferedImage)effectImages.get(j).getImage());
+            }
+            imageGrid.add(images);
+
+            FileUtils.writeImageGridToFile(imageGrid, Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + "-" + paletteIndex + ".png").toString());
+
+            JOptionPane.showMessageDialog(this, "Animation Sheet exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    public void exportMobAnimationSheet(int index) {
+        this.exportMobAnimationSheet(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void exportMobAnimationSheet(int index, int rendererIndex) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Choose export directory");
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            MobRenderer mobRenderer = (MobRenderer) renderers.get(rendererIndex);
+            List<List<BufferedImage>> imageGrid = new ArrayList<>();
+            Mob mob = mobRenderer.mobDna.mobs.get(index);
+            int paletteIndex = getPaletteIndex();
+            for (int i = 0; i < mob.getChunks().size(); i++) {
+                List<BufferedImage> images = new ArrayList<BufferedImage>();
+                List<EffectImage> chunkImages = mobRenderer.renderAnimation(index, i, paletteIndex);
+                for (int j = 0; j < chunkImages.size(); j++) {
+                    images.add((BufferedImage)chunkImages.get(j).getImage());
+                }
+                imageGrid.add(images);
+            }
+            FileUtils.writeImageGridToFile(imageGrid, Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + "-" + paletteIndex + ".png").toString());
+
+            JOptionPane.showMessageDialog(this, "Animation Sheet exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    public void exportPartAnimationSheet(int index) {
+        this.exportPartAnimationSheet(determineEpfIndex(index), determineRendererIndex(index));
+    }
+
+    public void exportPartAnimationSheet(int index, int rendererIndex) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Choose export directory");
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            PartRenderer partRenderer = ((PartRenderer) renderers.get(rendererIndex));
+            List<List<BufferedImage>> imageGrid = new ArrayList<>();
+            Part part = partRenderer.partDsc.parts.get(index);
+            int paletteIndex = getPaletteIndex();
+            for (int i = 0; i < part.getChunks().size(); i++) {
+                List<BufferedImage> images = new ArrayList<BufferedImage>();
+                List<EffectImage> chunkImages = partRenderer.renderAnimation(index, i, paletteIndex);
+                for (int j = 0; j < chunkImages.size(); j++) {
+                    images.add((BufferedImage)chunkImages.get(j).getImage());
+                }
+                imageGrid.add(images);
+            }
+            FileUtils.writeImageGridToFile(imageGrid, Paths.get(fileChooser.getSelectedFile().toString(), singular + "-" + index + "-" + paletteIndex + ".png").toString());
+
+            JOptionPane.showMessageDialog(this, "Animation Sheet exported successfully!", "TKViewer", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+
     @Override
     public void actionPerformed(ActionEvent ae) {
-        int listIndex = list.getSelectedIndex();
+        int itemIndex = itemList.getSelectedIndex();
 
-        if (listIndex == -1) {
+        if (itemIndex == -1) {
             // Don't render anything until a list selection is made
             return;
         }
 
         if (ae.getSource() == this.framesButton) {
-            this.renderFrames(listIndex);
+            this.renderFrames(itemIndex);
         } else if (ae.getSource() == this.animationsButton) {
             if (renderers.get(0) instanceof EffectRenderer) {
-                this.renderEffectAnimations(listIndex);
+                this.renderEffectAnimations(itemIndex);
             } else if (renderers.get(0) instanceof PartRenderer) {
-                this.renderPartAnimations(listIndex);
+                this.renderPartAnimations(itemIndex);
+            } else if (renderers.get(0) instanceof MobRenderer) {
+                this.renderMobAnimations(itemIndex);
             }
-        } else if (ae.getSource() == this.exportButton) {
-            this.exportFrames(listIndex);
+        } else if (ae.getSource() == this.exportFramesButton) {
+            this.exportFrames(itemIndex);
+        } else if (ae.getSource() == this.exportAnimationSheetButton) {
+            if (renderers.get(0) instanceof EffectRenderer) {
+                this.exportEffectAnimationSheet(itemIndex);
+            } else if (renderers.get(0) instanceof PartRenderer) {
+                this.exportPartAnimationSheet(itemIndex);
+            } else if (renderers.get(0) instanceof MobRenderer) {
+                this.exportMobAnimationSheet(itemIndex);
+            }
         }
     }
 }

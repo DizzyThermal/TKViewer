@@ -167,11 +167,11 @@ public class MobRenderer implements Renderer {
         return new int[]{l, t, r, b};
     }
 
-    public List<EffectImage> renderAnimation(int mobIndex, ANIMATIONS animation) {
-        return renderAnimation(mobIndex, animation.ordinal());
+    public List<EffectImage> renderAnimation(int mobIndex, ANIMATIONS animation, int paletteIndex) {
+        return renderAnimation(mobIndex, animation.ordinal(), paletteIndex);
     }
 
-    public List<EffectImage> renderAnimation(int mobIndex, int chunkIndex) {
+    public List<EffectImage> renderAnimation(int mobIndex, int chunkIndex, int paletteIndex) {
         Mob mob = this.mobDna.mobs.get(mobIndex);
         MobChunk chunk = mob.getChunks().get(chunkIndex);
 
@@ -193,18 +193,19 @@ public class MobRenderer implements Renderer {
             MobBlock block = chunk.getBlocks().get(i);
             int frameIndex = (int)(mob.getFrameIndex() + block.getFrameOffset());
 
-            BufferedImage tile = this.renderMob(frameIndex, mob.getPaletteId());
+            BufferedImage tile = this.renderMob(frameIndex, paletteIndex >= 0 ? paletteIndex : mob.getPaletteId());
             Frame frame = FileUtils.getFrameFromEpfs(frameIndex, mobEpfs);
             if (frame == null) {
                 continue;
             }
 
+            float alpha = 1.0f - ((float) block.getTransparency() / 255.0f);
+            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
             graphicsObject.drawImage(
                     tile,
                     null,
                     (frame.getLeft() - l),
                     (frame.getTop() - t));
-            graphicsObject.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)block.getTransparency()/(float)255));
 
             images.add(new EffectImage(frameImage, block.getDuration(), null, null));
         }
@@ -233,7 +234,12 @@ public class MobRenderer implements Renderer {
     }
 
     @Override
-    public Image[] getFrames(int index) {
+    public long getPaletteCount() {
+        return this.mobPal.paletteCount;
+    }
+
+    @Override
+    public Image[] getFrames(int index, int paletteIndex) {
         Mob mob = this.mobDna.mobs.get(index);
         int frameIndex = (int)mob.getFrameIndex();
         int maxFrameOffset = 0;
@@ -248,7 +254,7 @@ public class MobRenderer implements Renderer {
         int imageCount = maxFrameOffset + 1;
         Image[] frames = new Image[imageCount];
         for (int i = 0; i < imageCount; i++) {
-            frames[i] = this.renderMob(frameIndex + i, mob.getPaletteId());
+            frames[i] = this.renderMob(frameIndex + i, paletteIndex >= 0 ? paletteIndex : mob.getPaletteId());
         }
 
         return frames;

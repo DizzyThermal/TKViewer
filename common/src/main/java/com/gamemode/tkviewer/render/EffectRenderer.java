@@ -45,7 +45,7 @@ public class EffectRenderer implements Renderer {
         this.tileRenderer = new TileRenderer(effectEpfs, effectPal, effectFrm);
     }
 
-    public List<EffectImage> renderEffect(int effectIndex) {
+    public List<EffectImage> renderAnimation(int effectIndex, int paletteIndex) {
         // Determine Frame Range for Effect
         List<EffectFrame> effectFrames = this.effectEfxTbl.effects.get(effectIndex).getEffectFrames();
         int effectFrameCount = effectFrames.size();
@@ -83,7 +83,10 @@ public class EffectRenderer implements Renderer {
             Graphics2D graphicsObject = frameImage.createGraphics();
             EffectFrame effectFrame = effectFrames.get(i);
 
-            BufferedImage tile = this.renderEffectImage(effectFrame.getFrameIndex(), this.effectFrm.paletteIndices.get(effectFrame.getFrameIndex()));
+            BufferedImage tile = this.renderEffect(
+                effectFrame.getFrameIndex(),
+                paletteIndex >= 0 ? paletteIndex : this.effectFrm.paletteIndices.get(effectFrame.getFrameIndex())
+            );
             Frame frame = FileUtils.getFrameFromEpfs(effectFrame.getFrameIndex(), effectEpfs);
             if (frame == null) {
                 continue;
@@ -101,7 +104,7 @@ public class EffectRenderer implements Renderer {
         return images;
     }
 
-    public BufferedImage renderEffectImage(int tileIndex, int paletteIndex) {
+    public BufferedImage renderEffect(int tileIndex, int paletteIndex) {
         int epfIndex = 0;
 
         int frameCount = 0;
@@ -170,8 +173,13 @@ public class EffectRenderer implements Renderer {
     }
 
     @Override
-    public Image[] getFrames(int index) {
-        List<EffectImage> effects = this.renderEffect(index);
+    public long getPaletteCount() {
+        return this.effectPal.paletteCount;
+    }
+
+    @Override
+    public Image[] getFrames(int index, int paletteIndex) {
+        List<EffectImage> effects = this.renderAnimation(index, paletteIndex);
         Image[] frames = new Image[effects.size()];
         for (int i = 0; i < frames.length; i++) {
             frames[i] = effects.get(i).getImage();
