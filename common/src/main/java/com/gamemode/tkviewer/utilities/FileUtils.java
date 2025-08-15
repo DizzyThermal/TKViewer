@@ -234,6 +234,9 @@ public class FileUtils {
 
             for (int i = 0; i < imageGrid.size(); i++) {
                 List<BufferedImage> imageList = imageGrid.get(i);
+                if (imageList.size() == 0) {
+                    continue;
+                }
                 Image first = (Image)imageList.get(0);
                 int width = first.getWidth(null);
                 int height = first.getHeight(null);
@@ -247,6 +250,9 @@ public class FileUtils {
             int y = 0;
             for (int i = 0; i < imageGrid.size(); i++) {
                 List<BufferedImage> imageList = imageGrid.get(i);
+                if (imageList.size() == 0) {
+                    continue;
+                }
                 Image first = (Image)imageList.get(0);
 
                 // All images within one chunk are to be same size
